@@ -216,7 +216,7 @@ Core = floor(
 Core = min(Core, SoftCapPerRun)
 ```
 
-- 局内商店花 **Scrap**；拾取可为 Coin 并入局内 Scrap。勿与 Core 混存。
+- 局内商店花 **Scrap**；拾取可为 Coin 并入局内 Scrap。勿与 Core 混存。Lab 商店壳是 **F11**（非 Shipping）。`F10` 仍是事件壳，不拿来开商店。购买 Demo 只改本地 DemoScrap；日后流程再 `AddRunScrap(-Price)`。
 - MVP 永久：5 节点（开局 HP / 开局 Scrap / 豆射手微幅等），**不改变局内词条公式**。明细 → `RoguelikeMeta.md` §7。
 
 结算 UI：`WBP_RunSummary`（时长、击杀、构筑列表、入账 Core）。

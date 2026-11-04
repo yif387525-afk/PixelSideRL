@@ -27,6 +27,7 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | F8 | `ResolveEventChoice("AbandonedCache","CarefulLoot")`（非 Shipping）。Output Log 见 Scrap +25。`Docs/EventOps_API.md` |
 | F9 | 同上，`ForceLoot`：先 −15 HP（下限 1）再 +50 Scrap。不改手感表 |
 | F10 | 开 `WBP_EventChoice`（非 Shipping）。AbandonedCache 标题、正文、小心撬开 / 硬拽出来、走开（无奖励）。只停移动和开火，不暂停世界，不调用 Resolve。不占 F8 / F9。见 `Docs/UI_Wireframes_Event.md` |
+| F11 | 开商店壳（非 Shipping）。3 格读 `DA_Shop*`，`Scrap 128`。买回复 → Sold / `Scrap 98` → Leave。不调用 `AddRunScrap`，不占 F6–F10 |
 
 正式局内 HUD（`UPixelHUDWidget`，显示名 `WBP_HUD`）由玩家 `AC_HUDPresenter` 放进视口，Play Entry / Lab 就能看见：安全区 8px 的顶栏（血条、武器块、弹药、`Scrap`、最多 8 个词条格）。默认满血、弹药 `99`、`Scrap 000`。血和 Scrap 还没有战斗只读接口，用 `SetHealthRatio` / `SetScrap`。它不读调试战斗 HUD。调试条仍在 (8, 40)。做法见 `Content/Blueprints/UI/README.md`。
 

@@ -1,6 +1,6 @@
 # Content/Blueprints/UI
 
-Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`、`WBP_EventChoice`。线框见 Docs/UI_Wireframes_P0.md 与 Docs/UI_Wireframes_Event.md。
+Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`、`WBP_EventChoice`。P1 商店壳：`WBP_Shop`、`WBP_ShopSlot`。线框见 Docs/UI_Wireframes_P0.md、Docs/UI_Wireframes_Event.md 与 Docs/UI_Wireframes_P1.md。
 
 `WBP_DebugCombatHUD` 不放这里。它只属于 `Content/_Dev/Combat/UI/`。正式 HUD 不要引用它。
 
@@ -16,6 +16,8 @@ Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WB
 | `WBP_AffixCard` | `UPixelAffixCardWidget` | `WBP_AffixCard` | `Source/PixelSideRL/Public/UI/PixelAffixCardWidget.h` |
 | `WBP_EventChoice` | `UPixelEventChoiceWidget` | `WBP_EventChoice` | `Source/PixelSideRL/Public/UI/PixelEventChoiceWidget.h` |
 | `WBP_EventChoiceButton` | `UPixelEventChoiceButton` | `WBP_EventChoiceButton` | `Source/PixelSideRL/Public/UI/PixelEventChoiceButton.h` |
+| `WBP_Shop` | `UPixelShopWidget` | `WBP_Shop` | `Source/PixelSideRL/Public/UI/PixelShopWidget.h` |
+| `WBP_ShopSlot` | `UPixelShopSlotWidget` | `WBP_ShopSlot` | `Source/PixelSideRL/Public/UI/PixelShopSlotWidget.h` |
 
 路径：`Content/Blueprints/UI/`。画布逻辑 640×360，安全区 8px。三张卡实例名必须是 `Card_0`、`Card_1`、`Card_2`。
 
@@ -76,6 +78,58 @@ Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WB
 | `Txt_Stacks` | Text Block，可选 | `bOwned` 且 `Stacks > 0` 时 `xN` |
 
 只读这四项加可选层数。不要读 `UAffixDefinition` 上的 Modifier、Weight、Tags。
+
+### `WBP_Shop`
+
+`Room_Shop_01` 是 **3** 格横排（`Slot_1` `Slot_2` `Slot_3`，容器 `HB_Slots`）。线框 ASCII 的 2×2 / 4 格不落地；第四格不建控件。
+
+货位和标价读 `Content/Data/Shop/DA_ShopInventory.json` + `DA_ShopPriceCurve.json`（JSON 失败才读同名 CSV）。不提交 uasset，不 `LoadObject` 武器 DA。层 1 用 `baseScrap`。`resolvedScrap = baseScrap * layerMultiplier`，不另起整数。
+
+| 控件名 | 类型 |
+|--------|------|
+| `Overlay_Root` | Overlay，全屏 |
+| `Img_Dim` | Image，`#000000` 60% |
+| `Txt_Title` | Text Block，`商店` |
+| `Txt_Scrap` | Text Block，`Scrap N`，`#FFD54A` |
+| `HB_Slots` | Horizontal Box，间距 12。线框名 `UG_Slots` 是 4 格演示 |
+| `Slot_1` `Slot_2` `Slot_3` | `WBP_ShopSlot`，128×100 |
+| `Btn_Reroll` | Button，文案 `刷新 25` |
+| `Btn_Leave` | Button，文案 `离开` |
+| `Txt_Hint` | Text Block，`← → 选格 · Enter 买 · R 刷新 · Esc 离开` |
+
+`Txt_Reroll` / `Txt_Leave` 只是按钮里的文案，可选绑定。
+
+默认货架（层 1，表里的字段，不是线框那 4 个假名）：
+
+| 控件 | 表 | 展示 | 价 |
+|------|----|------|----|
+| `Slot_1` | `WeaponContract`，`PickOneFromPool` | 池中第一把（豆射手 / `WeaponContract_Peashooter`） | `Weapon_Peashooter` → 45 |
+| `Slot_2` | `Heal` / `HealMaxHp` | 回复，`Heal · 40% MaxHP` | `Heal` → 30 |
+| `Slot_3` | `AffixVoucher` / `AffixChoiceVoucher` | 三选一券 | `AffixVoucher` → 60 |
+
+Scrap 不够：格子灰显（表字段 `insufficientScrap = GreyOut`），不扣款。点了会抖 2px。Esc / `Btn_Leave` 直接关，不强制买。
+
+购买、刷新、离开只改本控件上的 **DemoScrap**（开店 128）和 Sold。不发武器、不回血、不写 JSON、不调用 `RequestAffixChoice`，也不调用 `UEventSubsystem::AddRunScrap`。日后房间流程扣真钱包用 `AddRunScrap(-Price)`。`RunScrap` 与 HUD 的 `Txt_Coin` 都不要在这只壳里改。
+
+刷新价 **25** 来自线框，不在价格曲线里。Demo 刷新只把未售出的武器格换成池中下一把，价格仍查曲线。
+
+券：`OnBuyItem` → 关店（`OnShopClosed`，并解开这次 Demo 暂停）→ `OnRequestAffixChoiceFromVoucher`。监听方再开三选一。
+
+没有商店暂停 API。`OpenShopDemo` / `OpenShop(..., bDemoPause=true)` 才 `SetGamePaused`。流程自己暂停时传 false。视口 Z = 80（HUD 10，三选一 100）。这不是第二个 Presenter。
+
+### `WBP_ShopSlot`（128×100）
+
+| 控件名 | 类型 |
+|--------|------|
+| `Border_Frame` | Border。焦点 1px 白边；买不起或 Sold 时灰边 |
+| `Btn_Buy` | Button，铺满 |
+| `Img_Icon` | Image 24×24。表里没有图标就用灰块，不造贴图 |
+| `Txt_Name` | 武器用池内 `displayName`；回复 / 券用槽 `displayName` |
+| `Txt_Kind` | `WeaponContract` / `Heal · N% MaxHP` / `AffixVoucher` |
+| `Txt_Price` | `45 Scrap` 这种。买不起变灰，不变红 |
+| `Img_SoldOut` | Sold 时的斜杠 |
+
+若调用方在行上放了 `AffixDef`，只读 `GetAffixCardView` 的 Name / Desc / Rarity / Icon。锁表三行没有 Def。Desc 放在购买按钮的 tooltip 上，因为槽位没有 `Txt_Desc`。
 
 ## 挂载 HUD
 
@@ -172,5 +226,8 @@ Run / Lab：
 7. 血和 Scrap 还没有战斗只读接口。对视口里的 `UPixelHUDWidget` 调 `SetHealthRatio` / `SetScrap`（默认满血、`Scrap 000`）。≤0.25 血条变红并闪，≤0 血条空。
 8. `F10`：事件遮罩。标题「废弃补给箱」，两个按钮「小心撬开」「硬拽出来」，跳过「走开（无奖励）」。正式 HUD 仍挂在底下（Z 10），不被拆掉。移动和开火停住，游戏时间不暂停。`F8` / `F9` 仍是不打开界面的直调 Resolve。
 9. 按 `1` 或点「小心撬开」。遮罩消失，Log 为 `OnEventChoiceSelected ChoiceId=CarefulLoot`。可以再走再开火。不加 Scrap，不扣血，不弹出三选一。再按 `F10` 后点跳过或 Esc：`OnEventSkipped`，无奖励。
+10. `F11` 开商店。遮罩下仍能看见 HUD。三格：豆射手 45、回复 30、三选一券 60。右上 `Scrap 128`。`F6`–`F10` 不改。
+11. 点回复或把焦点移过去按 Enter。该格变 Sold，`Scrap 98`。
+12. `离开` 或 Esc。遮罩消失，人能走能开火。再按 `F11` 会把 Demo 货架和 128 重置。买券只发 `OnRequestAffixChoiceFromVoucher`，不自己开三选一，也不 `AddRunScrap`。
 
 要临时看 #29 文本条：清掉 `AffixChoiceWidgetClass`，把 `bEnableNativeChoiceUI` 勾回去。不要两个同时开。不要关 `AC_HUDPresenter` 来换那条文本。

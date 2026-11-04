@@ -14,9 +14,9 @@
 | `WBP_HUD` | [UI_Wireframes_P0.md](./UI_Wireframes_P0.md) §1 | `Content/Blueprints/UI/` | ✅ C++ `UPixelHUDWidget` + 配方 · 无 uasset。词条格 `UPixelHUDAffixIconWidget` |
 | `WBP_AffixChoice` | P0 §2 | 同上 | ✅ C++ `UPixelAffixChoiceWidget` + 配方 · 无 uasset |
 | `WBP_AffixCard` | P0 §2.2 | 同上 | ✅ C++ `UPixelAffixCardWidget` + 配方 · 无 uasset |
-| `WBP_EventChoice` | [UI_Wireframes_Event.md](./UI_Wireframes_Event.md) | 同上 | ✅ C++ `UPixelEventChoiceWidget` + 配方 · 无 uasset |
-| `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ 线框 |
-| `WBP_ShopSlot` | P1 §1.2 | 同上 | ✅ 线框 |
+| `WBP_EventChoice` | [UI_Wireframes_Event.md](./UI_Wireframes_Event.md) | 同上 | ✅ C++ `UPixelEventChoiceWidget` + 配方 · 无 uasset。Lab `F10` |
+| `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ C++ `UPixelShopWidget` + 配方 · 无 uasset。3 格读 `DA_ShopInventory` / `DA_ShopPriceCurve`。Lab `F11` |
+| `WBP_ShopSlot` | P1 §1.2 | 同上 | ✅ C++ `UPixelShopSlotWidget` + 配方 · 无 uasset |
 | `WBP_RunSummary` | P1 §2 | 同上 | ✅ 线框 |
 | `WBP_Hub` | [UI_Wireframes_Hub.md](./UI_Wireframes_Hub.md) §1 | 同上 | ✅ 线框 |
 | `WBP_Hub_Upgrade` | Hub §2 | 同上 | ✅ 线框 |
@@ -37,7 +37,7 @@
 | `WBP_AffixCard` | `GetAffixCardView` → **Name, Desc, Rarity, Icon**（可选 AffixId / Stacks / bOwned） | — |
 | `WBP_AffixChoice` | 听 `OnAffixChoiceOffered`；关 `OnAffixChoiceClosed`。挂 `AC_AffixChoicePresenter`，**`bEnableNativeChoiceUI = false`** | `ConfirmAffixChoice(Index)` |
 | `WBP_HUD` 词条条 | 听 `OnAffixChanged`；`GetOwnedAffixes` → **Icon, AffixId**。壳是 `UPixelHUDWidget`，挂 `AC_HUDPresenter` | — |
-| `WBP_Shop` Affix 商品 | 展示同 `GetAffixCardView` | 购后走 Roguelike/流程（非 UI 公式） |
+| `WBP_Shop` 若行上带了 AffixDef | 展示同 `GetAffixCardView` 的 Name / Desc / Rarity / Icon | 锁表三行不是词条卡。购后走流程 |
 
 **禁止：** UI 直接扒 DA 未列字段；UI 不 `RollChoices` / `RequestAffixChoice`。
 
@@ -60,6 +60,14 @@
 | RerollCost | `Btn_Reroll` |
 
 事件：`OnBuyItem` / `OnReroll` / `OnShopClosed` / `OnRequestAffixChoiceFromVoucher`。
+
+C++ 壳 `UPixelShopWidget` / `UPixelShopSlotWidget`。格数按 `Room_Shop_01` 为 3（`Slot_1..3`）。线框 4 格不落地。
+
+`OpenShopDemo` 读 `DA_ShopInventory.json` 与 `DA_ShopPriceCurve.json`：`Slot_1` 武器合约池展示一把（默认豆射手，价 `Weapon_Peashooter`），`Slot_2` Heal 30 / 约 40% MaxHP，`Slot_3` AffixVoucher 60。Scrap 不足按表 **GreyOut**。可 Leave 跳过。
+
+本壳只改本地 DemoScrap（起始 128，刷新 25 不在价格曲线里）。不发武器、不回血、不写表、不 `RequestAffixChoice`，也不调用 `UEventSubsystem::AddRunScrap`。日后流程扣真钱包：`AddRunScrap(-Price)`。HUD `Txt_Coin` 不在这只壳里改。
+
+券：`OnBuyItem` 之后关店（`OnShopClosed`），再 `OnRequestAffixChoiceFromVoucher`。没有商店暂停 API；`OpenShopDemo` 才 `SetGamePaused`。Lab 键是 `F11`（`F6`–`F10` 不占；`F10` 是事件壳）。
 
 ### 2.4 结算 · `FRunSummaryView`（P1）
 
@@ -127,7 +135,7 @@
 | `Entry` | `WBP_MainMenu` |
 | `Hub` | `WBP_Hub`（+ Upgrade 叠层） |
 | Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop / EventChoice；结束 RunSummary |
-| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F6` 刷 HUD 词条格。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界，不 Resolve） |
+| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F6` 刷 HUD 词条格。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界，不 Resolve）。`F11` 弹 `UPixelShopWidget`（DemoScrap 128，不写 RunScrap） |
 
 ---
 
@@ -147,7 +155,7 @@
 
 1. `WBP_MainMenu` → `WBP_Hub` / Upgrade  
 2. `WBP_HUD` + `WBP_AffixChoice` / Card（C++ 父类已在，无 uasset）  
-3. `WBP_Shop` / Slot → `WBP_RunSummary`  
+3. `WBP_Shop` / Slot（C++ 壳已读 #35 表）→ `WBP_RunSummary`  
 4. `WBP_DebugCombatHUD`（可并行 _Dev）  
 
 完成后本索引保持为单页入口；细节仍以各 Wireframes 文件为准。

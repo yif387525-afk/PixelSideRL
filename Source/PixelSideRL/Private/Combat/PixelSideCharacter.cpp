@@ -36,6 +36,7 @@
 #include "UI/PixelDebugCombatHUD.h"
 #include "UI/PixelEventChoiceWidget.h"
 #include "UI/PixelHUDWidget.h"
+#include "UI/PixelShopWidget.h"
 
 APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UPixelSideCharacterMovement>(ACharacter::CharacterMovementComponentName))
@@ -210,6 +211,15 @@ void APixelSideCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		EventChoiceWidget = nullptr;
 	}
 	bEventChoiceBlockingControl = false;
+	if (DebugShopWidget)
+	{
+		if (DebugShopWidget->IsShopOpen())
+		{
+			DebugShopWidget->CloseShop();
+		}
+		DebugShopWidget->RemoveFromParent();
+		DebugShopWidget = nullptr;
+	}
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -268,6 +278,7 @@ void APixelSideCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	Enhanced->BindAction(DebugEventCarefulLootAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventCarefulLoot);
 	Enhanced->BindAction(DebugEventForceLootAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventForceLoot);
 	Enhanced->BindAction(DebugEventChoiceAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventChoice);
+	Enhanced->BindAction(DebugOpenShopAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugOpenShop);
 #endif
 }
 
@@ -365,6 +376,9 @@ void APixelSideCharacter::EnsureCombatInput()
 	CombatMappingContext->MapKey(DebugEventCarefulLootAction, EKeys::F8);
 	CombatMappingContext->MapKey(DebugEventForceLootAction, EKeys::F9);
 	CombatMappingContext->MapKey(DebugEventChoiceAction, EKeys::F10);
+	DebugOpenShopAction = NewObject<UInputAction>(this, TEXT("IA_DebugOpenShop"));
+	DebugOpenShopAction->ValueType = EInputActionValueType::Boolean;
+	CombatMappingContext->MapKey(DebugOpenShopAction, EKeys::F11);
 #endif
 }
 
@@ -492,9 +506,12 @@ bool APixelSideCharacter::IsAffixChoiceBlockingControl() const
 {
 	if (const UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
 	{
-		return Affix->IsChoicePending();
+		if (Affix->IsChoicePending())
+		{
+			return true;
+		}
 	}
-	return false;
+	return DebugShopWidget && DebugShopWidget->IsShopOpen();
 }
 
 bool APixelSideCharacter::IsCombatInputBlocked() const
@@ -725,6 +742,53 @@ void APixelSideCharacter::HandleDebugEventChoice(const FInputActionValue& Value)
 		return;
 	}
 	Widget->PresentAbandonedCacheDemo();
+#else
+	(void)Value;
+#endif
+}
+
+void APixelSideCharacter::HandleDebugOpenShop(const FInputActionValue& Value)
+{
+#if !UE_BUILD_SHIPPING
+	(void)Value;
+	if (IsEventChoiceBlockingControl() || IsAffixChoiceBlockingControl())
+	{
+		return;
+	}
+	if (DebugShopWidget && DebugShopWidget->IsShopOpen())
+	{
+		return;
+	}
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+	{
+		return;
+	}
+	const TSubclassOf<UPixelShopWidget> Class = DebugShopWidgetClass
+		? DebugShopWidgetClass
+		: TSubclassOf<UPixelShopWidget>(UPixelShopWidget::StaticClass());
+	if (DebugShopWidget && DebugShopWidget->GetClass() != Class)
+	{
+		DebugShopWidget->RemoveFromParent();
+		DebugShopWidget = nullptr;
+	}
+	if (!DebugShopWidget)
+	{
+		DebugShopWidget = CreateWidget<UPixelShopWidget>(PC, Class);
+	}
+	if (!DebugShopWidget)
+	{
+		return;
+	}
+	if (WeaponController)
+	{
+		WeaponController->SetWantsToFire(false);
+	}
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->StopMovementImmediately();
+	}
+	DebugShopWidget->OpenShopDemo();
 #else
 	(void)Value;
 #endif
