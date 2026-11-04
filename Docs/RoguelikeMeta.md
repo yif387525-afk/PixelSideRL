@@ -237,7 +237,32 @@ Core = min(Core, SoftCapPerRun)   // 单局入账软顶
 
 ---
 
+
+---
+
+## 9.5 近端：三选一最小闭环（P0.6）
+
+**前置：** P0.5 Grunt 可击杀（或 Debug「假清房」事件）。  
+**范围：** 不做商店券、不做 Boss 高稀有偏置 UI；稀有度可先固定普通房 bias。
+
+| 步骤 | 要求 |
+|------|------|
+| 触发 | `UAffixSubsystem::RollChoices(3)`；数据源 `DT_Affix_MVP` / `DA_Affix_*` |
+| UI | `WBP_AffixChoice`：3 卡、稀有度色边、选 1 必选 |
+| 应用 | `AC_AffixInventory::AddAffix` → 重算 Modifier → 广播 |
+| 可感知验收 | 选 `RapidFire` 后 Peashooter 射速 ↑（对照 `CombatFeel` FireInterval/GetStat） |
+| 失败态 | 未选不可关；池空回退 Common 可重复条并打日志 |
+
+正式里程碑顺序见 `GDD.md` §6.5（P0.5→P0.6→P0.7→P0.8）。
+
 ## 9. 验收
+
+### 近端（P0.6）优先勾
+
+- [ ] Debug 或清房可弹出三选一
+- [ ] 10 Id 均可被抽到（权重可先不管手感）
+- [ ] `RapidFire` 选中后射速乘区生效
+- [ ] `Magnet` / `TwinShot` / `GlassCannon` Unique 不重复
 
 - [ ] 10 个 PascalCase AffixId（`RapidFire`…`Scavenger`）均可配表并出现在三选一
 - [ ] `Magnet` 保留在 MVP 池；无另起 Id
@@ -249,3 +274,13 @@ Core = min(Core, SoftCapPerRun)   // 单局入账软顶
 - [ ] Meta 5 节点只影响开局 / `MetaCoreMult`；不改词条池；无 UnlockAffix→Piercer/TwinShot
 - [ ] `DA_Economy` 定稿系数与公式入账 `FMetaSaveData.Core`，受 SoftCapPerRun
 - [ ] 商店三槽价格可配；局内 Scrap 不足不可买；Hub 花 Core
+
+---
+
+## 变更记录
+
+| 日期 | 作者 | 说明 |
+|------|------|------|
+| 2026-11-04 | 织局 | 首版：10 AffixId、构筑、经济 Core、Meta 五节点 |
+| 2026-11-04 | 织局 / 词条官 | 对齐 contractVersion=3；冻 `DA_Affix_<AffixId>` |
+| 2026-11-05 | 织局 | 签收手感本版；补 P0.6 三选一最小闭环定义与近端验收；顺序服从 GDD §6.5 |
