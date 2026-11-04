@@ -21,6 +21,7 @@ class UDamageableComponent;
 class UStatModifiersComponent;
 class UCombatDebugReadComponent;
 class UPixelDebugCombatHUD;
+class UPixelEventChoiceWidget;
 
 /**
  * Side-view player. Parent BP_PlayerSideScroller to this class.
@@ -58,6 +59,16 @@ public:
 	UFUNCTION(BlueprintPure, Category = "PixelSide")
 	UStatModifiersComponent* GetStatModifiers() const { return Stats; }
 
+	/**
+	 * Ignore move, jump, and fire while WBP_EventChoice is open.
+	 * Does not pause the world, so door overlaps keep ticking.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "PixelSide|Event")
+	void SetEventChoiceBlocksControl(bool bBlock);
+
+	UFUNCTION(BlueprintPure, Category = "PixelSide|Event")
+	bool IsEventChoiceBlockingControl() const { return bEventChoiceBlockingControl; }
+
 	/** Dev overlay switch. Shipping builds force this off. Formal WBP_HUD must not reference the debug widget. */
 	UFUNCTION(BlueprintPure, Category = "PixelSide|Debug")
 	bool IsCombatDebugHUDEnabled() const { return bEnableCombatDebugHUD; }
@@ -75,6 +86,8 @@ protected:
 	void RefreshFromStats();
 	void BeginAffixRun();
 	bool IsAffixChoiceBlockingControl() const;
+	bool IsCombatInputBlocked() const;
+	UPixelEventChoiceWidget* EnsureEventChoiceWidget();
 
 	UFUNCTION()
 	void HandleMove(const FInputActionValue& Value);
@@ -105,6 +118,18 @@ protected:
 
 	UFUNCTION()
 	void HandleDebugEventForceLoot(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void HandleDebugEventChoice(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void HandleEventChoiceSelected(FName ChoiceId);
+
+	UFUNCTION()
+	void HandleEventSkipped();
+
+	UFUNCTION()
+	void HandleEventClosed();
 
 	UFUNCTION()
 	void HandleAffixChoiceOffered(const TArray<FAffixChoiceEntry>& Choices);
@@ -216,6 +241,10 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UInputAction> DebugAffixChoiceAction = nullptr;
 
+	/** Non-shipping. F10 opens the AbandonedCache shell. F8/F9 stay direct Resolve. */
+	UPROPERTY(Transient)
+	TObjectPtr<UInputAction> DebugEventChoiceAction = nullptr;
+
 	UPROPERTY(Transient)
 	TObjectPtr<UInputAction> DebugEventCarefulLootAction = nullptr;
 
@@ -224,6 +253,12 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputMappingContext> CombatMappingContext = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPixelEventChoiceWidget> EventChoiceWidget = nullptr;
+
+	/** Move / jump / fire gate for WBP_EventChoice. World time is not paused. */
+	bool bEventChoiceBlockingControl = false;
 
 	float FacingSign = 1.f;
 	float CoyoteTimeRemaining = 0.f;

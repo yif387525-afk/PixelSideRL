@@ -34,6 +34,7 @@
 #include "PaperFlipbookComponent.h"
 #include "UI/PixelAffixChoiceWidget.h"
 #include "UI/PixelDebugCombatHUD.h"
+#include "UI/PixelEventChoiceWidget.h"
 #include "UI/PixelHUDWidget.h"
 
 APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitializer)
@@ -200,6 +201,15 @@ void APixelSideCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		CombatDebugHUD->RemoveFromParent();
 		CombatDebugHUD = nullptr;
 	}
+	if (EventChoiceWidget)
+	{
+		EventChoiceWidget->OnEventChoiceSelected.RemoveDynamic(this, &APixelSideCharacter::HandleEventChoiceSelected);
+		EventChoiceWidget->OnEventSkipped.RemoveDynamic(this, &APixelSideCharacter::HandleEventSkipped);
+		EventChoiceWidget->OnEventClosed.RemoveDynamic(this, &APixelSideCharacter::HandleEventClosed);
+		EventChoiceWidget->RemoveFromParent();
+		EventChoiceWidget = nullptr;
+	}
+	bEventChoiceBlockingControl = false;
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -257,6 +267,7 @@ void APixelSideCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	Enhanced->BindAction(DebugAffixChoiceAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugAffixChoice);
 	Enhanced->BindAction(DebugEventCarefulLootAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventCarefulLoot);
 	Enhanced->BindAction(DebugEventForceLootAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventForceLoot);
+	Enhanced->BindAction(DebugEventChoiceAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventChoice);
 #endif
 }
 
@@ -342,6 +353,8 @@ void APixelSideCharacter::EnsureCombatInput()
 	DebugGrantRapidFireAction->ValueType = EInputActionValueType::Boolean;
 	DebugAffixChoiceAction = NewObject<UInputAction>(this, TEXT("IA_DebugAffixChoice"));
 	DebugAffixChoiceAction->ValueType = EInputActionValueType::Boolean;
+	DebugEventChoiceAction = NewObject<UInputAction>(this, TEXT("IA_DebugEventChoice"));
+	DebugEventChoiceAction->ValueType = EInputActionValueType::Boolean;
 	CombatMappingContext->MapKey(DebugHurtAction, EKeys::H);
 	CombatMappingContext->MapKey(DebugGrantRapidFireAction, EKeys::F6);
 	CombatMappingContext->MapKey(DebugAffixChoiceAction, EKeys::F7);
@@ -351,6 +364,7 @@ void APixelSideCharacter::EnsureCombatInput()
 	DebugEventForceLootAction->ValueType = EInputActionValueType::Boolean;
 	CombatMappingContext->MapKey(DebugEventCarefulLootAction, EKeys::F8);
 	CombatMappingContext->MapKey(DebugEventForceLootAction, EKeys::F9);
+	CombatMappingContext->MapKey(DebugEventChoiceAction, EKeys::F10);
 #endif
 }
 
@@ -483,9 +497,65 @@ bool APixelSideCharacter::IsAffixChoiceBlockingControl() const
 	return false;
 }
 
+bool APixelSideCharacter::IsCombatInputBlocked() const
+{
+	return IsEventChoiceBlockingControl() || IsAffixChoiceBlockingControl();
+}
+
+void APixelSideCharacter::SetEventChoiceBlocksControl(bool bBlock)
+{
+	if (bEventChoiceBlockingControl == bBlock)
+	{
+		return;
+	}
+	bEventChoiceBlockingControl = bBlock;
+	UE_LOG(LogPixelSideCombat, Log, TEXT("EventChoice move/fire block=%s. World is not paused."), bBlock ? TEXT("on") : TEXT("off"));
+	if (!bBlock)
+	{
+		return;
+	}
+	if (WeaponController)
+	{
+		WeaponController->SetWantsToFire(false);
+	}
+	bJumpHeld = false;
+	JumpBufferRemaining = 0.f;
+	StopJumping();
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->StopMovementImmediately();
+	}
+}
+
+UPixelEventChoiceWidget* APixelSideCharacter::EnsureEventChoiceWidget()
+{
+#if UE_BUILD_SHIPPING
+	return nullptr;
+#else
+	if (EventChoiceWidget)
+	{
+		return EventChoiceWidget;
+	}
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+	{
+		return nullptr;
+	}
+	EventChoiceWidget = CreateWidget<UPixelEventChoiceWidget>(PC, UPixelEventChoiceWidget::StaticClass());
+	if (!EventChoiceWidget)
+	{
+		return nullptr;
+	}
+	EventChoiceWidget->OnEventChoiceSelected.AddDynamic(this, &APixelSideCharacter::HandleEventChoiceSelected);
+	EventChoiceWidget->OnEventSkipped.AddDynamic(this, &APixelSideCharacter::HandleEventSkipped);
+	EventChoiceWidget->OnEventClosed.AddDynamic(this, &APixelSideCharacter::HandleEventClosed);
+	return EventChoiceWidget;
+#endif
+}
+
 void APixelSideCharacter::HandleMove(const FInputActionValue& Value)
 {
-	if (IsAffixChoiceBlockingControl())
+	if (IsCombatInputBlocked())
 	{
 		return;
 	}
@@ -499,7 +569,7 @@ void APixelSideCharacter::HandleMove(const FInputActionValue& Value)
 
 void APixelSideCharacter::HandleJumpStarted(const FInputActionValue& Value)
 {
-	if (IsAffixChoiceBlockingControl())
+	if (IsCombatInputBlocked())
 	{
 		return;
 	}
@@ -521,7 +591,7 @@ void APixelSideCharacter::HandleJumpCompleted(const FInputActionValue& Value)
 
 void APixelSideCharacter::HandleFireStarted(const FInputActionValue& Value)
 {
-	if (IsAffixChoiceBlockingControl())
+	if (IsCombatInputBlocked())
 	{
 		return;
 	}
@@ -542,6 +612,10 @@ void APixelSideCharacter::HandleFireCompleted(const FInputActionValue& Value)
 void APixelSideCharacter::HandleDebugHurt(const FInputActionValue& Value)
 {
 #if !UE_BUILD_SHIPPING
+	if (IsEventChoiceBlockingControl())
+	{
+		return;
+	}
 	if (!Damageable || !GetWorld())
 	{
 		return;
@@ -573,6 +647,10 @@ void APixelSideCharacter::HandleDebugGrantRapidFire(const FInputActionValue& Val
 {
 #if !UE_BUILD_SHIPPING
 	(void)Value;
+	if (IsEventChoiceBlockingControl())
+	{
+		return;
+	}
 	if (UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
 	{
 		Affix->DebugGrantAffix(FName(TEXT("RapidFire")));
@@ -586,6 +664,10 @@ void APixelSideCharacter::HandleDebugAffixChoice(const FInputActionValue& Value)
 {
 #if !UE_BUILD_SHIPPING
 	(void)Value;
+	if (IsEventChoiceBlockingControl())
+	{
+		return;
+	}
 	if (UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
 	{
 		Affix->RequestAffixChoice(EAffixOfferSource::NormalRoom);
@@ -621,6 +703,48 @@ void APixelSideCharacter::HandleDebugEventForceLoot(const FInputActionValue& Val
 #else
 	(void)Value;
 #endif
+}
+
+void APixelSideCharacter::HandleDebugEventChoice(const FInputActionValue& Value)
+{
+#if !UE_BUILD_SHIPPING
+	(void)Value;
+	if (IsAffixChoiceBlockingControl())
+	{
+		UE_LOG(LogPixelSideCombat, Log, TEXT("F10 ignored: affix choice is open. F6 and F7 are unchanged."));
+		return;
+	}
+	if (IsEventChoiceBlockingControl())
+	{
+		return;
+	}
+	UPixelEventChoiceWidget* Widget = EnsureEventChoiceWidget();
+	if (!Widget)
+	{
+		UE_LOG(LogPixelSideCombat, Warning, TEXT("F10 could not create WBP_EventChoice."));
+		return;
+	}
+	Widget->PresentAbandonedCacheDemo();
+#else
+	(void)Value;
+#endif
+}
+
+void APixelSideCharacter::HandleEventChoiceSelected(FName ChoiceId)
+{
+	UE_LOG(LogPixelSideCombat, Log,
+		TEXT("Heard OnEventChoiceSelected(%s). Pawn does not write Scrap or HP."),
+		*ChoiceId.ToString());
+}
+
+void APixelSideCharacter::HandleEventSkipped()
+{
+	UE_LOG(LogPixelSideCombat, Log, TEXT("Heard OnEventSkipped(). No reward."));
+}
+
+void APixelSideCharacter::HandleEventClosed()
+{
+	UE_LOG(LogPixelSideCombat, Log, TEXT("Heard OnEventClosed()."));
 }
 
 void APixelSideCharacter::HandleAffixChoiceOffered(const TArray<FAffixChoiceEntry>& Choices)
@@ -693,7 +817,7 @@ void APixelSideCharacter::UpdateCoyoteAndJump(float DeltaSeconds)
 	}
 
 	const bool bIntent = bJumpHeld || JumpBufferRemaining > 0.f;
-	if (!bJumpConsumed && bIntent && CanRequestFeelJump())
+	if (!IsCombatInputBlocked() && !bJumpConsumed && bIntent && CanRequestFeelJump())
 	{
 		// Impulse now. A same-frame release calls StopJumping and would eat bPressedJump
 		// before CharacterMovement sampled it. Height is cut in HandleJumpCompleted.

@@ -124,7 +124,7 @@ UI：`WBP_AffixChoice`；暂停战斗；选 1 加入 `AC_AffixInventory`。算�
 | `ForceLoot` | 硬拽出来 | `DamageSelf 15` → `GrantScrap 50`（DamageSelf 后 CurrentHP 下限 **1**，事件不可直接致死） |
 
 **Op 白名单（MVP）：** `GrantScrap` / `DamageSelf` / `HealSelf` / `None`。不发词条、不改 Core。  
-**UI：** `WBP_EventChoice`（或等价）；打开期间可暂停移动开火；门仍可走。扩池只追加 `DT_Event_MVP` 行，不改已锁数值。
+**UI：** `WBP_EventChoice`（或等价）；打开期间可暂停移动开火；门仍可走。C++ 壳见 `Docs/UI_Wireframes_Event.md`：Lab 用 `F10` 打开，只关移动/开火输入，不 `SetGamePaused`，不调用 Resolve。`F8` / `F9` 留给 Event Op 直调。扩池只追加 `DT_Event_MVP` 行，不改已锁数值。
 
 ---
 

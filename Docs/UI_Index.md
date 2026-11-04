@@ -14,6 +14,7 @@
 | `WBP_HUD` | [UI_Wireframes_P0.md](./UI_Wireframes_P0.md) §1 | `Content/Blueprints/UI/` | ✅ C++ `UPixelHUDWidget` + 配方 · 无 uasset。词条格 `UPixelHUDAffixIconWidget` |
 | `WBP_AffixChoice` | P0 §2 | 同上 | ✅ C++ `UPixelAffixChoiceWidget` + 配方 · 无 uasset |
 | `WBP_AffixCard` | P0 §2.2 | 同上 | ✅ C++ `UPixelAffixCardWidget` + 配方 · 无 uasset |
+| `WBP_EventChoice` | [UI_Wireframes_Event.md](./UI_Wireframes_Event.md) | 同上 | ✅ C++ `UPixelEventChoiceWidget` + 配方 · 无 uasset |
 | `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ 线框 |
 | `WBP_ShopSlot` | P1 §1.2 | 同上 | ✅ 线框 |
 | `WBP_RunSummary` | P1 §2 | 同上 | ✅ 线框 |
@@ -108,6 +109,15 @@
 
 实现：`UCombatDebugRead`（显示名 `BI_CombatDebugRead`）由 `UCombatDebugReadComponent` 转到 `UDamageableComponent` / `UWeaponControllerComponent`，挂在 `APixelSideCharacter`（`GetDamageable` / `GetWeaponController`）。HUD 父类 `UPixelDebugCombatHUD`，0.05s 只读刷新。CD 分母用 `GetResolvedFireCooldown`（`FireInterval / GetStat(FireRate)`，缺省 `1/FireRateBase`）。配方：`Content/_Dev/Combat/UI/README.md`。不调用 `ApplyDamage` / `Fire`。正式 `WBP_HUD` 不引用。
 
+### 2.8 事件 · `UPixelEventChoiceWidget`（[UI_Wireframes_Event.md](./UI_Wireframes_Event.md)）
+
+| 消费方 | 读 | 写 |
+|--------|----|----|
+| `WBP_EventChoice` | Demo 视图：`DisplayName`、`PromptBody`、`Choices[].Label`、`SkipHint`。Lab 文案对齐 `DA_Event_AbandonedCache.json`，不建 DA uasset | `OnEventChoiceSelected(ChoiceId)`、`OnEventSkipped()`、`OnEventClosed()` |
+
+**打开：** 忽略移动 / 跳跃 / 开火（`SetEventChoiceBlocksControl`）。**不** `SetGamePaused`。`bAllowDoorSkip` 保持 true，门体积照走（GDD §2.8「门仍可走」）。  
+**禁止：** UI 不 `GrantScrap` / `DamageSelf` / `HealSelf`，也不调用 `ResolveEventChoice`；不因结算打开 `WBP_AffixChoice`（`bAffixOnResolve=false`）。
+
 ---
 
 ## 3. 地图挂载
@@ -116,8 +126,8 @@
 |-----|--------|
 | `Entry` | `WBP_MainMenu` |
 | `Hub` | `WBP_Hub`（+ Upgrade 叠层） |
-| Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop；结束 RunSummary |
-| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F6` 刷 HUD 词条格 |
+| Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop / EventChoice；结束 RunSummary |
+| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F6` 刷 HUD 词条格。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界，不 Resolve） |
 
 ---
 
