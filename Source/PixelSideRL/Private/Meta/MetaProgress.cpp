@@ -1282,6 +1282,40 @@ FCorePreview FProgress::PreviewCoreGain(bool bCleared, int RoomsCleared, int Bos
 	return Preview;
 }
 
+std::vector<FNodeView> FProgress::NodeViews() const
+{
+	std::vector<FNodeView> Out;
+	Out.reserve(NodeRows.size());
+	for (const FNode& Node : NodeRows)
+	{
+		FNodeView View;
+		View.NodeId = Node.NodeId;
+		View.DisplayName = Node.DisplayName;
+		View.Description = Node.Description;
+		View.OwnedRank = GetPurchasedRank(Node.NodeId);
+		View.MaxPurchases = Node.MaxPurchases;
+		const bool bPastCost = View.OwnedRank < 0
+			|| View.OwnedRank >= static_cast<int>(Node.CostCoreByRank.size());
+		View.bMaxed = View.OwnedRank >= Node.MaxPurchases || bPastCost;
+		if (!View.bMaxed)
+		{
+			View.NextCostCore = Node.CostCoreByRank[static_cast<size_t>(View.OwnedRank)];
+			for (const std::string& Prereq : Node.Prerequisites)
+			{
+				if (GetPurchasedRank(Prereq) < 1)
+				{
+					View.bLocked = true;
+					break;
+				}
+			}
+		}
+		std::string Reason;
+		View.bCanPurchase = CanPurchase(Node.NodeId, &Reason);
+		Out.push_back(View);
+	}
+	return Out;
+}
+
 std::vector<std::string> FProgress::IgnoredUnlockAffixIds() const
 {
 	std::vector<std::string> Out;

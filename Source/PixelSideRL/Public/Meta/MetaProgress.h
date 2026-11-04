@@ -6,6 +6,7 @@
 // Core is the out-of-run wallet. Run Scrap is not stored here.
 // BuildRunStartContext reads purchased ranks. SeedRunScrap is what BeginRunFromMeta
 // passes to UEventSubsystem::ResetRunScrap.
+// NodeViews is the read-only list Hub draws. It does not spend Core and does not save.
 
 #include <array>
 #include <string>
@@ -100,6 +101,24 @@ struct FRunStart
 	bool bAffixPoolReady = false;
 };
 
+/**
+ * One row for the Hub upgrade list. Read-only.
+ * NextCostCore is CostCoreByRank[OwnedRank], or 0 when the next rank does not exist.
+ * bLocked is an unmet prerequisite. bCanPurchase is the same check as CanPurchase.
+ */
+struct FNodeView
+{
+	std::string NodeId;
+	std::string DisplayName;
+	std::string Description;
+	int OwnedRank = 0;
+	int MaxPurchases = 0;
+	int NextCostCore = 0;
+	bool bMaxed = false;
+	bool bLocked = false;
+	bool bCanPurchase = false;
+};
+
 /** RoguelikeMeta §6 preview. Does not credit Core. */
 struct FCorePreview
 {
@@ -146,6 +165,9 @@ public:
 
 	/** NodeId:AffixId for every UnlockAffixIds entry. Those ids are not a pool gate. */
 	std::vector<std::string> IgnoredUnlockAffixIds() const;
+
+	/** Loaded nodes in table order, including rank 0. Does not spend Core. */
+	std::vector<FNodeView> NodeViews() const;
 
 	std::string Describe() const;
 

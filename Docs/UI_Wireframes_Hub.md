@@ -1,6 +1,6 @@
 # 线框说明：WBP_Hub · WBP_Hub_Upgrade
 
-**状态：** 可交互线框，不接真实存档  
+**状态：** C++ 壳 `UPixelHubWidget` / `UPixelHubUpgradeWidget` / `UPixelHubNodeRowWidget`。无 uasset。Demo 不写存档。有 Meta 时 `Purchase`。  
 **画布：** 640×360 · 最近邻 · 安全区 8px  
 **货币：** 只显示 / 消费 **Core**（局外）；禁止出现 Scrap 作为 Hub 通货  
 **数据：** `UMetaProgressSubsystem`（GetCore / CanPurchase / Purchase / 节点列表）  
@@ -137,4 +137,32 @@ UI **不**改 `FMetaSaveData`；Purchase 成功后听刷新或主动 GetCore。
 | `WBP_Hub` 控件 / 状态 / 事件 | ✅ |
 | `WBP_Hub_Upgrade` + `WBP_Hub_NodeRow` | ✅ |
 | Core 文案与 Scrap 隔离 | ✅ |
-| UE 蓝图壳 | ⏳ 仓库就绪后 |
+| C++ 壳 | ✅ 无 uasset。`OpenHub` / `OpenHubDemo`。无新 Lab 键 |
+
+## 4. C++ 壳
+
+| 资产名（编辑器里再建） | C++ 父类 | 显示名 |
+|------------------------|----------|--------|
+| `WBP_Hub` | `UPixelHubWidget` | `WBP_Hub` |
+| `WBP_Hub_Upgrade` | `UPixelHubUpgradeWidget` | `WBP_Hub_Upgrade` |
+| `WBP_Hub_NodeRow` | `UPixelHubNodeRowWidget` | `WBP_Hub_NodeRow` |
+
+不提交 uasset。没有蓝图时父类自己建出同名控件。
+
+| 调用 | 结果 |
+|------|------|
+| `OpenHubDemo()` | 本地 Core **120**，五个 `meta_*` 节点。不调用 `GetCore` / `Purchase` / `AddCore` / `Save` |
+| `OpenHub()` | 有 `UMetaProgressSubsystem` 时顶栏 `GetCore()`，升级 `Purchase(NodeId)`。没有子系统时与 Demo 相同 |
+| `OnStartRun` | 短锁之后广播一次。不调用 `BeginRunFromMeta` |
+| `OnOpenUpgrades` | 打开升级叠层 |
+| `OnBackToMenu` | 关掉 Hub。不切关卡 |
+| Esc / `关闭` | 只在升级页回到 Hub |
+
+非 Shipping，不绑键：
+
+```
+PixelSide.Hub.Demo
+PixelSide.Hub.Open
+```
+
+`F6`–`F11` 不动，不加 F12。房间进店仍走廊道的 `AC_ShopPresenter`，本壳不打开商店。

@@ -9,7 +9,7 @@
 
 - 不写 `Saved/SaveGames/PixelSideRL_Meta.sav`（`Save` / `Load` 返回 false，钱包留在内存）
 - 不造 `DA_MetaNode_*.uasset`，也不拆单独的 `DA_MetaNode_*.json`。冻名写在节点的 `DataAssetName` 上
-- 不做商店购买、Hub WBP、房间清房、完整两层 Run
+- 不在本子系统里创建 Hub Widget，也不写存档。`WBP_Hub` 另调 `GetCore` / `GetNodeViews` / `CanPurchase` / `Purchase`
 - 不改 `Content/Data/Shop/*`，不改 `Docs/CombatFeel.md`
 - 不改 F6–F11。F8 / F9 仍是 CarefulLoot / ForceLoot，F10 仍是事件壳，F11 仍是商店壳
 - 不做商店购买 runtime，不改商店壳，不做 EventChoice 界面
@@ -54,6 +54,8 @@ Purchase(NodeId) -> bool
 ```
 
 下一档费用是 `CostCoreByRank[当前档]`。例如 Stash 0→1 花 20，1→2 花 40，2→3 花 75。`当前档 >= MaxPurchases` 则失败，Core 不变。Core 不够失败，不扣。前置节点（`Prerequisites`）至少 1 档才放行；MVP 锁表前置都是空的。
+
+`GetNodeViews()` 只读，不扣 Core、不写存档。每行有 `NodeId`、`DisplayName`、`Description`、`OwnedRank`、`MaxPurchases`、`NextCostCore`（满级为 0）、`bMaxed`、`bLocked`（前置未满 1 档）、`bCanPurchase`。Hub 升级列表用它。没有子系统时的 Demo 不走这张表。
 
 效果取**该档**那一行，不把低档叠上去：
 
@@ -155,6 +157,6 @@ g++ -std=c++17 -Wall -Wextra -Werror -I Source/PixelSideRL/Public \
 /tmp/test_meta_progress .
 ```
 
-覆盖：五节点费用与冻名、新档全 0、Stash 15/30/50 写入 `SeedRunScrap`、Vitality 只取该档 MaxHP、PeaFamiliar 的 WeaponTag 写在开局修饰上、SalvageSense 倍率、SidearmLuck 旗标、不超过 MaxPurchases、Core 不足不扣、UnlockAffix 的 Piercer/TwinShot 不改十词条池、Pierce 修饰被拒绝、结算预览不入账、`Content/Data/Meta` 下没有 `.uasset` 或 `DA_MetaNode_*` 文件。
+覆盖：五节点费用与冻名、`NodeViews` 的下一阶费用 / 满级 / 前置锁、新档全 0、Stash 15/30/50 写入 `SeedRunScrap`、Vitality 只取该档 MaxHP、PeaFamiliar 的 WeaponTag 写在开局修饰上、SalvageSense 倍率、SidearmLuck 旗标、不超过 MaxPurchases、Core 不足不扣、UnlockAffix 的 Piercer/TwinShot 不改十词条池、Pierce 修饰被拒绝、结算预览不入账、`Content/Data/Meta` 下没有 `.uasset` 或 `DA_MetaNode_*` 文件。
 
 按枪过滤不在这份宿主测里。`Scripts/test_affix_p05.cpp` 检查：空 Tag 仍全局；PeaFamiliar 的 Damage Mul 只进 `GetStat(Damage, "Peashooter")`；Scatter / 无武器查询不计；档 0 不注入。
