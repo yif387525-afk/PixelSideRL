@@ -120,7 +120,15 @@ Y
 
 D2–D5 与 D1 同一条胶囊规则：对象类型仍是 Pawn，对 Pawn Ignore。弹体 Overlap 这条通道，`ApplyDamage` 不改。
 
-### 4.2 调试炮塔 `PixelDebugHurtTurret`
+### 4.2 P0.5 Grunt `PixelEnemyGrunt`
+
+| ID | 位置 (X, Y 脚底) | 朝向 | 备注 |
+|----|------------------|------|------|
+| G1 | (480, 0) | 开局朝左 | A 区平层，出生点与 D1 之间。出生时水平距 448，在失警 360 之外 |
+
+行为与数值是 CombatFeel §7，不是炮塔：Speed 140，警戒 280 / 失警 360，水平慢弹 0.8 s、Damage 6。胶囊对象类型仍是 Pawn（豌豆打得中），对 Pawn Ignore，追击时不会把主路再卡死。粉色木桩 D1–D5 仍在。
+
+### 4.3 调试炮塔 `PixelDebugHurtTurret`
 
 | ID | 位置 | 朝向 | 约束（防秒杀） |
 |----|------|------|----------------|
@@ -146,7 +154,7 @@ D2–D5 与 D1 同一条胶囊规则：对象类型仍是 Pawn，对 Pawn Ignore
 
 | 模式 | 行为 |
 |------|------|
-| A. 程序化（**已拍板 P0**） | `APixelSideGameMode` 在 `bSpawnLabSandbox` 时按本表刷 StaticMesh/Box 碰撞 + Dummy/Turret + 软回收；**无 umap 依赖** |
+| A. 程序化（**已拍板 P0**） | `APixelSideGameMode` 在 `bSpawnLabSandbox` 时按本表刷 StaticMesh/Box 碰撞 + Dummy/Grunt/Turret + 软回收；**无 umap 依赖** |
 | B. 手工关（后续） | 确认手感后再考虑 `Lab_CombatP0` umap；届时关 `bSpawnLabSandbox` 避免双铺 |
 
 检测逻辑保持现状：关内已有 Dummy 则不自动铺。确认本方案后，优先改 **SpawnLabSandbox 布局数据**（常量表或 DataAsset `DA_LabCombatP0Layout` 文本/CSV 亦可），仍 **无 fake uasset 提交**。
@@ -157,7 +165,7 @@ D2–D5 与 D1 同一条胶囊规则：对象类型仍是 Pawn，对 Pawn Ignore
 
 ## 6. 验收走查（布局侧）
 
-- [ ] A：平走急停；D1 可打，且不把主路卡住  
+- [ ] A：平走急停；D1 可打，且不把主路卡住；G1 警戒后追击并水平慢弹，胶囊不挡路，豌豆可击杀  
 - [ ] B：P1→P2→P3 连续跳无卡边；可跳下不卡死  
 - [ ] C：岛跳可过；掉坑有回收不打断循环  
 - [ ] D：穿过 CV1/2/3 能到炮塔廊；站 CV2 对侧（沿 X，不是顶、不是绕 Y）炮塔打不中；探出挡线可挨一发并触发 I-Frame；掩体仍挡炮塔弹  
@@ -176,6 +184,7 @@ D2–D5 与 D1 同一条胶囊规则：对象类型仍是 Pawn，对 Pawn Ignore
 | 4 | 炮塔伤害 | 单发 **≤25% MaxHP** — 已同步弹芯改实例/默认 |
 | 5 | 级差热修 | **2026-11-05** 试玩：P1/P2/P3 = **28/56/84**，岛顶 **24**，坑侧缺口各 **60**（岛 X 仍 1400–1480），`P_E_high` = **56**。不改 JumpZ / Gravity |
 | 6 | 挡路热修 | 木桩与 T1 对 Pawn Ignore，不挡位移；CV1/2/3 让 Pawn 穿过，弹体与视线仍挡。Peek = 穿过后站对侧（沿 X）。不改 JumpZ / Gravity / 级差 / 掩体高 |
+| 7 | P0.5 Grunt | G1 在 (480, 0)。追击胶囊同样对 Pawn Ignore。炮塔仍 7.5 / 1.0 s |
 
 **路径:** `Content/_Dev/Combat/Lab_CombatP0`（仅 `_Dev`；**禁止**进 `Content/Maps/Rooms`）
 
@@ -191,3 +200,4 @@ D2–D5 与 D1 同一条胶囊规则：对象类型仍是 Pawn，对 Pawn Ignore
 | 2026-11-04 | 主管拍板：岛跳 / 软回收 / 程序化 SpawnLabSandbox / 炮塔≤25%MaxHP；开聚焦 PR |
 | 2026-11-05 | 试玩热修：级差 28（原 48 高于净跳 ~32）；岛顶 24；坑内侧缺口各 60；P_E_high 56。不改跳跃 |
 | 2026-11-05 | 试玩软锁：D1/T1 与 CV 不再挡 Pawn 位移。Peek 改为站掩体对侧（沿 X）。不改跳跃、级差、掩体高 |
+| 2026-11-04 | P0.5：G1 Grunt 落在 A 区平层。胶囊对 Pawn Ignore。不改跳跃、炮塔、木桩 |

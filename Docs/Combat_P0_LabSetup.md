@@ -14,7 +14,7 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 
 用 **Unreal Editor 5.8.4** 打开该目录下的 `PixelSideRL.uproject`。若提示模块缺失，选编译。需要插件 **Enhanced Input**、**Paper2D**（`.uproject` 已打开）。
 
-第一次 Play 用引擎自带的 `/Engine/Maps/Entry`。`APixelSideGameMode` 在关卡里还没有木桩时，按 `Docs/Lab_CombatP0_Layout.md` 程序化铺 **5 区**灰盒（平地一条平台已替换）、木桩 D1–D5 和调试炮塔 T1。开关仍是 `bSpawnLabSandbox`。掉进 C 区坑会软回收到岛左侧，扣 0 伤。
+第一次 Play 用引擎自带的 `/Engine/Maps/Entry`。`APixelSideGameMode` 在关卡里还没有木桩时，按 `Docs/Lab_CombatP0_Layout.md` 程序化铺 **5 区**灰盒（平地一条平台已替换）、木桩 D1–D5、一只 Grunt（G1）和调试炮塔 T1。开关仍是 `bSpawnLabSandbox`。掉进 C 区坑会软回收到岛左侧，扣 0 伤。
 
 | 键 | 作用 |
 |----|------|
@@ -23,7 +23,7 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | 鼠标左键，右扳机 | 豌豆枪连发，朝向 ±X |
 | H | 调试受击（非 Shipping） |
 
-验收：急停更干脆；短按跳更矮、按住跳更高；空中可改线；弹是暖黄色小球，撞两端墙消失；打木桩掉血、闪白、击退更明显；炮塔或 H 打到玩家会闪白、击退，并在 0.6s 内闪烁且不再叠伤。从出生点能走过 D1，穿过 CV1/2/3 去炮塔廊。木桩和 T1 不挡玩家位移，开火仍打中木桩；掩体仍挡住炮塔弹。挡弹站在掩体对侧（沿 X），不是跳上顶，也不是绕到深度侧面。
+验收：急停更干脆；短按跳更矮、按住跳更高；空中可改线；弹是暖黄色小球，撞两端墙消失；打木桩掉血、闪白、击退更明显；炮塔或 H 打到玩家会闪白、击退，并在 0.6s 内闪烁且不再叠伤。从出生点能走过 G1 和 D1，穿过 CV1/2/3 去炮塔廊。木桩、G1 和 T1 不挡玩家位移，开火仍打中木桩和 Grunt；掩体仍挡住炮塔弹。挡弹站在掩体对侧（沿 X），不是跳上顶，也不是绕到深度侧面。玩家走到约 X=200（与 G1 相距 280）时它会警戒、朝你走，并水平射出慢弹（0.8 s、伤害 6）。豌豆能把它打死。炮塔仍是 7.5 / 1.0 s。
 
 灰盒只在关卡里还没有 `APixelDamageDummy`（或其蓝图子类）时生成。自己摆好木桩后就不会再铺。关掉它：GameMode 上取消 `bSpawnLabSandbox`。
 
@@ -33,7 +33,7 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 
 1. 内容浏览器建 `Content/_Dev/Combat/`。
 2. 新建空关卡，另存为 `Content/_Dev/Combat/Lab_CombatP0`。
-3. World Settings → GameMode Override = `PixelSideGameMode`。不放木桩时，Play 仍会生成灰盒；要自己搭平台就把 `bSpawnLabSandbox` 关掉，并放好地板、`PixelDamageDummy`、`PixelDebugHurtTurret`、Player Start。
+3. World Settings → GameMode Override = `PixelSideGameMode`。不放木桩时，Play 仍会生成灰盒；要自己搭平台就把 `bSpawnLabSandbox` 关掉，并放好地板、`PixelDamageDummy`、`PixelEnemyGrunt`、`PixelDebugHurtTurret`、Player Start。
 4. Project Settings → Maps：Editor Startup / Game Default 指到 `Lab_CombatP0`。
 5. 窗口尽量 16:9。相机是正交 640×360，只跟角色 X，高度固定。
 
@@ -69,7 +69,7 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 
 可选数据资产：`Content/Data/Weapons/DA_Weapon_Peashooter`，父类 `DA_Weapon_Peashooter`。新建出来就是 CombatFeel §4.1。不建也行，武器组件会用这份 C++ 默认值。射速乘区默认 1，冷却 = `FireInterval / GetStat(FireRate)`。
 
-`BP_DamageDummy` 父类 `PixelDamageDummy`。`BP_Projectile_Pea` 父类 `ProjectilePea`。不必为了先跑通而建。
+`BP_DamageDummy` 父类 `PixelDamageDummy`。`BP_AI_Grunt` 父类 `PixelEnemyGrunt`。`BP_Projectile_Pea` 父类 `ProjectilePea`。不必为了先跑通而建。Grunt 四个 Flipbook 留空时，运行时按 `Content/Art/Enemies/EnemyGrunt/T_EnemyGrunt_*.png` 切帧（脚底中心、只水平镜像），不提交 flipbook `.uasset`。
 
 ## 4. 数值从哪来
 
@@ -78,7 +78,8 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 | 走、跳、Coyote、Buffer、重力、Jump Cut | `UPixelSideCharacterMovement` 与 `HandleJumpCompleted`，默认 CombatFeel §2 |
 | 豌豆枪 | `UDA_Weapon` / `UDA_Weapon_Peashooter`，§4.1 |
 | 玩家受击 | `UDamageableComponent` 且 `bUsePlayerHurtProfile`，§6 |
-| Lab 调试炮塔与 H | `GruntDamage` **7.5**（≤25% × `PlayerMaxHealth` 30）、`GruntFireInterval` **1.0 s**。只约束 Lab 炮塔与调试受击，不是 CombatFeel §7 未来 Grunt（仍为 0.8 s、Damage 6） |
+| Lab 调试炮塔与 H | `GruntDamage` **7.5**（≤25% × `PlayerMaxHealth` 30）、`GruntFireInterval` **1.0 s**。只约束 Lab 炮塔与调试受击 |
+| P0.5 Grunt | `EnemyGruntMoveSpeed` **140**、`EnemyGruntAggroRange` **280**、`EnemyGruntFireInterval` **0.8 s**、`EnemyGruntDamage` **6**。不读炮塔那一行 |
 | 常量只写在 | `Source/PixelSideRL/Public/Combat/PixelSideCombatMath.h` |
 
 战斗只读 `AC_StatModifiers.GetStat`。没有该组件时开火回退到 FireRate = 1 和武器 DA 的伤害/击退。不要在战斗蓝图里 Roll 词条。
@@ -90,7 +91,8 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 - [ ] A/D 能走，松键能急停，跳有离台容错和提前按跳
 - [ ] 按住左键连续出黄色豌豆，打到墙消失
 - [ ] 木桩扣血、闪白、被轻推
-- [ ] 从出生点走过 D1，不被木桩卡住；穿过 CV1/2/3 能去炮塔廊
+- [ ] 从出生点走过 G1 和 D1，不被胶囊卡住；穿过 CV1/2/3 能去炮塔廊
+- [ ] G1 进入警戒后追击，并按 0.8 s 射出伤害 6 的水平弹；豌豆能打死它。木桩仍可打，炮塔仍是 7.5 / 1.0 s
 - [ ] 站掩体对侧时炮塔弹被挡住；探出挡线仍会挨打
 - [ ] H 或炮塔打中玩家：闪白、击退、闪烁，无敌期间不连扣
 - [ ] 若挂了 Jump Flipbook，Output Log 没有 “expects 5” 警告，滞空能看到 rise / apex / fall

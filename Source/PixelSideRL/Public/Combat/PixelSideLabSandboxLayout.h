@@ -109,6 +109,11 @@ constexpr int D4_FeetY = 56;
 constexpr int D5_FeetX = 3050;
 constexpr int D5_FeetY = 0;
 
+// P0.5 Grunt on G_A, between the spawn and D1. Starts outside lose-aggro (360).
+// The capsule ignores Pawns, same rule as D1, so the chase cannot close the route.
+constexpr int G1_FeetX = 480;
+constexpr int G1_FeetY = 0;
+
 constexpr int T1_FeetX = 2360;
 constexpr int T1_FeetY = 0;
 // APixelDebugHurtTurret body scale Z is 0.36 on the 100 uu cube (36 tall, centered).
@@ -154,6 +159,9 @@ static_assert(P1TopY == 28 && P2TopY == 56 && P3TopY == 84, "platform tops");
 static_assert(P_E_TopY == 56, "E high platform");
 static_assert(P2TopY - P1TopY == 28 && P3TopY - P2TopY == 28, "uniform 28px rise");
 static_assert(P1TopY < 32 && IslandTopY < 32, "first rises sit under the live ~32 jump");
+static_assert(G1_FeetY == G_A_TopY, "G1 stands on G_A");
+static_assert(G1_FeetX > PlayerSpawnFeetX && G1_FeetX < D1_FeetX, "G1 is on the opening ground, clear of the spawn and D1");
+static_assert(G1_FeetX - PlayerSpawnFeetX > 360, "G1 starts outside lose-aggro of the player spawn");
 static_assert(D2_FeetX == P2CenterX && D2_FeetY == P2TopY, "D2 stands on P2");
 static_assert(D4_FeetX == P_E_CenterX && D4_FeetY == P_E_TopY, "D4 stands on P_E_high");
 static_assert(CV1_Height == 44 && CV2_Height == 48 && CV3_Height == 40, "cover heights are not the route fix");

@@ -15,5 +15,10 @@ public class PixelSideRL : ModuleRules
 			"EnhancedInput",
 			"Paper2D"
 		});
+
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"ImageWrapper"
+		});
 	}
 }

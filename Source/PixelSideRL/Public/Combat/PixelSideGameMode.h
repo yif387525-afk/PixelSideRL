@@ -7,7 +7,7 @@
 /**
  * Default mode for the combat slice. When bSpawnLabSandbox is set and the map
  * has no damage dummy, spawns the Lab_CombatP0 5-zone greybox (platforms, covers,
- * dummies, one debug turret, a directional light) and soft-recovers pit falls.
+ * dummies, one grunt, one debug turret, a directional light) and soft-recovers pit falls.
  */
 UCLASS(Blueprintable)
 class PIXELSIDERL_API APixelSideGameMode : public AGameModeBase

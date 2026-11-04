@@ -98,14 +98,44 @@ constexpr float DamageDummyMaxHealth = 40.f;
 
 // Lab debug turret and the H debug-hurt key (APixelDebugHurtTurret / HandleDebugHurt).
 // Supervisor rule: one shot ≤ 25% of PlayerMaxHealth, and the turret waits ≥ 1 s.
-// These two constants are the lab stand-in only. Future Grunt AI stays on
-// CombatFeel §7 (0.8 s, damage 6) until a doc says the lab turret shares that row.
+// This row is the turret only. P0.5 Grunt uses EnemyGrunt* below. Do not alias them.
 // Speed is intentionally under the player's 560 so the bolt stays readable.
 constexpr float GruntFireInterval = 1.0f;
 constexpr float GruntDamage = 7.5f; // 25% of PlayerMaxHealth (30)
 constexpr float GruntProjectileSpeed = 280.f;
 constexpr float GruntProjectileLife = 3.5f;
 constexpr float DebugTurretFirstShotDelay = 0.60f;
+
+// CombatFeel §7 Grunt (P0.5). Not the lab turret row above.
+constexpr float EnemyGruntMoveSpeed = 140.f;
+constexpr float EnemyGruntAggroRange = 280.f;
+constexpr float EnemyGruntLoseAggroRange = 360.f;
+constexpr float EnemyGruntFireInterval = 0.8f;
+constexpr float EnemyGruntDamage = 6.f;
+// §7 does not list bolt speed. 320 is slower than the player pea (560) and faster
+// than walk (245), so a jump clears it and holding run does not. Not the turret's 280.
+constexpr float EnemyGruntProjectileSpeed = 320.f;
+constexpr float EnemyGruntProjectileLife = 2.0f;
+constexpr float EnemyGruntProjectileRadius = 3.f;
+// Four peashooter hits (4 * 8). §7 does not list HP.
+constexpr float EnemyGruntMaxHealth = 32.f;
+// Capsule reaches the shot plane (VisualPlaneY 12 + pea radius 3) the way the player capsule does.
+// Half-height matches the 32px frame. Half-height must stay ≥ radius.
+constexpr float EnemyGruntCapsuleRadius = 12.f;
+constexpr float EnemyGruntCapsuleHalfHeight = 16.f;
+// Ignore tiny X error so the body does not flip on top of the player. Not an attack leash.
+constexpr float EnemyGruntChaseSlack = 4.f;
+
+// T_EnemyGrunt_* sheets. 28×32, horizontal strip, pivot is feet center. Fire tip row is Y=13.
+constexpr int EnemyGruntFrameWidth = 28;
+constexpr int EnemyGruntFrameHeight = 32;
+constexpr int EnemyGruntIdleFrameCount = 4;
+constexpr int EnemyGruntRunFrameCount = 6;
+constexpr int EnemyGruntFireFrameCount = 3;
+constexpr int EnemyGruntHurtFrameCount = 2;
+// Resting fire frames (0 and 2). Recoil frame 1 moves the tip to x=20; the socket stays on the rest tip.
+constexpr int EnemyGruntMuzzlePixelX = 22;
+constexpr int EnemyGruntMuzzlePixelY = 13;
 
 // Entry PlayerStart when the procedural lab is not built (shipping, or the
 // level already has a damage dummy). The 5-zone sandbox lives in
@@ -147,6 +177,45 @@ inline float KnockbackDistance(float BaseDistance, bool bAirborne)
 	return bAirborne ? (BaseDistance * KnockbackAirRetain) : BaseDistance;
 }
 
+// Local offset from the feet-center pivot to the fire-sheet tip, in uu (1 px = 1 uu).
+inline float EnemyGruntMuzzleLocalX()
+{
+	return (static_cast<float>(EnemyGruntMuzzlePixelX) + 0.5f) - (static_cast<float>(EnemyGruntFrameWidth) * 0.5f);
+}
+
+inline float EnemyGruntMuzzleLocalZ()
+{
+	return static_cast<float>(EnemyGruntFrameHeight) - (static_cast<float>(EnemyGruntMuzzlePixelY) + 0.5f);
+}
+
+// Horizontal distance. Lose range is wider so the body does not flicker on the aggro line.
+inline bool EnemyGruntWantsAlert(bool bAlreadyAlert, float HorizontalDistance)
+{
+	if (HorizontalDistance < 0.f)
+	{
+		HorizontalDistance = -HorizontalDistance;
+	}
+	if (bAlreadyAlert)
+	{
+		return HorizontalDistance <= EnemyGruntLoseAggroRange;
+	}
+	return HorizontalDistance <= EnemyGruntAggroRange;
+}
+
+// +1 chase toward +X, -1 toward -X, 0 inside the slack.
+inline float EnemyGruntChaseSign(float DeltaX, float Slack)
+{
+	if (DeltaX > Slack)
+	{
+		return 1.f;
+	}
+	if (DeltaX < -Slack)
+	{
+		return -1.f;
+	}
+	return 0.f;
+}
+
 inline float KnockbackInitialSpeed(float DistanceUu, float DurationSeconds)
 {
 	if (DurationSeconds <= 0.0001f)
@@ -164,4 +233,19 @@ static_assert(FireFrameCount == 3, "T_Player_Fire is 3 frames");
 static_assert(HurtFrameCount == 2, "T_Player_Hurt is 2 frames");
 static_assert(GruntDamage <= PlayerMaxHealth * 0.25f, "lab turret shot is at most 25% player max HP");
 static_assert(GruntFireInterval >= 1.f, "lab turret interval is at least 1 s");
+static_assert(GruntDamage == 7.5f, "lab turret damage stays 7.5");
+static_assert(GruntFireInterval == 1.0f, "lab turret interval stays 1 s");
+static_assert(EnemyGruntMoveSpeed == 140.f, "CombatFeel §7 grunt speed");
+static_assert(EnemyGruntAggroRange == 280.f, "CombatFeel §7 aggro");
+static_assert(EnemyGruntLoseAggroRange == 360.f, "CombatFeel §7 lose aggro");
+static_assert(EnemyGruntFireInterval == 0.8f, "CombatFeel §7 grunt interval");
+static_assert(EnemyGruntDamage == 6.f, "CombatFeel §7 grunt damage");
+static_assert(EnemyGruntDamage != GruntDamage, "grunt damage is not the lab turret shot");
+static_assert(EnemyGruntFireInterval < GruntFireInterval, "grunt interval is not the lab turret interval");
+static_assert(EnemyGruntProjectileSpeed != GruntProjectileSpeed, "grunt bolt speed is not the turret bolt");
+static_assert(EnemyGruntFrameWidth == 28 && EnemyGruntFrameHeight == 32, "EnemyGrunt sheets are 28x32");
+static_assert(EnemyGruntIdleFrameCount == 4 && EnemyGruntRunFrameCount == 6, "grunt idle/run frame counts");
+static_assert(EnemyGruntFireFrameCount == 3 && EnemyGruntHurtFrameCount == 2, "grunt fire/hurt frame counts");
+static_assert(EnemyGruntMuzzlePixelY == 13, "fire tip row is Y=13");
+static_assert(EnemyGruntCapsuleHalfHeight >= EnemyGruntCapsuleRadius, "grunt capsule half-height covers the radius");
 }

@@ -10,7 +10,7 @@ class UStaticMeshComponent;
 /**
  * Lab debug turret. Fires PixelSideCombat::GruntDamage on GruntFireInterval
  * (≤25% player MaxHP, interval ≥ 1 s) so the player i-frame can be seen.
- * Not future Grunt AI. CombatFeel §7 still lists Grunt as 0.8 s / damage 6.
+ * Not APixelEnemyGrunt. CombatFeel §7 Grunt is 0.8 s / damage 6 (EnemyGrunt*).
  * Body stays WorldStatic (shots and visibility still block) but ignores Pawns,
  * because the mesh sits on the 2D route. Damage acceptance is unchanged.
  */

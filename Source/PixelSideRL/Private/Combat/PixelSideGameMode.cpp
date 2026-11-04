@@ -2,6 +2,7 @@
 
 #include "Combat/PixelDamageDummy.h"
 #include "Combat/PixelDebugHurtTurret.h"
+#include "Combat/PixelEnemyGrunt.h"
 #include "Combat/PixelSideCharacter.h"
 #include "Combat/PixelSideCharacterMovement.h"
 #include "Combat/PixelSideCombatLog.h"
@@ -184,8 +185,22 @@ void APixelSideGameMode::SpawnLabSandbox()
 		}
 	}
 
+	// G1. Stats live on APixelEnemyGrunt (CombatFeel §7). Pawn-ignore is on that class.
+	const float GruntLift = PixelSideCombat::EnemyGruntCapsuleHalfHeight + static_cast<float>(SpawnClearance);
+	APixelEnemyGrunt* Grunt = World->SpawnActor<APixelEnemyGrunt>(
+		APixelEnemyGrunt::StaticClass(),
+		FVector(static_cast<float>(G1_FeetX), CenterY, static_cast<float>(G1_FeetY) + GruntLift),
+		FRotator::ZeroRotator,
+		Params);
+	if (Grunt)
+	{
+		Grunt->Tags.Add(TEXT("PixelSideLab"));
+		Grunt->Tags.Add(TEXT("G1"));
+	}
+
 	// T1 position only. Damage per shot is not set here — 弹芯 owns the Lab default
 	// (single hit <= 25% MaxHP) on APixelDebugHurtTurret / GruntDamage.
+	// That row is not the grunt above.
 	APixelDebugHurtTurret* Turret = World->SpawnActor<APixelDebugHurtTurret>(
 		APixelDebugHurtTurret::StaticClass(),
 		FVector(static_cast<float>(T1_FeetX), CenterY, static_cast<float>(T1_FeetY + TurretBodyHalfHeight)),

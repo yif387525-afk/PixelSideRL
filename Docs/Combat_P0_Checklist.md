@@ -246,3 +246,4 @@ sequenceDiagram
 | 2026-11-04 | 弹芯 | 主管拍板：FireRate=乘区，DA=BaseFireRateHz |
 | 2026-11-04 | 弹芯 | 与 API 统一：DA=FireInterval；冷却=FireInterval/GetStat(FireRate) |
 | 2026-11-04 | 弹芯 | P0 可玩切片进 C++（移动/豌豆/Damageable/I-Frame）。umap 与 5 帧 Jump Flipbook 见 `Combat_P0_LabSetup.md`。 |
+| 2026-11-04 | 弹芯 | P0.5 Lab Grunt（`APixelEnemyGrunt` / G1）：警戒追击、水平慢弹 0.8 s / 6。正式刷怪房仍不进 P0。 |
