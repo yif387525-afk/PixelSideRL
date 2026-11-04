@@ -74,7 +74,7 @@ FAffixCardView GetAffixCardView(const UAffixDefinition* Def, int32 PreviewStacks
 
 
 
-**货币：** 局内 Scrap / 局外 Core（见 MetaSaveInterface）。`ScrapGain` 只影响局内。
+**货币：** 局内 Scrap / 局外 Core（见 MetaSaveInterface）。`ScrapGain` 只影响局内。事件 Op 的加减写在 `UEventSubsystem::RunScrap`（见 `EventOps_API.md`），不写本子系统，也不写 Core / `FMetaSaveData`。
 
 ---
 

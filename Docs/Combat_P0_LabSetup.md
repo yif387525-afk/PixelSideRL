@@ -24,6 +24,8 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | H | 调试受击（非 Shipping） |
 | F6 | `DebugGrantAffix("RapidFire")`（非 Shipping）。行为见 `Docs/AffixSubsystem_API.md` §10。正式 HUD 词条格会跟着亮 |
 | F7 | 开三选一并暂停（非 Shipping）。弹出 `UPixelAffixChoiceWidget`。`AC_AffixChoicePresenter.bEnableNativeChoiceUI` 为关，不叠文本占位。顶栏 HUD 仍在。行为见同一节 |
+| F8 | `ResolveEventChoice("AbandonedCache","CarefulLoot")`（非 Shipping）。Output Log 见 Scrap +25。`Docs/EventOps_API.md` |
+| F9 | 同上，`ForceLoot`：先 −15 HP（下限 1）再 +50 Scrap。不改手感表 |
 
 正式局内 HUD（`UPixelHUDWidget`，显示名 `WBP_HUD`）由玩家 `AC_HUDPresenter` 放进视口，Play Entry / Lab 就能看见：安全区 8px 的顶栏（血条、武器块、弹药、`Scrap`、最多 8 个词条格）。默认满血、弹药 `99`、`Scrap 000`。血和 Scrap 还没有战斗只读接口，用 `SetHealthRatio` / `SetScrap`。它不读调试战斗 HUD。调试条仍在 (8, 40)。做法见 `Content/Blueprints/UI/README.md`。
 

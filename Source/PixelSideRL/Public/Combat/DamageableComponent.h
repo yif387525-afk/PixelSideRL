@@ -54,6 +54,13 @@ public:
 
 	void SetMaxHealth(float NewMax, bool bKeepRatio);
 
+	/**
+	 * Event-op HP write. Living targets clamp to [1, MaxHealth], so an event cannot kill.
+	 * Does not run hurt feel (i-frame, flash, knockback, hit-stop) and does not call ApplyDamage.
+	 * Returns false when the actor is already dead, and does not revive them.
+	 */
+	bool ApplyEventHealth(float NewCurrentHealth);
+
 	static ETeamId ResolveActorTeam(const AActor* Actor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damageable")

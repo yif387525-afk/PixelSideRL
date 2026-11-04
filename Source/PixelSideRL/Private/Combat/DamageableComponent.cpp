@@ -150,6 +150,23 @@ bool UDamageableComponent::IsBlinkHidden() const
 	return Phase >= 0.5f;
 }
 
+bool UDamageableComponent::ApplyEventHealth(float NewCurrentHealth)
+{
+	if (bDead || Health <= 0.f)
+	{
+		return false;
+	}
+	const float Upper = FMath::Max(1.f, MaxHealth);
+	const float Clamped = FMath::Clamp(NewCurrentHealth, 1.f, Upper);
+	if (FMath::IsNearlyEqual(Health, Clamped))
+	{
+		return true;
+	}
+	Health = Clamped;
+	OnHealthChanged.Broadcast(Health, MaxHealth);
+	return true;
+}
+
 void UDamageableComponent::SetMaxHealth(float NewMax, bool bKeepRatio)
 {
 	NewMax = FMath::Max(1.f, NewMax);

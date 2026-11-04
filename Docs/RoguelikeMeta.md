@@ -167,7 +167,7 @@ function RollAffixChoice(RoomType, PlayerInv, RunState):
 
 ### 5.1 事件房（非商店）
 
-支路 Event 不花 Scrap、不卖券。MVP 默认 `DA_Event_AbandonedCache`（GDD §2.8）：`CarefulLoot`=+25 Scrap；`ForceLoot`=−15 HP +50 Scrap；跳过无奖。数据：`Content/Data/Events/`。
+支路 Event 不花 Scrap、不卖券。MVP 默认 `DA_Event_AbandonedCache`（GDD §2.8）：`CarefulLoot`=+25 Scrap；`ForceLoot`=−15 HP +50 Scrap；跳过无奖。数据：`Content/Data/Events/`。运行时 `UEventSubsystem::ResolveEventChoice`；局内钱包字段 `RunScrap`（不是 Core / `FMetaSaveData`）。见 `Docs/EventOps_API.md`。
 
 ---
 
