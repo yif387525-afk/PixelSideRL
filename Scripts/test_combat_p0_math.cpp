@@ -58,6 +58,17 @@ int main()
 	Expect(CoyoteTime == 0.08f && JumpBuffer == 0.10f, "coyote and buffer unchanged");
 	Expect(Near(GruntDamage, 7.5f) && GruntDamage <= PlayerMaxHealth * 0.25f, "lab turret shot is 25% max HP");
 	Expect(GruntFireInterval >= 1.f && Near(GruntFireInterval, 1.f), "lab turret interval is 1s");
+	Expect(Near(GruntProjectileSpeed, 280.f), "lab turret bolt speed unchanged");
+	Expect(EnemyGruntMoveSpeed == 140.f && EnemyGruntAggroRange == 280.f && EnemyGruntLoseAggroRange == 360.f, "grunt move and aggro");
+	Expect(Near(EnemyGruntFireInterval, 0.8f) && Near(EnemyGruntDamage, 6.f), "grunt shot is 0.8s / 6");
+	Expect(EnemyGruntDamage != GruntDamage && EnemyGruntFireInterval != GruntFireInterval, "grunt row is not the turret row");
+	Expect(Near(EnemyGruntProjectileSpeed, 320.f) && EnemyGruntProjectileSpeed != GruntProjectileSpeed, "grunt bolt is not the turret bolt");
+	Expect(Near(EnemyGruntMuzzleLocalX(), 8.5f) && Near(EnemyGruntMuzzleLocalZ(), 18.5f), "grunt muzzle is the fire tip");
+	Expect(!EnemyGruntWantsAlert(false, 281.f) && EnemyGruntWantsAlert(false, 280.f), "aggro edge is 280");
+	Expect(EnemyGruntWantsAlert(true, 360.f) && !EnemyGruntWantsAlert(true, 361.f), "lose aggro edge is 360");
+	Expect(EnemyGruntChaseSign(10.f, EnemyGruntChaseSlack) == 1.f && EnemyGruntChaseSign(-10.f, EnemyGruntChaseSlack) == -1.f, "chase sign");
+	Expect(EnemyGruntChaseSign(2.f, EnemyGruntChaseSlack) == 0.f, "chase slack");
+	Expect(EnemyGruntFrameWidth == 28 && EnemyGruntFrameHeight == 32 && EnemyGruntMuzzlePixelY == 13, "grunt sheet");
 	Expect(PlayerIFrameDuration == 0.60f && PlayerHitKnockback == 145.f && PlayerHitStop == 0.07f, "player hurt §6");
 	Expect(KnockbackSlideDuration == 0.11f, "knockback slide");
 
@@ -79,6 +90,8 @@ int main()
 	Expect(CV1_Height == 44 && CV2_Height == 48 && CV3_Height == 40, "cover heights unchanged");
 	Expect(CV1_Height > 32 && CV2_Height > 32 && CV3_Height > 32, "covers stay above the live jump");
 	Expect(D1_FeetX > PlayerSpawnFeetX && D1_FeetY == G_A_TopY, "D1 stands on the opening route");
+	Expect(G1_FeetX == 480 && G1_FeetY == G_A_TopY && G1_FeetX < D1_FeetX, "G1 stands on G_A before D1");
+	Expect(G1_FeetX - PlayerSpawnFeetX > 360, "G1 starts outside lose-aggro");
 	Expect(SlabDepth / 2 >= 15, "slab reaches the projectile plane");
 	Expect(WallLeftX + WallThickness / 2 == G_A_X0, "left wall seals X=0");
 	Expect(WallRightX - WallThickness / 2 == PlayWidth, "right wall seals X=3200");
