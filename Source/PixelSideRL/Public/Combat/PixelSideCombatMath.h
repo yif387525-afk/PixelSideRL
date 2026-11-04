@@ -30,17 +30,19 @@ constexpr int JumpFallEarlyFrame = 3;
 constexpr int JumpFallLateFrame = 4;
 constexpr float JumpApexSpeed = 40.f;
 
-// --- Move feel (CombatFeel §2) ---
-constexpr float MaxWalkSpeed = 220.f;
-constexpr float GroundAcceleration = 2400.f;
-constexpr float GroundDeceleration = 3200.f;
-constexpr float JumpZVelocity = 420.f;
-constexpr float AirControl = 0.35f;
+// --- Move feel (CombatFeel §2). Dead Cells pass: snappier stop, stronger air redirect. ---
+constexpr float MaxWalkSpeed = 245.f;
+constexpr float GroundAcceleration = 3200.f;
+constexpr float GroundDeceleration = 4000.f;
+constexpr float JumpZVelocity = 400.f;
+constexpr float AirControl = 0.70f;
 constexpr float CoyoteTime = 0.08f;
 constexpr float JumpBuffer = 0.10f;
-constexpr float GravityScale = 2.2f;
-constexpr float FallGravityMultiplier = 1.35f;
-constexpr float MaxFallSpeed = 900.f;
+constexpr float GravityScale = 2.55f;
+constexpr float FallGravityMultiplier = 1.55f;
+constexpr float MaxFallSpeed = 1000.f;
+// Release jump while rising: Velocity.Z *= this. Held jumps keep JumpZVelocity.
+constexpr float JumpCutRisingZScale = 0.35f;
 constexpr float CapsuleRadius = 12.f;
 constexpr float CapsuleHalfHeight = 19.f; // diameter 24, height 38
 constexpr float SpriteFeetOffsetZ = -1.f;
@@ -55,15 +57,15 @@ constexpr float FireRecoilPixels = 2.f;
 constexpr float FireRecoilDuration = 0.06f;
 
 // --- Peashooter (CombatFeel §4.1) ---
-constexpr float PeaFireInterval = 0.14f;
-constexpr float PeaSpreadDegrees = 1.5f;
-constexpr float PeaProjectileSpeed = 520.f;
+constexpr float PeaFireInterval = 0.12f;
+constexpr float PeaSpreadDegrees = 1.0f;
+constexpr float PeaProjectileSpeed = 560.f;
 constexpr float PeaProjectileRadius = 3.f;
 constexpr float PeaDamage = 8.f;
-constexpr float PeaKnockback = 40.f;
-constexpr float PeaHitStopPlayer = 0.02f;
-constexpr float PeaHitStopEnemy = 0.04f;
-constexpr float PeaCamShakeScale = 0.7f;
+constexpr float PeaKnockback = 70.f;
+constexpr float PeaHitStopPlayer = 0.03f;
+constexpr float PeaHitStopEnemy = 0.08f;
+constexpr float PeaCamShakeScale = 1.1f;
 constexpr float PeaProjectileLife = 0.9f;
 
 // FireRate is a multiplier. Default base is 1. Cooldown = FireInterval / GetStat(FireRate).
@@ -77,16 +79,16 @@ constexpr float SameTargetHitInterval = 0.10f;
 // --- Player hurt (CombatFeel §6) ---
 constexpr float PlayerIFrameDuration = 0.60f;
 constexpr float IFrameBlinkHz = 9.f; // inside the 8–10 Hz band
-constexpr float PlayerHitKnockback = 120.f;
-constexpr float PlayerHitStop = 0.06f;
+constexpr float PlayerHitKnockback = 145.f;
+constexpr float PlayerHitStop = 0.07f;
 constexpr int HitFlashFrames = 2;
 constexpr float HitFlashDuration = static_cast<float>(HitFlashFrames) / PixelAnimFps;
 constexpr float HitStopDilation = 0.05f;
 
 // Knockback values are horizontal travel in uu (1 uu = 1 px). They are played as a
-// short ease-out so GroundDeceleration (3200) does not erase a 40/120 shove in under a pixel.
+// short ease-out so GroundDeceleration (4000) does not erase a 70/145 shove in under a pixel.
 // Air keeps 60% of that distance (CombatFeel §6).
-constexpr float KnockbackSlideDuration = 0.14f;
+constexpr float KnockbackSlideDuration = 0.11f;
 constexpr float KnockbackAirRetain = 0.60f;
 
 // Published player max in the debug HUD wireframe (HP x / 30). Not a CombatFeel row.
@@ -95,7 +97,7 @@ constexpr float PlayerMaxHealth = 30.f;
 constexpr float DamageDummyMaxHealth = 40.f;
 
 // Debug turret stands in for Grunt's slow pea (CombatFeel §7: 0.8 s, damage 6).
-// Speed is intentionally under the player's 520 so the bolt stays readable.
+// Speed is intentionally under the player's 560 so the bolt stays readable.
 constexpr float GruntFireInterval = 0.80f;
 constexpr float GruntDamage = 6.f;
 constexpr float GruntProjectileSpeed = 280.f;
@@ -123,6 +125,12 @@ inline float ComputeFireCooldown(float FireInterval, float FireRateMultiplier)
 {
 	const float Rate = (FireRateMultiplier > MinFireRate) ? FireRateMultiplier : MinFireRate;
 	return FireInterval / Rate;
+}
+
+// Jump cut applies only on the way up. Apex and falling arcs stay intact.
+inline float ApplyJumpCutRisingZ(float VerticalZ)
+{
+	return (VerticalZ > 0.f) ? (VerticalZ * JumpCutRisingZScale) : VerticalZ;
 }
 
 inline int SelectJumpFrameIndex(float VerticalVelocity, float InJumpZVelocity, float InMaxFallSpeed, float InApexSpeed)

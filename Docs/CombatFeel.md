@@ -24,16 +24,17 @@
 
 | 参数 | 建议值 | 区间 | 备注 |
 |------|--------|------|------|
-| MaxWalkSpeed | 220 | 180–260 | 约 5.5 身宽/秒 |
-| GroundAcceleration | 2400 | 1800–3200 | 3–5 帧到满速 |
-| GroundDeceleration | 3200 | 2400–4000 | 急停 ≤4 帧 |
-| JumpZVelocity | 420 | 360–480 | 跳高约 1.6–2.0 身 |
-| AirControl | 0.35 | 0.25–0.45 | 侧向微调，禁止空中急转满速 |
+| MaxWalkSpeed | 245 | 180–260 | 约 6.1 身/秒 |
+| GroundAcceleration | 3200 | 1800–3200 | 3–5 帧到满速 |
+| GroundDeceleration | 4000 | 2400–4000 | 急停 ≤4 帧 |
+| JumpZVelocity | 400 | 360–480 | 按住跳的起跳速度 |
+| AirControl | 0.70 | 0.55–0.80 | 空中可改线 |
 | CoyoteTime | 0.08 s | 0.06–0.12 | 离台容错 |
 | JumpBuffer | 0.10 s | 0.08–0.14 | 落地前提前跳 |
-| GravityScale | 2.2 | 1.8–2.8 | 下落快于上升 |
-| FallGravityMult | 1.35 | 1.2–1.6 | 过顶后加压 |
-| MaxFallSpeed | 900 | 700–1100 | 防穿透薄平台 |
+| GravityScale | 2.55 | 1.8–2.8 | 下落快于上升 |
+| FallGravityMult | 1.55 | 1.2–1.6 | 过顶后加压 |
+| MaxFallSpeed | 1000 | 700–1100 | 防穿透薄平台 |
+| JumpCutRisingZScale | 0.35 | 0.25–0.50 | 松跳且 Vz>0 时 `Velocity.Z *=` 该值；短按明显矮于长按 |
 | Capsule | 12×38 | — | 显示可 ±1–2 px 偏移，记入下表 |
 
 **碰撞 vs 显示偏移（强制记录）**
@@ -78,16 +79,16 @@
 
 | 参数 | 值 | 手感说明 |
 |------|-----|----------|
-| FireInterval | 0.14 s | ~7 rps，稳定主武器；实际冷却 = FireInterval/GetStat(FireRate) |
-| Spread | 1.5° | 近乎直 |
-| ProjectileSpeed | 520 | 中速可读 |
+| FireInterval | 0.12 s | ~8.3 rps，稳定主武器；实际冷却 = FireInterval/GetStat(FireRate) |
+| Spread | 1.0° | 近乎直 |
+| ProjectileSpeed | 560 | 中速可读 |
 | ProjectileRadius | 3 px | |
 | Damage | 8 | |
-| KnockbackToEnemy | 40 | 轻推 |
-| HitStop_Player | 0.02 s | 几乎无感 |
-| HitStop_Enemy | 0.04 s | |
-| CamShakeScale | 0.7 | |
-| MaxRange / Life | 0.9 s | 约 470 px 飞行 |
+| KnockbackToEnemy | 70 | 明显推开 |
+| HitStop_Player | 0.03 s | 短顿 |
+| HitStop_Enemy | 0.08 s | 命中顿挫 |
+| CamShakeScale | 1.1 | 命中反馈更明显 |
+| MaxRange / Life | 0.9 s | 约 504 px 飞行 |
 
 ### 4.2 散弹 `DA_Weapon_Scatter`
 
@@ -150,8 +151,9 @@ AC_WeaponController.Fire
 | 参数 | 值 |
 |------|-----|
 | I-Frame | 0.60 s（闪烁 8–10 Hz） |
-| HitKnockback | 120 水平，离开伤害源 |
-| HitStop | 0.06 s |
+| HitKnockback | 145 水平，离开伤害源 |
+| HitStop | 0.07 s |
+| KnockbackSlide | 0.11 s ease-out；空中仍 ×0.6 |
 | HitFlash | 白闪 2 帧 |
 | 伤害数字 | HUD 可选；MVP 可只闪血条 |
 
@@ -160,7 +162,7 @@ AC_WeaponController.Fire
 | 参数 | 值 |
 |------|-----|
 | HitFlash | 白/受击色 2–3 帧 |
-| Knockback 衰减 | 地面摩擦立刻吃掉；空中保留 60% |
+| Knockback 衰减 | 0.11 s ease-out 走完位移；空中保留 60% |
 | HitStun | 小怪 0.08–0.12 s；精英 0.05 s；Boss **无硬直**（仅闪白） |
 | 死亡 | 击退 ×1.5 + 4–6 帧碎裂/粒子 + 掉落由 Roguelike 模块生成 |
 
@@ -254,3 +256,4 @@ Boss：本表只占位——**有线电报招 ≥0.4 s、无 HitStun、阶段血
 | 2026-11-04 | 弹芯 | **主管拍板**：DA=`BaseFireRateHz`，`GetStat(FireRate)`=乘区；间隔=1/(Base*Mult) |
 | 2026-11-04 | 弹芯 | 与 API 统一：DA=`FireInterval`；冷却=`FireInterval/GetStat(FireRate)`；FireRate 乘区默认 1.0 |
 | 2026-11-04 | 弹芯 | P0 默认值按 §2/§4.1/§6 进 C++。Knockback 按 uu 位移做 0.14s ease-out（急停摩擦 3200 会把 40/120 收成亚像素）；空中仍 ×0.6。Jump 动画按 v3 **5** 帧刮帧。 |
+| 2026-11-04 | 弹芯 | **主管拍板（死亡细胞向）**：§2 急停/空中改线/Jump Cut 0.35；§4.1 豌豆 0.12s、散布 1°、弹速 560、击退 70、敌顿 0.08；§6 玩家击退 145、HitStop 0.07、滑行 0.11s。Coyote 0.08、Jump Buffer 0.10、FireRate 乘区、Jump **5** 帧不动。 |

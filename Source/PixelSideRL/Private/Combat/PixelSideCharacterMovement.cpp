@@ -35,6 +35,15 @@ void UPixelSideCharacterMovement::BeginPlay()
 	BaseGravityScale = GravityScale;
 }
 
+void UPixelSideCharacterMovement::ApplyJumpCut()
+{
+	// LaunchCharacter only queues PendingLaunchVelocity until the next movement
+	// tick. StopJumping clears bPressedJump and never sees that rising impulse,
+	// so a tap would still leave the ground at full JumpZVelocity.
+	PendingLaunchVelocity.Z = PixelSideCombat::ApplyJumpCutRisingZ(PendingLaunchVelocity.Z);
+	Velocity.Z = PixelSideCombat::ApplyJumpCutRisingZ(Velocity.Z);
+}
+
 void UPixelSideCharacterMovement::StartKnockback(float VelocityX, float Duration)
 {
 	KnockbackInitialX = VelocityX;
