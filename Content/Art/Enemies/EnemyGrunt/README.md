@@ -1,12 +1,10 @@
-# EnemyGrunt
+# EnemyGrunt v3
 
-P0 沙盒杂兵。帧 **20×28**（身高约 28px），同 ArtBible 色板；敌方识别用警告红 / 弹道粉。
+与玩家 v3 统一：死亡细胞式紧凑剪影（小头、结实躯干、斗篷），**非机甲**。  
+帧 **28×32**，身高约 26–28px；敌方红条 + 粉枪口。旧机甲沙盒不进库。
 
-| 文件 | 帧数 |
-|------|------|
+| 文件 | 帧 |
+|------|----|
 | `T_EnemyGrunt_Idle.png` | 4 |
 | `T_EnemyGrunt_Run.png` | 6 |
 | `T_EnemyGrunt_Hurt.png` | 2 |
-| `*_Preview4x.png` | 审阅用 |
-
-Pivot：脚底中心。面向右。

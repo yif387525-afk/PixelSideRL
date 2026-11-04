@@ -1,6 +1,6 @@
 # GDD — 像素横版射击 Roguelike（MVP）
 
-**工程：** PixelSideRL（UE 5.4+）  
+**工程：** PixelSideRL（UE 5.8+）  
 **对齐：** `UE_PROJECT_SPEC.md`  
 **日活可运行目标：** `Maps/Run_Test` 能开一局并结算。
 

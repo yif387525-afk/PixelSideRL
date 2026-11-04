@@ -1,8 +1,8 @@
 # PixelSideRL
 
-Pixel side-scroller shooter roguelike for Unreal Engine 5.4+. Short runs move through a room graph (combat, elite, event, shop, rest), with in-run affix builds and a light permanent meta. Target look is pixel art at a logical 640×360, nearest-neighbor scaled, with an orthographic camera.
+Pixel side-scroller shooter roguelike for Unreal Engine 5.8+ (suggested lock 5.8.4). Short runs move through a room graph (combat, elite, event, shop, rest), with in-run affix builds and a light permanent meta. Target look is pixel art at a logical 640×360, nearest-neighbor scaled, with an orthographic camera.
 
-This is a practice project. The repository holds the design seed: documentation, pixel-art stubs, JSON data contracts, room specs, and C++ header contracts. Create the Unreal project locally next in UE 5.4+ (`PixelSideRL.uproject`, module `Build.cs`, and generated project files). `Source/` currently contains affix interface headers only.
+This is a practice project. The repository holds the design seed: documentation, pixel-art stubs, JSON data contracts, room specs, and C++ header contracts. Create the Unreal project locally next in UE 5.8+ (suggested lock 5.8.4) (`PixelSideRL.uproject`, module `Build.cs`, and generated project files). `Source/` currently contains affix interface headers only.
 
 ## Read first
 
