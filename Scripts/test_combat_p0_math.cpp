@@ -63,12 +63,17 @@ int main()
 
 	using namespace PixelSideLabLayout;
 	Expect(!bSpawnBridgeByDefault, "BRIDGE is not a resident slab");
-	Expect(PitX1 - PitX0 == 240, "PIT_C is 240 wide");
-	Expect(IslandX0 > PitX0 && IslandX1 < PitX1 && IslandTopY == 40, "island sits in the pit");
-	Expect(P2TopY - P1TopY == 48 && P3TopY - P2TopY == 48, "platform rise is 48");
+	Expect(PitSideGap == 60 && IslandX0 - PitX0 == PitSideGap && PitX1 - IslandX1 == PitSideGap, "pit side gaps are 60");
+	Expect((IslandX0 + IslandX1) == (PitX0 + PitX1), "island is centered in the pit");
+	Expect(IslandX1 - IslandX0 == 80 && IslandX0 == 1400 && IslandX1 == 1480, "island width 80, X unchanged");
+	Expect(IslandTopY == 24 && P1TopY == 28 && P2TopY == 56 && P3TopY == 84 && P_E_TopY == 56, "hotfix tops");
+	Expect(P2TopY - P1TopY == 28 && P3TopY - P2TopY == 28, "platform rise is 28");
+	Expect(P1TopY < 32 && IslandTopY < 32, "P1 and island sit under the live ~32 jump");
+	Expect(JumpZVelocity == 400.f && GravityScale == 2.55f, "hotfix does not retune jump");
+	Expect(G_A_X1 == PitX0 && G_C_Right_X0 == PitX1, "floors meet the pit lips");
 	Expect(D2_FeetX == P2CenterX && D2_FeetY == P2TopY, "D2 stands on P2");
 	Expect(D4_FeetX == P_E_CenterX && D4_FeetY == P_E_TopY, "D4 stands on P_E_high");
-	Expect(SafeFeetX > G_A_X0 && SafeFeetX < G_A_X1, "safe point is on G_A");
+	Expect(SafeFeetX > G_A_X0 && SafeFeetX < PitX0 && SafeFeetX + 12 < PitCatchX0, "safe point is on G_A left of the pit");
 	Expect(PitDeathY == -80 && PitCatchX0 < G_A_X1 && PitCatchX1 > PitX1, "pit catch includes the lip and edge");
 	Expect(T1_FeetX >= 2000 && CV2_X + CV2_Width / 2 < T1_FeetX, "T1 sits behind CV2");
 	Expect(SlabDepth / 2 >= 15, "slab reaches the projectile plane");
