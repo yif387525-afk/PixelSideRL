@@ -1,6 +1,6 @@
 # Combat P0 实现清单 — 移动 · 豌豆枪 · Damageable
 
-**状态:** 设计基线（无远端仓库；落地 BP 等仓库就绪）  
+**状态:** P0 核心已进 C++（2026-11-04）。`Lab_CombatP0.umap`、Flipbook、`BP_*` / `DA_*.uasset` 不进仓库，按 `Docs/Combat_P0_LabSetup.md` 在本地补。Jump = **5** 帧。  
 **依据:** `UE_PROJECT_SPEC.md` · `CombatFeel.md`（冲突以 CombatFeel 为准）  
 **负责人:** 弹芯  
 **范围外:** 散弹/矛枪、敌人 AI、词条管线、Boss、联网
@@ -9,11 +9,11 @@
 
 ## 1. 验收标准（仓库就绪后一次 PR 可玩）
 
-- [ ] `Run_Test`（或临时 `_Dev` 关）可控制角色左右走、跳、急停  
-- [ ] 按住/点按开火发射豌豆弹；弹道可见；撞墙销毁  
-- [ ] 命中实现 `BI_Damageable` 的目标：扣血、闪白、轻击退  
-- [ ] 玩家受击：I-Frame 闪烁 + 击退（可用调试键或测试炮塔触发）  
-- [ ] 命名与路径符合工程规范；数值来自 DA，无散落魔法数  
+- [x] `Run_Test`（或临时 `_Dev` 关）可控制角色左右走、跳、急停  
+- [x] 按住/点按开火发射豌豆弹；弹道可见；撞墙销毁  
+- [x] 命中实现 `BI_Damageable` 的目标：扣血、闪白、轻击退  
+- [x] 玩家受击：I-Frame 闪烁 + 击退（可用调试键或测试炮塔触发）  
+- [x] 命名与路径符合工程规范；数值来自 DA，无散落魔法数  
 
 ---
 
@@ -198,17 +198,17 @@ sequenceDiagram
 
 | ID | 任务 | 依赖 | 完成定义 |
 |----|------|------|----------|
-| P0-1 | 建 `_Dev/Combat` 沙盒关 + 正交相机跟 X | — | 空关可进 |
-| P0-2 | `BP_PlayerSideScroller` 移动参数按 CombatFeel §2 | P0-1 | 走跳急停手感达标 |
-| P0-3 | 输入 `IMC_Combat` + 三角色绑定 | P0-2 | 键鼠可玩 |
-| P0-4 | `BI_Damageable` + `S_DamageSpec` + `AC_Damageable` | — | 木桩可被调试伤害打掉血 |
-| P0-5 | `BP_DamageDummy` 挂接口；闪白/击退 | P0-4 | 肉眼可见反馈 |
-| P0-6 | `DA_Weapon_Peashooter` 填表 | — | 与 CombatFeel §4.1 一致 |
-| P0-7 | `AC_WeaponController` 冷却 + 朝向开火 | P0-2, P0-6 | 空弹可生成 |
-| P0-8 | `BP_Projectile_Pea` 运动/寿命/撞墙/Overlap | P0-7 | 弹道可读 |
-| P0-9 | 弹→`ApplyDamage` 接好；轻 HitStop | P0-5, P0-8 | 木桩挨打完整反馈 |
-| P0-10 | 玩家 `AC_Damageable` + I-Frame；调试伤害源 | P0-4 | 受击闪烁不连环秒 |
-| P0-11 | 文档回写：本清单勾选 + CombatFeel 变更一行 | 上列 | PR 描述可复制 |
+| P0-1 | 建 `_Dev/Combat` 沙盒关 + 正交相机跟 X | — | [x] 空关可进（GameMode 灰盒 + 正交相机；umap 见 LabSetup） |
+| P0-2 | `BP_PlayerSideScroller` 移动参数按 CombatFeel §2 | P0-1 | [x] `APixelSideCharacter` + `UPixelSideCharacterMovement` |
+| P0-3 | 输入 `IMC_Combat` + 三角色绑定 | P0-2 | [x] 运行时 `IA_Move` / `IA_Jump` / `IA_Fire` |
+| P0-4 | `BI_Damageable` + `S_DamageSpec` + `AC_Damageable` | — | [x] `IDamageable` / `FDamageSpec` / `UDamageableComponent` |
+| P0-5 | `BP_DamageDummy` 挂接口；闪白/击退 | P0-4 | [x] `APixelDamageDummy` |
+| P0-6 | `DA_Weapon_Peashooter` 填表 | — | [x] `UDA_Weapon_Peashooter` 默认 §4.1（uasset 本地可选） |
+| P0-7 | `AC_WeaponController` 冷却 + 朝向开火 | P0-2, P0-6 | [x] `UWeaponControllerComponent` |
+| P0-8 | `BP_Projectile_Pea` 运动/寿命/撞墙/Overlap | P0-7 | [x] `AProjectilePea` |
+| P0-9 | 弹→`ApplyDamage` 接好；轻 HitStop | P0-5, P0-8 | [x] 木桩扣血、闪白、击退、Victim HitStop |
+| P0-10 | 玩家 `AC_Damageable` + I-Frame；调试伤害源 | P0-4 | [x] I-Frame 闪烁；H 与 `APixelDebugHurtTurret` |
+| P0-11 | 文档回写：本清单勾选 + CombatFeel 变更一行 | 上列 | [x] 本文件 + `Combat_P0_LabSetup.md` |
 
 **并行建议:** P0-4/5 与 P0-2/3 可并行；P0-6 可最先做。
 
@@ -245,3 +245,4 @@ sequenceDiagram
 | 2026-11-04 | 弹芯 | §2.7 对齐 AffixSubsystem_API v1：EStatId、FireRate=Hz、AC_StatModifiers |
 | 2026-11-04 | 弹芯 | 主管拍板：FireRate=乘区，DA=BaseFireRateHz |
 | 2026-11-04 | 弹芯 | 与 API 统一：DA=FireInterval；冷却=FireInterval/GetStat(FireRate) |
+| 2026-11-04 | 弹芯 | P0 可玩切片进 C++（移动/豌豆/Damageable/I-Frame）。umap 与 5 帧 Jump Flipbook 见 `Combat_P0_LabSetup.md`。 |
