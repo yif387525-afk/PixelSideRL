@@ -224,7 +224,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | Room_Elite_01 | Elite | Mid | 细表完成 | 中央竞技场 |
 | Room_Event_01 | Event | Branch | 细表完成 | 无战斗；仅支路 |
 | Room_Shop_01 | Shop | Branch | 细表完成 | 仅支路；与 Event 二选一上场 |
-| Room_BossAnte_01 | BossAnte | BossGate | 细表完成 | 前厅；与 Boss 同批 |
+| Room_BossAnte_01 | BossAnte | BossGate | 规格定稿候选 | CSV 已挂；BossGate 进 Boss_01 |
 | Room_Boss_01 | Boss | Boss | 细表完成 | 双阶段；经前厅进入 |
 
 > 建图顺序（已拍板）：`Combat_01/02` → `Boss_01` 骨架（**含前厅**）→ `Elite_01` → 其余 Combat → Event/Shop。
@@ -257,3 +257,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Combat_01 正式几何/出口/CSV 规格；Peek=2D 站位；COMMENT 交审 |
 | 2026-11-05 | Combat_02 正式规格：一层平台/刷怪/出口/CSV；COMMENT 交审 |
 | 2026-11-05 | Combat_03 正式规格：双高台/刷怪/出口/CSV；COMMENT 交审 |
+| 2026-11-05 | BossAnte_01 骨架正式规格 COMMENT 交审 |

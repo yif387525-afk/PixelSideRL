@@ -1,0 +1,10 @@
+id,kind,x0,x1,x_center,width,top_y,height,facing,rule,notes
+G_main,Floor,0,1280,,,0,,,,"main walkable; no pit"
+WALL_L,Wall,-40,0,,,280,,,,"left bound"
+WALL_R,Wall,1280,1320,,,280,,,,"right bound"
+P_lintel,Platform,960,1160,,,28,,,,"lintel-side atmosphere; optional step"
+CV_A,Cover,,,480,24,0,40,,PawnIgnore_ProjectileBlock,"atmosphere column"
+PlayerStart,Anchor,48,0,,,,,,,"spawn feet"
+Exit_Left,Exit,-40,0,,,,,Exit.Left,,"entry/back unlocked"
+Exit_BossGate,Exit,1200,0,,,,,Exit.BossGate,,"forward to Room_Boss_01; no RequireClear"
+BossPreview,Anchor,1100,0,,,,,,,"boss preview / door cue"

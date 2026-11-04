@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_BossAnte_01,BossAnte,BossGate,1280,360,2,None,false,,"Safe antechamber; optional<=2 harmless guides; Exit.BossGate to Boss_01; no affix"
