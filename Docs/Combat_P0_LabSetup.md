@@ -76,6 +76,7 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 | 走、跳、Coyote、Buffer、重力、Jump Cut | `UPixelSideCharacterMovement` 与 `HandleJumpCompleted`，默认 CombatFeel §2 |
 | 豌豆枪 | `UDA_Weapon` / `UDA_Weapon_Peashooter`，§4.1 |
 | 玩家受击 | `UDamageableComponent` 且 `bUsePlayerHurtProfile`，§6 |
+| Lab 调试炮塔与 H | `GruntDamage` **7.5**（≤25% × `PlayerMaxHealth` 30）、`GruntFireInterval` **1.0 s**。只约束 Lab 炮塔与调试受击，不是 CombatFeel §7 未来 Grunt（仍为 0.8 s、Damage 6） |
 | 常量只写在 | `Source/PixelSideRL/Public/Combat/PixelSideCombatMath.h` |
 
 战斗只读 `AC_StatModifiers.GetStat`。没有该组件时开火回退到 FireRate = 1 和武器 DA 的伤害/击退。不要在战斗蓝图里 Roll 词条。

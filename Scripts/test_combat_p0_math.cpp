@@ -55,6 +55,8 @@ int main()
 	Expect(MaxWalkSpeed == 245.f && GroundDeceleration == 4000.f && AirControl == 0.70f, "move §2");
 	Expect(JumpZVelocity == 400.f && JumpCutRisingZScale == 0.35f && GravityScale == 2.55f, "jump and gravity");
 	Expect(CoyoteTime == 0.08f && JumpBuffer == 0.10f, "coyote and buffer unchanged");
+	Expect(Near(GruntDamage, 7.5f) && GruntDamage <= PlayerMaxHealth * 0.25f, "lab turret shot is 25% max HP");
+	Expect(GruntFireInterval >= 1.f && Near(GruntFireInterval, 1.f), "lab turret interval is 1s");
 	Expect(PlayerIFrameDuration == 0.60f && PlayerHitKnockback == 145.f && PlayerHitStop == 0.07f, "player hurt §6");
 	Expect(KnockbackSlideDuration == 0.11f, "knockback slide");
 
