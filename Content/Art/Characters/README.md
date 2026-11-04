@@ -8,7 +8,7 @@
 |------|----|
 | `T_Player_Idle.png` | 4 |
 | `T_Player_Run.png` | 6 |
-| `T_Player_Jump.png` | 3 rise/apex/fall |
+| `T_Player_Jump.png` | 5 rise/apex/fall |
 | `T_Player_Fire.png` | 3 预备/后坐闪/复原 |
 | `T_Player_Hurt.png` | 2 闪白 |
 | `*_Preview4x.png` | 审阅 |
