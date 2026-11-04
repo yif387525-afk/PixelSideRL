@@ -105,6 +105,27 @@ UI：`WBP_AffixChoice`；暂停战斗；选 1 加入 `AC_AffixInventory`。算�
 | 卡死 / 掉出世界 | 软重置当前房（保留 HP/词条，记一次 Debug 计数） |
 | 三选一 UI 未选退出 | 禁止；必须选 1 张才能继续 |
 
+### 2.8 事件房（支路 · MVP）
+
+**规则（与 `RoomPipeline` 对齐）：** 无战斗、门不锁、无三选一；交互完成或走门跳过均可立刻离开。与 Shop **同 Run 最多共占 1 条支路**。
+
+**默认模板：** `Room_Event_01` → `Interact_Main` 挂 `DA_Event_AbandonedCache`（`Content/Data/Events/`）。
+
+| 字段 | 定稿 |
+|------|------|
+| EventId | `AbandonedCache` |
+| 标题 | 废弃补给箱 |
+| 正文 | 封条已经裂开。小心撬开能摸到 Scrap；硬拽更快，但箱缘会割手。也可以直接走开。 |
+| SkipHint | 走开（无奖励） |
+
+| ChoiceId | 按钮 | 效果（有序） |
+|----------|------|--------------|
+| `CarefulLoot` | 小心撬开 | `GrantScrap 25` |
+| `ForceLoot` | 硬拽出来 | `DamageSelf 15` → `GrantScrap 50`（DamageSelf 后 CurrentHP 下限 **1**，事件不可直接致死） |
+
+**Op 白名单（MVP）：** `GrantScrap` / `DamageSelf` / `HealSelf` / `None`。不发词条、不改 Core。  
+**UI：** `WBP_EventChoice`（或等价）；打开期间可暂停移动开火；门仍可走。扩池只追加 `DT_Event_MVP` 行，不改已锁数值。
+
 ---
 
 ## 3. 战斗支柱（侧视射击）
@@ -234,7 +255,7 @@ Core = min(Core, SoftCapPerRun)
 
 - [ ] **手感签收：** `CombatFeel.md` 本版已引用；Peashooter 走跳开火与受击 I-Frame 符合表内观感（弹芯自测 + 织局抽查）
 - [ ] **P0.5 Grunt：** 至少 1 只 Grunt 可追击/射击、可被击杀；死亡有反馈；数据在 `DA_Enemy_Grunt`
-- [ ] **P0.6 三选一最小闭环：** 单次三选一全链路可跑通；选中 RapidFire 后射速明显加快；Unique 不会二次出现（可用 Debug 连抽验证）
+- [x] **P0.6 三选一最小闭环：** 单次三选一全链路可跑通；选中 RapidFire 后射速明显加快；Unique 不会二次出现（可用 Debug 连抽验证）· 策划签收 2026-11-05（PR #29；Mac Play 明早补）
 - [ ] **P0.7 第一战斗房：** 一间普通房清房 → 必出三选一 → 开门；无回退
 - [ ] **P0.8 Hub/Run_Test 开局：** Hub 一键开局进入可玩图；失败或主动退出能回 Hub（结算 UI 可极简）
 
@@ -272,3 +293,4 @@ Core = min(Core, SoftCapPerRun)
 |------|------|------|
 | 2026-11-04 | 织局 | 首版：局内循环、难度曲线、敌人/三枪、结算 Core |
 | 2026-11-05 | 织局 | **签收** `CombatFeel.md` 本版；近端顺序锁定 **P0.5 Grunt → P0.6 三选一最小闭环 → P0.7 第一战斗房 → P0.8 Hub/Run_Test 开局**；补 §6.5 与 §7.1 验收 |
+| 2026-11-05 | 织局 | §2.8 Event：`DA_Event_AbandonedCache` 挂 `Room_Event_01`；CarefulLoot/+25 Scrap · ForceLoot/−15HP+50 Scrap；跳过无奖 |

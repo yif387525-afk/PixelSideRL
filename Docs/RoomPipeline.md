@@ -222,7 +222,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | Room_Combat_05 | Combat | Mid/Late | 规格定稿候选 | 夹击走廊；CSV 已挂 |
 | Room_Combat_06 | Combat | Late | 规格定稿候选 | 开阔风筝；CSV 已挂 |
 | Room_Elite_01 | Elite | Mid | 规格定稿候选 | 中央竞技场；CSV 已挂 |
-| Room_Event_01 | Event | Branch | 规格定稿候选 | 无战斗；仅支路；CSV 已挂 |
+| Room_Event_01 | Event | Branch | 规格定稿候选 | 无战斗；仅支路；CSV 已挂；**DA_Event_AbandonedCache** |
 | Room_Shop_01 | Shop | Branch | 规格定稿候选 | 仅支路；与 Event 二选一；CSV 已挂 |
 | Room_BossAnte_01 | BossAnte | BossGate | 规格定稿候选 | CSV 已挂；BossGate 进 Boss_01 |
 | Room_Boss_01 | Boss | Boss | 规格定稿候选 | 双阶段；CSV 已挂；经前厅进入 |
@@ -235,7 +235,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 
 - （原 3 条已拍板，见 §0。）  
 - 支路挂点偏好：Elite 前 / Elite 后 / BossAnte 前？（默认：**Elite 后、前厅前**，未另批则按此实现。）  
-- Event 具体交互内容：待 GDD / 织局补文案后挂 DA。
+- ~~Event 具体交互内容：待 GDD / 织局补文案后挂 DA。~~ → **已挂** `DA_Event_AbandonedCache`（GDD §2.8）。
 
 ---
 
@@ -265,3 +265,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Combat_06 正式规格 COMMENT 交审 |
 | 2026-11-05 | Event_01 正式规格 COMMENT 交审 |
 | 2026-11-05 | Shop_01 正式规格 COMMENT 交审 |
+| 2026-11-05 | Event_01 挂 `DA_Event_AbandonedCache`；开放问题关闭 |
