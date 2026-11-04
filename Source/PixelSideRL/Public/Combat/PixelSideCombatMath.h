@@ -125,17 +125,17 @@ inline float ComputeFireCooldown(float FireInterval, float FireRateMultiplier)
 	return FireInterval / Rate;
 }
 
-inline int SelectJumpFrameIndex(float VerticalVelocity, float JumpZVelocity, float MaxFallSpeed, float ApexSpeed)
+inline int SelectJumpFrameIndex(float VerticalVelocity, float InJumpZVelocity, float InMaxFallSpeed, float InApexSpeed)
 {
-	if (VerticalVelocity > ApexSpeed)
+	if (VerticalVelocity > InApexSpeed)
 	{
-		const float Denom = (JumpZVelocity > 0.f) ? JumpZVelocity : ApexSpeed;
+		const float Denom = (InJumpZVelocity > 0.f) ? InJumpZVelocity : InApexSpeed;
 		const float Alpha = VerticalVelocity / Denom;
 		return (Alpha > 0.5f) ? JumpRiseEarlyFrame : JumpRiseLateFrame;
 	}
-	if (VerticalVelocity < -ApexSpeed)
+	if (VerticalVelocity < -InApexSpeed)
 	{
-		const float Denom = (MaxFallSpeed > 0.f) ? MaxFallSpeed : ApexSpeed;
+		const float Denom = (InMaxFallSpeed > 0.f) ? InMaxFallSpeed : InApexSpeed;
 		const float Alpha = (-VerticalVelocity) / Denom;
 		return (Alpha < 0.5f) ? JumpFallEarlyFrame : JumpFallLateFrame;
 	}
