@@ -54,7 +54,8 @@ FAffixCardView GetAffixCardView(const UAffixDefinition* Def, int32 PreviewStacks
 
 | API | 返回 | 说明 |
 |-----|------|------|
-| `GetStat(EStatId Stat)` | `float` | 已按 Base→Meta→Passive→Temp 汇总 |
+| `GetStat(EStatId Stat)` | `float` | 无武器查询。Base→Meta→Passive→Temp。只计 `WeaponTag` 为空的修饰 |
+| `GetStatForWeapon(EStatId Stat, FName WeaponId)` | `float` | 同一套分层。空 Tag 仍计入；非空 Tag 只在与 `WeaponId` 相等时计入。`WeaponId` 为 None 时与 `GetStat` 相同 |
 | `GetStatBase(EStatId Stat)` | `float` | 未加 Affix 的 Base（含武器 DA） |
 | `GetAffixStacks(FName AffixId)` | `int32` | 未拥有为 0 |
 | `HasTag(FName Tag)` | `bool` | Inventory 任一词条含 Tag |
@@ -62,6 +63,14 @@ FAffixCardView GetAffixCardView(const UAffixDefinition* Def, int32 PreviewStacks
 | `IsChoicePending()` | `bool` | 三选一打开中 |
 
 **Modifier 顺序（不可改）：** Base → Meta 永久 → 局内 Passive（先 ΣAdd，再 Π(1+Mul)，最后 Override）→ 临时 Duration Buff。
+
+**`FAffixModifier.WeaponTag`（折算按条过滤，不改上面的层序）：**
+
+- 空（`None` / 省略）= **全局**。每个武器查询，以及不带武器的 `GetStat`，都计入。这是现网无 Tag 修饰的行为。
+- 非空 = 只在 `GetStatForWeapon(Stat, WeaponId)` 且 `WeaponId` 的字符串与 Tag **相等**时计入。对不上的那一条不进该层的 Add / Mul / Override。对得上的 Override 仍替换这一层的结果。
+- 比较的是 `UDA_Weapon::WeaponId`（豌豆是 `Peashooter`），不是 `DA_Weapon_Peashooter` 资产名，也不是商店合约 Id。
+- `AC_WeaponController::ResolveStat` 传入 `GetWeaponId()`。角色 MaxHP / MoveSpeed 仍走不带武器的 `GetStat`，所以一条只标了枪的 Damage Mul 不会改血量。
+- 词条行上的 `bRequiresWeaponTag` 是另一字段，本折算不读它。P0.6 CSV 没有 WeaponTag 列，那些行保持全局。JSON 修饰可以带可选 `WeaponTag`。
 
 `EStatId` MVP：`MaxHP, MoveSpeed, FireRate, Damage, CritChance, CritMult, MagSize, ReloadSpeed, ProjectileCount, Pierce, Knockback, PickupRadius, CoinGain, ScrapGain`。
 
@@ -121,7 +130,9 @@ BeginRun(FRunStartContext Ctx):
   5. RebuildStats() → OnStatsRebuilt / OnAffixChanged(Reset)
 ```
 
-`UMetaProgressSubsystem::BeginRunFromMeta` 传入的上下文还带 `MetaFlags`、`MetaCoreMult`，以及修饰上的 `WeaponTag`。`BeginRun` 仍只折算 `Stat` / `Op` / `Value` / `DurationSec`。空的 `UnlockedAffixIds` 仍表示当前已加载池；Meta 成功读表时会填上 MVP 十词条（P0.6 的 8 条都在这十个里）。
+`UMetaProgressSubsystem::BeginRunFromMeta` 传入的上下文还带 `MetaFlags`、`MetaCoreMult`。`BeginRun` 折算修饰的 `Stat` / `Op` / `Value` / `DurationSec` / `WeaponTag` 进 Meta 层。`MetaFlags` 和 `MetaCoreMult` 仍不读。空的 `UnlockedAffixIds` 仍表示当前已加载池；Meta 成功读表时会填上 MVP 十词条（P0.6 的 8 条都在这十个里）。
+
+PeaFamiliar 写入的是 Damage Mul，`WeaponTag=Peashooter`。档 0 不注入。购档后只有 `WeaponId=Peashooter` 的伤害查询吃到该 Mul（一档 ×1.04，二档 ×1.08，三档 ×1.12）。Scatter / Pike 以及其他 `WeaponId` 不受这条 Mul。不带武器的 `GetStat(Damage)` 也不计入它。无 Tag 的 Meta Add（例如 Vitality 的 MaxHP）仍是全局。
 
 ---
 
@@ -131,7 +142,7 @@ BeginRun(FRunStartContext Ctx):
 
 - `BeginRun`, `EndRun`
 - `RequestAffixChoice`, `ConfirmAffixChoice`, `SkipAffixChoice`, `RollChoices`
-- `GetStat`, `GetAffixStacks`, `HasTag`, `GetOwnedAffixes`, `GetAffixCardView`
+- `GetStat`, `GetStatForWeapon`, `GetAffixStacks`, `HasTag`, `GetOwnedAffixes`, `GetAffixCardView`
 - `DebugGrantAffix`
 
 **Assign / Bind**
@@ -140,14 +151,14 @@ BeginRun(FRunStartContext Ctx):
 
 **Pure**
 
-- `GetStat`, `GetAffixCardView`, `IsChoicePending`, `GetAffixCardViewFromId(AffixId)`
+- `GetStat`, `GetStatForWeapon`, `GetAffixCardView`, `IsChoicePending`, `GetAffixCardViewFromId(AffixId)`
 
 ---
 
 ## 7. 弹芯最小接入清单
 
-1. 玩家生成后：拿 `AC_StatModifiers`（或 Subsystem），开火/移速/伤害读 `GetStat`。  
-2. 绑 `OnAffixChanged` → 刷新缓存的 FireRate/Damage 等。战斗枪只订玩家 `AC_StatModifiers` 上的同名委托，开火冷却 live `GetStat(FireRate)`。  
+1. 玩家生成后：拿 `AC_StatModifiers`（或 Subsystem）。移速 / 生命读 `GetStat`。开火伤害、击退、射速读 `GetStatForWeapon(Stat, WeaponId)`。  
+2. 绑 `OnAffixChanged` → 刷新缓存的 FireRate/Damage 等。战斗枪只订玩家 `AC_StatModifiers` 上的同名委托，开火冷却 live `GetStatForWeapon(FireRate, WeaponId)`。  
 3. 击杀/受伤时若有 GameplayEvent，转发给 Subsystem 以触发 `OnKill`/`OnTakeDamage` 类词条（系统算 Modifier，表现仍归弹芯）。  
 4. **禁止** 在武器 BP 里写死词条 Id 分支（除调试）。
 
@@ -161,7 +172,7 @@ BeginRun(FRunStartContext Ctx):
 
 ## 验收
 
-- [ ] 弹芯改枪伤只经 `GetStat(Damage)`，改 DA 数值即生效  
+- [ ] 弹芯改枪伤只经 `GetStatForWeapon(Damage, WeaponId)`，改 DA 数值即生效。带 `WeaponTag` 的修饰只打在匹配的 `WeaponId` 上  
 - [ ] 界面三选一仅依赖 Name/Desc/Rarity/Icon 四字段即可出卡  
 - [ ] `BeginRun` 后 Meta 加成进 Stat，Inventory 为空  
 - [ ] Unique 词条第二次不会进 `RollChoices`
@@ -182,7 +193,8 @@ BeginRun(FRunStartContext Ctx):
 
 - `DebugGrantAffix("RapidFire")` 后 `GetStat(FireRate) = 1 * (1+0.12) = 1.12`
 - 冷却 = `FireInterval / 1.12`（Peashooter `0.12/1.12`）
-- `HollowPoint` ×1：`GetStat(Damage) = 8 * (1+0.1) = 8.8`
+- `HollowPoint` ×1：`GetStat(Damage) = 8 * (1+0.1) = 8.8`（无 Tag，Peashooter 与其他枪同一乘区）
+- PeaFamiliar 一档：`GetStatForWeapon(Damage, "Peashooter") = 8 * 1.04 = 8.32`；`GetStat(Damage)` 与 `GetStatForWeapon(Damage, "Scatter")` 仍是 8。档 0 不注入
 
 `AC_StatModifiers::GetStat` 在子系统存在时**原样转发**子系统结果，并转发 `OnAffixChanged` / `OnStatsRebuilt`。`AC_AffixInventory` 在确认或 Grant 时写入同一份拥有列表。
 

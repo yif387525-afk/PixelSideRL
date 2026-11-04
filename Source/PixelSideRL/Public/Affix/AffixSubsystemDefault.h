@@ -32,6 +32,7 @@ public:
 	virtual TArray<FAffixChoiceEntry> RollChoices(int32 Count, int32 Seed) override;
 	virtual bool IsChoicePending() const override;
 	virtual float GetStat(EStatId Stat) const override;
+	virtual float GetStatForWeapon(EStatId Stat, FName WeaponId) const override;
 	virtual float GetStatBase(EStatId Stat) const override;
 	virtual void SetBaseStat(EStatId Stat, float Value) override;
 	virtual int32 GetAffixStacks(FName AffixId) const override;

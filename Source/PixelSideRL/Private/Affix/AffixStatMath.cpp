@@ -652,6 +652,10 @@ bool ReadAffixObject(const Json& Obj, FAffixRow& Row, std::string& Error)
 		}
 		Mod.Value = static_cast<float>(Value);
 		Mod.DurationSec = static_cast<float>(Duration);
+		if (!ReadString(ModObj, "WeaponTag", Mod.WeaponTag, false, Error))
+		{
+			return false;
+		}
 		Row.Modifiers.push_back(Mod);
 	}
 	if (!ReadString(Obj, "DataAssetName", Row.DataAssetName, false, Error))
@@ -986,7 +990,12 @@ float DefaultBase(EStat Stat)
 	}
 }
 
-float ApplyLayer(float Current, const std::vector<FMod>& Mods, EStat Stat)
+static bool ModifierMatchesWeapon(const FMod& Mod, std::string_view WeaponTag)
+{
+	return Mod.WeaponTag.empty() || Mod.WeaponTag == WeaponTag;
+}
+
+float ApplyLayer(float Current, const std::vector<FMod>& Mods, EStat Stat, std::string_view WeaponTag)
 {
 	float Add = 0.f;
 	float Mul = 1.f;
@@ -994,7 +1003,7 @@ float ApplyLayer(float Current, const std::vector<FMod>& Mods, EStat Stat)
 	float OverrideValue = 0.f;
 	for (const FMod& Mod : Mods)
 	{
-		if (Mod.Stat != Stat)
+		if (Mod.Stat != Stat || !ModifierMatchesWeapon(Mod, WeaponTag))
 		{
 			continue;
 		}
@@ -1672,10 +1681,10 @@ std::vector<std::string> FRunModel::NotifyTrigger(ETrigger Trigger)
 	return Fired;
 }
 
-float FRunModel::GetStat(EStat Stat) const
+float FRunModel::GetStat(EStat Stat, std::string_view WeaponTag) const
 {
 	float Value = GetBase(Stat);
-	Value = ApplyLayer(Value, Meta, Stat);
+	Value = ApplyLayer(Value, Meta, Stat, WeaponTag);
 	std::vector<FMod> Passive;
 	for (const FOwned& Owned : Inventory)
 	{
@@ -1696,14 +1705,14 @@ float FRunModel::GetStat(EStat Stat) const
 			}
 		}
 	}
-	Value = ApplyLayer(Value, Passive, Stat);
+	Value = ApplyLayer(Value, Passive, Stat, WeaponTag);
 	std::vector<FMod> Timed;
 	Timed.reserve(Temps.size());
 	for (const FTemp& Temp : Temps)
 	{
 		Timed.push_back(Temp.Mod);
 	}
-	return ApplyLayer(Value, Timed, Stat);
+	return ApplyLayer(Value, Timed, Stat, WeaponTag);
 }
 
 int FRunModel::GetStacks(const std::string& AffixId) const

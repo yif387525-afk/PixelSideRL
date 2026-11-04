@@ -10,6 +10,7 @@
  * AC_StatModifiers. Base layer stays on this component (weapon DA / move feel).
  * When UAffixSubsystemDefault is alive, GetStat returns that subsystem's aggregate
  * (Base → Meta → Affix passive → temp), so it matches UAffixSubsystem::GetStat.
+ * GetStatForWeapon is the same fold with a WeaponId so tagged mods can be filtered.
  * OnAffixChanged / OnStatsRebuilt are forwarded from the subsystem for weapon cache refresh.
  */
 UCLASS(ClassGroup = (PixelSide), meta = (BlueprintSpawnableComponent, DisplayName = "AC_StatModifiers"))
@@ -29,6 +30,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Affix|Stats")
 	float GetStat(EStatId Stat) const;
+
+	/** WeaponId None matches GetStat. Otherwise includes mods tagged with that WeaponId. */
+	UFUNCTION(BlueprintPure, Category = "Affix|Stats")
+	float GetStatForWeapon(EStatId Stat, FName WeaponId) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Affix|Stats")
 	void NotifyStatsRebuilt();

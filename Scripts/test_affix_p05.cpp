@@ -437,6 +437,112 @@ int main(int argc, char** argv)
 	Expect(!Order.IsInRun(), "ended");
 	Expect(!Order.RollChoices(3, 1, EOfferSource::NormalRoom), "roll requires BeginRun");
 
+	// WeaponTag: empty stays global. PeaFamiliar's Damage Mul hits only Peashooter.
+	{
+		FRunModel Pea;
+		const float Base = Pea.GetBase(EStat::Damage);
+		const float Fire = Pea.GetBase(EStat::FireRate);
+		FRunModel::FStart Rank0;
+		Rank0.Seed = 1;
+		Pea.BeginRun(Rank0);
+		Expect(Near(Pea.GetStat(EStat::Damage), Base), "rank 0 unscoped damage");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Peashooter"), Base), "rank 0 pea");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Scatter"), Base), "rank 0 scatter");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Pike"), Base), "rank 0 pike");
+
+		auto PeaMul = [](float Value) {
+			FMod Mod;
+			Mod.Stat = EStat::Damage;
+			Mod.Op = EOp::Mul;
+			Mod.Value = Value;
+			Mod.WeaponTag = "Peashooter";
+			return Mod;
+		};
+		FMod GlobalAdd;
+		GlobalAdd.Stat = EStat::Damage;
+		GlobalAdd.Op = EOp::Add;
+		GlobalAdd.Value = 2.f;
+
+		FRunModel::FStart Rank1;
+		Rank1.Seed = 1;
+		Rank1.PermanentModifiers.push_back(GlobalAdd);
+		Rank1.PermanentModifiers.push_back(PeaMul(0.04f));
+		Pea.BeginRun(Rank1);
+		Expect(Near(Pea.GetStat(EStat::Damage), Base + 2.f), "untagged add stays global");
+		Expect(Near(Pea.GetStat(EStat::Damage, ""), Base + 2.f), "empty weapon query matches GetStat");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Peashooter"), (Base + 2.f) * 1.04f), "pea rank 1 is 1.04");
+		Expect(Near((Base + 2.f) * 1.04f, 10.4f), "hand calc (8+2)*1.04");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Scatter"), Base + 2.f), "scatter skips pea mul");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Pike"), Base + 2.f), "pike skips pea mul");
+		Expect(Near(Pea.GetStat(EStat::MaxHP), PixelSideCombat::PlayerMaxHealth), "damage tag does not touch hp");
+
+		Expect(Pea.DebugGrant("HollowPoint", nullptr), "hollow still grants");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Peashooter"), (Base + 2.f) * 1.04f * 1.1f), "hollow stays global on pea");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Scatter"), (Base + 2.f) * 1.1f), "hollow stays global on scatter");
+		Expect(Pea.DebugGrant("RapidFire", nullptr), "rapid fire");
+		Expect(Near(Pea.GetStat(EStat::FireRate, "Scatter"), Fire * 1.12f), "untagged firerate on other guns");
+		Expect(Near(Pea.GetStat(EStat::FireRate), Fire * 1.12f), "untagged firerate on the player query");
+
+		FRunModel::FStart Rank2;
+		Rank2.Seed = 1;
+		Rank2.PermanentModifiers.push_back(PeaMul(0.08f));
+		Pea.BeginRun(Rank2);
+		Expect(Pea.GetStacks("HollowPoint") == 0, "begin run clears the previous inventory");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Peashooter"), Base * 1.08f), "pea rank 2");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Scatter"), Base), "rank 2 does not leak");
+
+		FMod ForeignOverride;
+		ForeignOverride.Stat = EStat::Damage;
+		ForeignOverride.Op = EOp::Override;
+		ForeignOverride.Value = 1.f;
+		ForeignOverride.WeaponTag = "Scatter";
+		FRunModel::FStart Rank3;
+		Rank3.Seed = 1;
+		Rank3.PermanentModifiers.push_back(PeaMul(0.12f));
+		Rank3.PermanentModifiers.push_back(ForeignOverride);
+		Pea.BeginRun(Rank3);
+		Expect(Near(Pea.GetStat(EStat::Damage, "Peashooter"), Base * 1.12f), "pea rank 3 ignores scatter override");
+		Expect(Near(Pea.GetStat(EStat::Damage, "Scatter"), 1.f), "scatter takes its own override");
+		Expect(Near(Pea.GetStat(EStat::Damage), Base), "unscoped skips both tagged mods");
+	}
+
+	const char* TaggedRows =
+		"{\"contractVersion\":3,\"poolId\":\"Tag\",\"affixes\":["
+		"{\"AffixId\":\"PeaOnly\",\"DisplayName\":\"p\",\"Description\":\"d\",\"Rarity\":\"Common\",\"StackRule\":\"Unique\",\"MaxStacks\":1,\"Weight\":1,"
+		"\"Tags\":[],\"ExclusiveTags\":[],\"Triggers\":[\"Passive\"],\"Modifiers\":["
+		"{\"Stat\":\"Damage\",\"Op\":\"Mul\",\"Value\":0.5,\"DurationSec\":0,\"WeaponTag\":\"Peashooter\"}]},"
+		"{\"AffixId\":\"BlankTag\",\"DisplayName\":\"b\",\"Description\":\"d\",\"Rarity\":\"Common\",\"StackRule\":\"Unique\",\"MaxStacks\":1,\"Weight\":1,"
+		"\"Tags\":[],\"ExclusiveTags\":[],\"Triggers\":[\"Passive\"],\"Modifiers\":["
+		"{\"Stat\":\"Damage\",\"Op\":\"Add\",\"Value\":1,\"DurationSec\":0,\"WeaponTag\":\"\"}]},"
+		"{\"AffixId\":\"PeaBurst\",\"DisplayName\":\"t\",\"Description\":\"d\",\"Rarity\":\"Common\",\"StackRule\":\"RefreshDuration\",\"MaxStacks\":1,\"Weight\":1,"
+		"\"Tags\":[],\"ExclusiveTags\":[],\"Triggers\":[\"OnKill\"],\"Modifiers\":["
+		"{\"Stat\":\"Damage\",\"Op\":\"Add\",\"Value\":3,\"DurationSec\":2,\"WeaponTag\":\"Peashooter\"}]}"
+		"]}";
+	FRunModel Tagged;
+	Expect(Tagged.LoadJson(TaggedRows, &LoadError), "weapon tag rows");
+	Expect(Tagged.Find("PeaOnly") && Tagged.Find("PeaOnly")->Modifiers[0].WeaponTag == "Peashooter", "json keeps WeaponTag");
+	Expect(Tagged.Find("BlankTag") && Tagged.Find("BlankTag")->Modifiers[0].WeaponTag.empty(), "empty WeaponTag string stays global");
+	FRunModel::FStart TagStart;
+	TagStart.Seed = 1;
+	Tagged.BeginRun(TagStart);
+	Expect(Tagged.DebugGrant("PeaOnly", nullptr) && Tagged.DebugGrant("BlankTag", nullptr), "grant tagged rows");
+	const float TagBase = Tagged.GetBase(EStat::Damage);
+	const float PassivePea = (TagBase + 1.f) * 1.5f;
+	Expect(Near(Tagged.GetStat(EStat::Damage, "Peashooter"), PassivePea), "passive tag on pea");
+	Expect(Near(Tagged.GetStat(EStat::Damage, "Scatter"), TagBase + 1.f), "passive tag skipped on scatter");
+	Expect(Near(Tagged.GetStat(EStat::Damage), TagBase + 1.f), "passive tag skipped with no weapon");
+	Expect(Tagged.DebugGrant("PeaBurst", nullptr), "grant duration");
+	Expect(Near(Tagged.GetStat(EStat::Damage, "Peashooter"), PassivePea), "duration waits for the trigger");
+	Tagged.NotifyTrigger(ETrigger::OnKill);
+	Expect(Near(Tagged.GetStat(EStat::Damage, "Peashooter"), PassivePea + 3.f), "temp tag adds after the passive layer on pea");
+	Expect(Near(Tagged.GetStat(EStat::Damage, "Scatter"), TagBase + 1.f), "temp tag skipped on scatter");
+
+	const char* BadTag =
+		"{\"contractVersion\":3,\"affixes\":[{\"AffixId\":\"X\",\"DisplayName\":\"n\",\"Description\":\"d\",\"Rarity\":\"Common\",\"StackRule\":\"Unique\","
+		"\"Modifiers\":[{\"Stat\":\"Damage\",\"Op\":\"Add\",\"Value\":1,\"WeaponTag\":1}]}]}";
+	FTable BadWeaponTag;
+	Expect(!LoadTableFromJson(BadTag, BadWeaponTag), "reject non-string WeaponTag");
+
 	if (gFails != 0)
 	{
 		std::printf("%d failed\n", gFails);

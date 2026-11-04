@@ -206,6 +206,10 @@ void UAffixSubsystemDefault::BeginRun(FRunStartContext Context)
 		Lite.Op = PixelSideAffixUE::ToLiteOp(Mod.Op);
 		Lite.Value = Mod.Value;
 		Lite.DurationSec = Mod.DurationSec;
+		if (!Mod.WeaponTag.IsNone())
+		{
+			Lite.WeaponTag = PixelSideAffixUE::ToUtf8(Mod.WeaponTag.ToString());
+		}
 		Start.PermanentModifiers.push_back(Lite);
 	}
 	for (const FName& Id : Context.UnlockedAffixIds)
@@ -299,11 +303,19 @@ bool UAffixSubsystemDefault::IsChoicePending() const
 
 float UAffixSubsystemDefault::GetStat(EStatId Stat) const
 {
+	return GetStatForWeapon(Stat, NAME_None);
+}
+
+float UAffixSubsystemDefault::GetStatForWeapon(EStatId Stat, FName WeaponId) const
+{
 	if (!State)
 	{
 		return PixelSideAffix::DefaultBase(PixelSideAffixUE::ToLiteStat(Stat));
 	}
-	return State->Model.GetStat(PixelSideAffixUE::ToLiteStat(Stat));
+	const std::string Tag = WeaponId.IsNone()
+		? std::string()
+		: PixelSideAffixUE::ToUtf8(WeaponId.ToString());
+	return State->Model.GetStat(PixelSideAffixUE::ToLiteStat(Stat), Tag);
 }
 
 float UAffixSubsystemDefault::GetStatBase(EStatId Stat) const
