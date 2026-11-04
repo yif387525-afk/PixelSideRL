@@ -223,7 +223,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | Room_Combat_06 | Combat | Late | 规格定稿候选 | 开阔风筝；CSV 已挂 |
 | Room_Elite_01 | Elite | Mid | 规格定稿候选 | 中央竞技场；CSV 已挂 |
 | Room_Event_01 | Event | Branch | 规格定稿候选 | 无战斗；仅支路；CSV 已挂 |
-| Room_Shop_01 | Shop | Branch | 细表完成 | 仅支路；与 Event 二选一上场 |
+| Room_Shop_01 | Shop | Branch | 规格定稿候选 | 仅支路；与 Event 二选一；CSV 已挂 |
 | Room_BossAnte_01 | BossAnte | BossGate | 规格定稿候选 | CSV 已挂；BossGate 进 Boss_01 |
 | Room_Boss_01 | Boss | Boss | 规格定稿候选 | 双阶段；CSV 已挂；经前厅进入 |
 
@@ -264,3 +264,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Combat_05 正式规格 COMMENT 交审 |
 | 2026-11-05 | Combat_06 正式规格 COMMENT 交审 |
 | 2026-11-05 | Event_01 正式规格 COMMENT 交审 |
+| 2026-11-05 | Shop_01 正式规格 COMMENT 交审 |
