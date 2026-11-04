@@ -1,0 +1,12 @@
+id,kind,x0,x1,x_center,width,top_y,height,facing,rule,notes
+G_main,Floor,0,1600,,,0,,,,"main walkable; no pit"
+WALL_L,Wall,-40,0,,,280,,,,"left bound"
+WALL_R,Wall,1600,1640,,,280,,,,"right bound"
+P_L,Platform,520,760,,,28,,,,"layer-1 near; step 28"
+P_R,Platform,820,1120,,,28,,,,"layer-1 far; gap 60 between"
+CV_A,Cover,,,400,24,0,44,,PawnIgnore_ProjectileBlock,"2D peek along X"
+CV_B,Cover,,,1000,24,0,40,,PawnIgnore_ProjectileBlock,"2D peek along X"
+PlayerStart,Anchor,40,0,,,,,,,"spawn feet"
+Exit_Left,Exit,-40,0,,,,,Exit.Left,,"entry/back"
+Exit_Right,Exit,1520,0,,,,,Exit.Right,RequireClear,"forward after clear+affix"
+AffixAnchor,Anchor,720,0,,,,,,,"affix UI reference"

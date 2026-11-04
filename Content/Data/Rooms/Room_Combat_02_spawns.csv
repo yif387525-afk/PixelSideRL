@@ -1,0 +1,5 @@
+spawn_id,spawn_tag,wave_group,x,y,facing,optional,enemy_id_placeholder,notes
+SP_G1,Ground,1,480,0,Left,false,Enemy.Grunt.Early,W1 near
+SP_G2,Ground,1,640,0,Left,false,Enemy.Grunt.Early,W1 under platform
+SP_G3,Ground,2,1080,0,Left,false,Enemy.Grunt.Early,W2 far
+SP_A1,Air,2,960,88,Left,false,Enemy.Flyer.Early,W2 only above P_R
