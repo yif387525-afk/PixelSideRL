@@ -66,6 +66,7 @@ protected:
 	virtual void OnJumped_Implementation() override;
 
 	void EnsureCombatInput();
+	void EnsureStatModifiers();
 	void AddMappingContext();
 	void MountCombatDebugHUD();
 	void CacheStatBases();

@@ -18,7 +18,15 @@ void UWeaponControllerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	EnsureWeaponData();
+	// Bases first, then bind, so the initial SetBaseStat does not re-enter the cooldown rescale.
 	PushBasesToStats();
+	BindStatRefresh();
+}
+
+void UWeaponControllerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UnbindStatRefresh();
+	Super::EndPlay(EndPlayReason);
 }
 
 void UWeaponControllerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -67,10 +75,12 @@ bool UWeaponControllerComponent::TryFire()
 		return false;
 	}
 
+	// Live GetStat. RapidFire is a FireRate mul inside the stat component, not an AffixId branch here.
 	const float FireRate = ResolveStat(EStatId::FireRate, PixelSideCombat::FireRateBase);
 	const float Damage = ResolveStat(EStatId::Damage, WeaponData->Damage);
 	const float Knockback = ResolveStat(EStatId::Knockback, WeaponData->KnockbackToEnemy);
 	CooldownRemaining = PixelSideCombat::ComputeFireCooldown(WeaponData->FireInterval, FireRate);
+	AppliedCooldown = CooldownRemaining;
 
 	FVector FireDir;
 	TryGetFireDir(FireDir);
@@ -134,6 +144,8 @@ void UWeaponControllerComponent::SetWeaponData(UDA_Weapon* NewWeapon)
 	WeaponData = NewWeapon;
 	EnsureWeaponData();
 	PushBasesToStats();
+	// Interval may change without a base-stat broadcast (FireRate base stays 1).
+	RecomputeInFlightCooldown();
 }
 
 void UWeaponControllerComponent::EnsureWeaponData()
@@ -151,9 +163,62 @@ void UWeaponControllerComponent::PushBasesToStats()
 	{
 		return;
 	}
+	// Base layer only. FireRate base stays 1; affix Mul is applied inside GetStat by 词条官.
 	Stats->SetBaseStat(EStatId::Damage, WeaponData->Damage);
 	Stats->SetBaseStat(EStatId::Knockback, WeaponData->KnockbackToEnemy);
 	Stats->SetBaseStat(EStatId::FireRate, PixelSideCombat::FireRateBase);
+}
+
+void UWeaponControllerComponent::BindStatRefresh()
+{
+	if (bStatRefreshBound)
+	{
+		return;
+	}
+	UStatModifiersComponent* Stats = FindStats();
+	if (!Stats)
+	{
+		return;
+	}
+	// Component delegates only. Do not also bind UAffixSubsystem::OnAffixChanged / OnStatsRebuilt.
+	Stats->OnAffixChanged.AddDynamic(this, &UWeaponControllerComponent::HandleAffixChanged);
+	Stats->OnStatsRebuilt.AddDynamic(this, &UWeaponControllerComponent::HandleStatsRebuilt);
+	bStatRefreshBound = true;
+	// BeginPlay may have run before the component existed. Equal bases do not broadcast again.
+	PushBasesToStats();
+	UE_LOG(
+		LogPixelSideCombat,
+		Log,
+		TEXT("AC_WeaponController listening to AC_StatModifiers OnAffixChanged/OnStatsRebuilt (not AffixSubsystem). Live GetStat; in-flight cooldown rescales. 词条官 forwards subsystem delegates via NotifyAffixChanged/NotifyStatsRebuilt."));
+}
+
+void UWeaponControllerComponent::UnbindStatRefresh()
+{
+	if (UStatModifiersComponent* Stats = FindStats())
+	{
+		Stats->OnAffixChanged.RemoveDynamic(this, &UWeaponControllerComponent::HandleAffixChanged);
+		Stats->OnStatsRebuilt.RemoveDynamic(this, &UWeaponControllerComponent::HandleStatsRebuilt);
+	}
+	bStatRefreshBound = false;
+}
+
+void UWeaponControllerComponent::HandleAffixChanged(FAffixChangeEvent Event)
+{
+	(void)Event;
+	// No AffixId switch. RapidFire shows up as GetStat(FireRate) after the officer's rebuild.
+	RecomputeInFlightCooldown();
+}
+
+void UWeaponControllerComponent::HandleStatsRebuilt()
+{
+	RecomputeInFlightCooldown();
+}
+
+void UWeaponControllerComponent::RecomputeInFlightCooldown()
+{
+	const float NewFull = GetResolvedFireCooldown();
+	CooldownRemaining = PixelSideCombat::RescaleInFlightCooldown(CooldownRemaining, AppliedCooldown, NewFull);
+	AppliedCooldown = NewFull;
 }
 
 UStatModifiersComponent* UWeaponControllerComponent::FindStats() const
@@ -163,6 +228,7 @@ UStatModifiersComponent* UWeaponControllerComponent::FindStats() const
 
 float UWeaponControllerComponent::ResolveStat(EStatId StatId, float BaseValue) const
 {
+	// Sole combat read. Missing component: FireRate base 1, damage/knockback from the weapon DA.
 	if (const UStatModifiersComponent* Stats = FindStats())
 	{
 		return Stats->GetStat(StatId);

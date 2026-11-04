@@ -102,7 +102,8 @@
 | Health, MaxHealth | HP 行 / 条 |
 | IFrameRemaining | IFR |
 | WeaponName | WPN |
-| FireCooldownRemaining, FireInterval（或 1/FireRateBase） | CD |
+| FireCooldownRemaining, ResolvedFireCooldown | CD（剩余 / `GetResolvedFireCooldown()`） |
+| FireRate（`GetFireRate` = `GetStat(FireRate)`） | `FR`；无词条 1.000，RapidFire ≈ 1.120 |
 | LastDamageTaken, LastDamageTime | DMG |
 
 实现：`UCombatDebugRead`（显示名 `BI_CombatDebugRead`）由 `UCombatDebugReadComponent` 转到 `UDamageableComponent` / `UWeaponControllerComponent`，挂在 `APixelSideCharacter`（`GetDamageable` / `GetWeaponController`）。HUD 父类 `UPixelDebugCombatHUD`，0.05s 只读刷新。CD 分母用 `GetResolvedFireCooldown`（`FireInterval / GetStat(FireRate)`，缺省 `1/FireRateBase`）。配方：`Content/_Dev/Combat/UI/README.md`。不调用 `ApplyDamage` / `Fire`。正式 `WBP_HUD` 不引用。

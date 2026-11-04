@@ -61,6 +61,9 @@ protected:
 	TObjectPtr<UTextBlock> Txt_Weapon;
 
 	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Txt_FireRate;
+
+	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> Txt_CD;
 
 	UPROPERTY(meta = (BindWidgetOptional))

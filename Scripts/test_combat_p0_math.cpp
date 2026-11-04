@@ -37,10 +37,14 @@ int main()
 	Expect(SelectJumpFrameIndex(-100.f, JumpZVelocity, MaxFallSpeed, JumpApexSpeed) == 3, "fall early");
 	Expect(SelectJumpFrameIndex(-800.f, JumpZVelocity, MaxFallSpeed, JumpApexSpeed) == 4, "fall late");
 
+	Expect(FireRateBase == 1.f, "FireRate base is 1");
 	Expect(Near(ComputeFireCooldown(PeaFireInterval, FireRateBase), PeaFireInterval), "cooldown at FireRate 1");
 	const float Rapid = ComputeFireCooldown(PeaFireInterval, 1.12f);
 	Expect(Rapid < PeaFireInterval && Near(Rapid, PeaFireInterval / 1.12f), "RapidFire mul 0.12 shortens interval");
 	Expect(ComputeFireCooldown(PeaFireInterval, 0.f) > 1.f, "zero FireRate does not divide by zero");
+	Expect(Near(RescaleInFlightCooldown(PeaFireInterval, PeaFireInterval, Rapid), Rapid), "in-flight cooldown tracks FireRate 1.12");
+	Expect(Near(RescaleInFlightCooldown(Rapid, Rapid, Rapid), Rapid), "second rebuild does not scale twice");
+	Expect(Near(RescaleInFlightCooldown(0.f, PeaFireInterval, Rapid), 0.f), "idle cooldown stays idle");
 
 	Expect(Near(KnockbackDistance(PeaKnockback, false), PeaKnockback), "ground knockback");
 	Expect(Near(KnockbackDistance(PlayerHitKnockback, true), PlayerHitKnockback * KnockbackAirRetain), "air keeps 60%");

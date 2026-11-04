@@ -145,7 +145,7 @@ BeginRun(FRunStartContext Ctx):
 ## 7. 弹芯最小接入清单
 
 1. 玩家生成后：拿 `AC_StatModifiers`（或 Subsystem），开火/移速/伤害读 `GetStat`。  
-2. 绑 `OnAffixChanged` → 刷新缓存的 FireRate/Damage 等。  
+2. 绑 `OnAffixChanged` → 刷新缓存的 FireRate/Damage 等。战斗枪只订玩家 `AC_StatModifiers` 上的同名委托，开火冷却 live `GetStat(FireRate)`。  
 3. 击杀/受伤时若有 GameplayEvent，转发给 Subsystem 以触发 `OnKill`/`OnTakeDamage` 类词条（系统算 Modifier，表现仍归弹芯）。  
 4. **禁止** 在武器 BP 里写死词条 Id 分支（除调试）。
 
