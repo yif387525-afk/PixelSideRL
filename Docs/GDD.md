@@ -216,7 +216,7 @@ Core = floor(
 Core = min(Core, SoftCapPerRun)
 ```
 
-- 局内商店花 **Scrap**；拾取可为 Coin 并入局内 Scrap。勿与 Core 混存。Lab 商店壳是 **F11**（非 Shipping）。`F10` 仍是事件壳，不拿来开商店。购买 Demo 只改本地 DemoScrap；日后流程再 `AddRunScrap(-Price)`。
+- 局内商店花 **Scrap**；拾取可为 Coin 并入局内 Scrap。勿与 Core 混存。Lab 商店壳是 **F11**（非 Shipping），只改本地 DemoScrap（128，买回复后 98），不调用 `AddRunScrap`。`F10` 仍是事件壳，不拿来开商店。非 Demo 的 `OpenShop` 读 `GetRunScrap`，买/刷成功再 `AddRunScrap(-Price)` / `AddRunScrap(-RerollCost)`。流程开/关仍是 `AC_ShopPresenter`，该组件自己不扣款。
 - MVP 永久：5 节点（开局 HP / 开局 Scrap / 豆射手微幅等），**不改变局内词条公式**。明细 → `RoguelikeMeta.md` §7。
 
 结算 UI：`WBP_RunSummary`（时长、击杀、构筑列表、入账 Core）。
@@ -297,3 +297,4 @@ Core = min(Core, SoftCapPerRun)
 | 2026-11-05 | 织局 | §2.8 Event：`DA_Event_AbandonedCache` 挂 `Room_Event_01`；CarefulLoot/+25 Scrap · ForceLoot/−15HP+50 Scrap；跳过无奖 |
 | 2026-11-05 | 词条官 | 事件 Op 运行时：`ResolveEventChoice` 按序执行四 Op；局内字段 `RunScrap`；DamageSelf 下限 1，不改 Core / 手感 |
 | 2026-11-05 | 界面 | 事件壳确认选项调用一次 `ResolveEventChoice`。Skip / Esc 不调用。不 `SetGamePaused`。F6–F11 不动 |
+| 2026-11-05 | 界面 | 商店两路钱包。F11 / `OpenShopDemo` 仍是 DemoScrap 128→98。`OpenShop` 读 `GetRunScrap`，买/刷成功 `AddRunScrap`。不改 F6–F11，不改 `AC_ShopPresenter` 开/关 |

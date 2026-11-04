@@ -23,10 +23,23 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShopRequestAffixChoiceFromVoucher);
  * Room_Shop_01 shelf: Slot_1..Slot_3 in one row (the P1 wireframe ASCII is 4 cells; that fourth
  * cell is not a widget). Demo wallet starts at Scrap 128. Reroll costs 25 Scrap.
  *
- * Events only. Buy / reroll / leave mutate the local DemoScrap wallet and sold flags.
- * They do not grant weapons, heal, write DA_Shop*, call RequestAffixChoice, or call
- * UEventSubsystem::AddRunScrap. Later, the room flow spends with AddRunScrap(-Price).
- * This shell does not write RunScrap.
+ * Two wallets. Do not mix them, and do not add another open/close path.
+ *
+ * Demo — OpenShopDemo and Lab F11. Local DemoScrap starts at 128. Buy and reroll
+ * change only that number and the sold flags. They do not call GetRunScrap or
+ * AddRunScrap. Heal is 30, so 128 becomes 98, then Leave closes.
+ *
+ * Run — OpenShop, the call AC_ShopPresenter::OpenShop already forwards.
+ * The Scrap argument stays so that forward still compiles. It is not copied into
+ * DemoScrap. The label is UEventSubsystem::GetRunScrap().
+ * A successful buy calls AddRunScrap(-Price), then the label is GetRunScrap() again.
+ * A successful reroll calls AddRunScrap(-RerollCost), then GetRunScrap().
+ * RunScrap is int32. The slot still shows the offer double. The debit is llround
+ * of that price, same rounding as GrantScrap. The price curve file is not rewritten.
+ * Not enough Scrap greys the cell and does not spend.
+ *
+ * Neither path grants a weapon, heals, writes DA_Shop*, calls RequestAffixChoice,
+ * or writes WBP_HUD. This shell does not create or drive AC_ShopPresenter.
  *
  * There is no shop-subsystem pause API. OpenShopDemo and OpenShop(..., bDemoPause=true)
  * call UGameplayStatics::SetGamePaused. That is the Lab / open path. Pass bDemoPause false
@@ -34,7 +47,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShopRequestAffixChoiceFromVoucher);
  * This is not a second AC_AffixChoicePresenter.
  * Room flow opens and closes through UPixelShopPresenterComponent (AC_ShopPresenter).
  * That component only calls OpenShop, OpenShopDemo, and CloseShop. It does not
- * change TryBuy / TryReroll and does not call AddRunScrap. Lab F11 does not use it.
+ * itself call AddRunScrap. Lab F11 does not use it.
  *
  * OpenShopDemo reads Content/Data/Shop/DA_ShopInventory.json and DA_ShopPriceCurve.json
  * (CSV if JSON is missing). It does not write those files and does not load weapon uassets.
@@ -56,10 +69,10 @@ public:
 	UPixelShopWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	/**
-	 * Show three offers and the demo wallet.
-	 * Scrap seeds this widget only. It is not read from and not written to the run.
-	 * bDemoPause defaults on until a shop pause API exists.
-	 * Refuses to open while an affix choice is pending.
+	 * Run wallet. Same signature AC_ShopPresenter::OpenShop already calls.
+	 * Scrap is not the balance and is not written to DemoScrap. The label is GetRunScrap().
+	 * Buy success: AddRunScrap(-Price), then GetRunScrap. Reroll success: AddRunScrap(-RerollCost), then GetRunScrap.
+	 * bDemoPause defaults on. Refuses to open while an affix choice is pending, or when UEventSubsystem is missing.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "PixelSide|UI")
 	void OpenShop(const TArray<FPixelShopSlotOffer>& Offers, double Scrap, bool bDemoPause = true);
@@ -67,6 +80,7 @@ public:
 	/**
 	 * Read the shop tables, show 3 slots, Scrap 128, demo pause.
 	 * Layer selects DA_ShopPriceCurve.layers (1 = baseScrap). Restocks on every call.
+	 * Local DemoScrap only. Does not call GetRunScrap or AddRunScrap. Lab F11.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "PixelSide|UI")
 	void OpenShopDemo(int32 Layer = 1);
@@ -88,8 +102,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = "PixelSide|UI")
 	int32 GetShopSlotCount() const { return 3; }
 
+	/** Local Lab wallet. OpenShop does not write it. */
 	UFUNCTION(BlueprintPure, Category = "PixelSide|UI")
 	double GetDemoScrap() const { return DemoScrap; }
+
+	/** True while the open on screen is OpenShop (run wallet), not OpenShopDemo. */
+	UFUNCTION(BlueprintPure, Category = "PixelSide|UI")
+	bool IsRunWallet() const { return bOpen && bRunWallet; }
+
+	/** Last GetRunScrap() read for the run open. 0 on the demo path. */
+	UFUNCTION(BlueprintPure, Category = "PixelSide|UI")
+	int32 GetShownRunScrap() const { return bRunWallet ? RunScrapShown : 0; }
 
 	/** Wireframe Lab cost. Not a priceKey in DA_ShopPriceCurve. */
 	UFUNCTION(BlueprintPure, Category = "PixelSide|UI")
@@ -157,7 +180,7 @@ protected:
 	TObjectPtr<UTextBlock> Txt_Leave;
 
 private:
-	void ApplyOpen(const TArray<FPixelShopSlotOffer>& InOffers, double InScrap, bool bInDemoPause, bool bInDemoShelf);
+	void ApplyOpen(const TArray<FPixelShopSlotOffer>& InOffers, double InScrap, bool bInDemoPause, bool bInDemoShelf, bool bInRunWallet);
 	void LoadOffers(const TArray<FPixelShopSlotOffer>& InOffers, double InScrap);
 	void ShowDesignShelf();
 
@@ -178,6 +201,9 @@ private:
 	void RefreshFocus();
 	void TryBuy(int32 Index);
 	void TryReroll();
+	void TryBuyFromRun(int32 Index);
+	void TryRerollFromRun();
+	bool PullRunScrap();
 	void MoveFocus(int32 Delta);
 	bool CanReroll() const;
 	bool IsAffixChoicePending() const;
@@ -206,11 +232,14 @@ private:
 	TArray<FPixelShopSlotOffer> WeaponPool;
 
 	double DemoScrap = 0.0;
+	/** Mirror of the last GetRunScrap() while bRunWallet. Not a second wallet. */
+	int32 RunScrapShown = 0;
 	int32 ShownWeapon = 0;
 	int32 PriceLayer = 1;
 	int32 FocusedIndex = 0;
 	bool bSlotSold[3] = {false, false, false};
 	bool bDemoShelf = false;
+	bool bRunWallet = false;
 	bool bOpen = false;
 	bool bOwnsPause = false;
 	bool bCapturedInput = false;

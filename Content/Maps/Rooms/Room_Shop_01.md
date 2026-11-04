@@ -111,15 +111,15 @@ MVP：可购买任意槽或 **直接走门跳过**；门常开。
 
 ```cpp
 UPixelShopPresenterComponent* Presenter = Player->GetShopPresenter();
-Presenter->OpenShopDemo(/*Layer=*/1); // 读 DA_Shop*，壳内 Scrap 128
-// 或把数字传入壳（只种 DemoScrap，不读、不写 RunScrap）：
+Presenter->OpenShopDemo(/*Layer=*/1); // Demo：读 DA_Shop*，壳内 Scrap 128，不写 RunScrap
+// Run：签名不变。壳忽略 Scrap，改读 GetRunScrap：
 // Presenter->OpenShop(Offers, Scrap, /*bDemoPause=*/true);
 Presenter->CloseShop(); // 与 Leave / Esc 相同
 ```
 
-`OpenShop` / `OpenShopDemo` 就是 `UPixelShopWidget` 的同名函数。控件自己挂到视口，Z = 80（与现壳一致；HUD 10，三选一 100）。本组件不另选 Z。
+`OpenShop` / `OpenShopDemo` / `CloseShop` 仍是 `UPixelShopWidget` 的同名函数。控件自己挂到视口，Z = 80（与现壳一致；HUD 10，三选一 100）。本组件不另选 Z，开/关代码不改。
 
-买和刷新仍只改壳内 DemoScrap（`TryBuy` / `TryReroll` 不动）。不调用 `AddRunScrap`。购买事件仍在返回的控件上听。`F11` 仍直接开 Lab Demo，不经过本组件。`F6`–`F10` 不动。
+`OpenShopDemo` 的买和刷新只改壳内 DemoScrap。`OpenShop` 的买成功 `AddRunScrap(-Price)`，刷新成功 `AddRunScrap(-RerollCost)`，然后再 `GetRunScrap`。Presenter 自己不调用 `AddRunScrap`。购买事件仍在返回的控件上听。`F11` 仍直接开 Lab Demo（128→买回复→98），不经过本组件。`F6`–`F10` 不动。
 
 门仍不锁。可以不买，直接走门；关店用 `CloseShop`、Esc 或 `离开`。
 
@@ -131,7 +131,8 @@ Presenter->CloseShop(); // 与 Leave / Esc 相同
 - [ ] 柜台与 3 商品位可读；可跳过离开  
 - [ ] 无三选一；CSV 齐；无 Lab 改动  
 - [ ] Branch-only；与 Event 二选一支路上场  
-- [x] 流程经 `AC_ShopPresenter` 开/关。不改 F11，不扣 RunScrap，无 uasset  
+- [x] 流程经 `AC_ShopPresenter` 开/关。不改 F11，Presenter 自己不扣，无 uasset  
+- [x] 壳上 `OpenShop` 买/刷成功扣 `RunScrap`。`OpenShopDemo` / F11 仍是 DemoScrap 128→98
 
 ---
 
@@ -143,3 +144,4 @@ Presenter->CloseShop(); // 与 Leave / Esc 相同
 | 2026-11-05 | 正式规格：柜台/货位/出口/CSV；COMMENT 交审；商品 DA 归词条官 |
 | 2026-11-05 | 货架改指 `Content/Data/Shop/DA_Shop*`；几何未改 |
 | 2026-11-05 | 流程开店：`AC_ShopPresenter` 调 `OpenShop` / `OpenShopDemo` / `CloseShop`。不改扣款，不改 F11 |
+| 2026-11-05 | 壳上两路钱包。`OpenShop` 读 `GetRunScrap` 并在买/刷成功 `AddRunScrap`。Presenter 开/关不改。F11 仍是 Demo |
