@@ -22,6 +22,9 @@ public:
 	 */
 	void ApplyJumpCut();
 
+	/** Stop a knockback slide so a lab pit reset is not immediately shoved off the ledge. */
+	void ClearKnockback();
+
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

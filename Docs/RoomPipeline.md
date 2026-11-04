@@ -238,6 +238,12 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 
 ---
 
+
+
+## 附录 · Lab 沙盒（非拼局）
+
+P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍板**）。属 `Content/_Dev/Combat/`，**不进**正式房间池与登记表。落地：`bSpawnLabSandbox` 程序化 + 落坑软回收；不先手摆 umap。
+
 ## 变更记录
 
 | 日期 | 变更 |
@@ -245,3 +251,5 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | 2026-11-04 | 初稿：类型、刷怪点、出口、拼局、Boss 节奏、登记表 |
 | 2026-11-04 | 写入已拍板：线性+1支路、Event 无战斗、Boss 前厅；更新拓扑/登记表 |
 | 2026-11-04 | MVP 全模板规格细表落盘（11 间）；登记表状态→细表完成 |
+| 2026-11-04 | 附录：Lab_CombatP0 立体灰盒方案（待主管确认） |
+| 2026-11-04 | Lab 拍板落地：岛跳 / 软回收 / SpawnLabSandbox 程序化 |

@@ -44,6 +44,15 @@ void UPixelSideCharacterMovement::ApplyJumpCut()
 	Velocity.Z = PixelSideCombat::ApplyJumpCutRisingZ(Velocity.Z);
 }
 
+void UPixelSideCharacterMovement::ClearKnockback()
+{
+	bKnockbackActive = false;
+	KnockbackTimeLeft = 0.f;
+	KnockbackDuration = 0.f;
+	KnockbackInitialX = 0.f;
+	PendingKnockbackX = 0.f;
+}
+
 void UPixelSideCharacterMovement::StartKnockback(float VelocityX, float Duration)
 {
 	KnockbackInitialX = VelocityX;

@@ -14,7 +14,7 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 
 用 **Unreal Editor 5.8.4** 打开该目录下的 `PixelSideRL.uproject`。若提示模块缺失，选编译。需要插件 **Enhanced Input**、**Paper2D**（`.uproject` 已打开）。
 
-第一次 Play 用引擎自带的 `/Engine/Maps/Entry`。`APixelSideGameMode` 会在没有木桩的关卡里铺一条灰盒平台、一个木桩、一座调试炮塔。
+第一次 Play 用引擎自带的 `/Engine/Maps/Entry`。`APixelSideGameMode` 在关卡里还没有木桩时，按 `Docs/Lab_CombatP0_Layout.md` 程序化铺 **5 区**灰盒（平地一条平台已替换）、木桩 D1–D5 和调试炮塔 T1。开关仍是 `bSpawnLabSandbox`。掉进 C 区坑会软回收到岛左侧，扣 0 伤。
 
 | 键 | 作用 |
 |----|------|
@@ -28,6 +28,8 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 灰盒只在关卡里还没有 `APixelDamageDummy`（或其蓝图子类）时生成。自己摆好木桩后就不会再铺。关掉它：GameMode 上取消 `bSpawnLabSandbox`。
 
 ## 2. 做 `Lab_CombatP0`（可选，但建议）
+
+平地沙盒已换成 5 区布局，规格见 `Docs/Lab_CombatP0_Layout.md`，仍只由 `bSpawnLabSandbox` 生成。P0 **不**提交 `Lab_CombatP0.umap`（也不要 fake `.uasset`）。下面的手工关是手感确认后的可选项；若以后手摆，关掉 `bSpawnLabSandbox`，避免和程序化几何双铺。
 
 1. 内容浏览器建 `Content/_Dev/Combat/`。
 2. 新建空关卡，另存为 `Content/_Dev/Combat/Lab_CombatP0`。
