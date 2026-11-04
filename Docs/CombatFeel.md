@@ -253,3 +253,4 @@ Boss：本表只占位——**有线电报招 ≥0.4 s、无 HitStun、阶段血
 | 2026-11-04 | 弹芯 | FireRate=Hz 定稿；Mul=Π(1+Value) |
 | 2026-11-04 | 弹芯 | **主管拍板**：DA=`BaseFireRateHz`，`GetStat(FireRate)`=乘区；间隔=1/(Base*Mult) |
 | 2026-11-04 | 弹芯 | 与 API 统一：DA=`FireInterval`；冷却=`FireInterval/GetStat(FireRate)`；FireRate 乘区默认 1.0 |
+| 2026-11-04 | 弹芯 | P0 默认值按 §2/§4.1/§6 进 C++。Knockback 按 uu 位移做 0.14s ease-out（急停摩擦 3200 会把 40/120 收成亚像素）；空中仍 ×0.6。Jump 动画按 v3 **5** 帧刮帧。 |

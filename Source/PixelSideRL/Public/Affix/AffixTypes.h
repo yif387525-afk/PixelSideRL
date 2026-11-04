@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "AffixTypes.generated.h"
+#include "Affix/AffixTypes.generated.h"
 
 UENUM(BlueprintType)
 enum class EAffixRarity : uint8
@@ -62,7 +62,7 @@ enum class EAffixTrigger : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FAffixModifier
+struct PIXELSIDERL_API FAffixModifier
 {
 	GENERATED_BODY()
 

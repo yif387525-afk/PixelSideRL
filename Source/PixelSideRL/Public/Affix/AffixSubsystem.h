@@ -3,14 +3,14 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "AffixTypes.h"
-#include "AffixSubsystem.generated.h"
+#include "Affix/AffixTypes.h"
+#include "Affix/AffixSubsystem.generated.h"
 
 class UAffixDefinition;
 class UTexture2D;
 
 USTRUCT(BlueprintType)
-struct FAffixCardView
+struct PIXELSIDERL_API FAffixCardView
 {
 	GENERATED_BODY()
 
@@ -24,7 +24,7 @@ struct FAffixCardView
 };
 
 USTRUCT(BlueprintType)
-struct FAffixChoiceEntry
+struct PIXELSIDERL_API FAffixChoiceEntry
 {
 	GENERATED_BODY()
 
@@ -34,7 +34,7 @@ struct FAffixChoiceEntry
 };
 
 USTRUCT(BlueprintType)
-struct FAffixChangeEvent
+struct PIXELSIDERL_API FAffixChangeEvent
 {
 	GENERATED_BODY()
 
@@ -50,7 +50,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAffixChoiceClosed, bool, bConfirm
 
 /** See Docs/AffixSubsystem_API.md — BP surface for 弹芯 / 界面. */
 UCLASS(Abstract)
-class UAffixSubsystem : public UGameInstanceSubsystem
+class PIXELSIDERL_API UAffixSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 public:
