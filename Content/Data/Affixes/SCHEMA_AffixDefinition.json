@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UAffixDefinition",
+  "type": "object",
+  "required": [
+    "AffixId",
+    "DisplayName",
+    "Description",
+    "Rarity",
+    "Icon",
+    "StackRule",
+    "Modifiers"
+  ],
+  "properties": {
+    "AffixId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "DisplayName": {
+      "type": "string",
+      "description": "AffixCard 契约字段 Name。冻结。"
+    },
+    "Description": {
+      "type": "string",
+      "description": "AffixCard 契约字段 Desc。冻结；可含 {Value}。"
+    },
+    "Rarity": {
+      "enum": [
+        "Common",
+        "Rare",
+        "Epic",
+        "Legendary"
+      ],
+      "description": "AffixCard 契约字段 Rarity。冻结。"
+    },
+    "StackRule": {
+      "enum": [
+        "Unique",
+        "AdditiveStack",
+        "RefreshDuration"
+      ]
+    },
+    "MaxStacks": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "Weight": {
+      "type": "number",
+      "minimum": 0,
+      "default": 1
+    },
+    "Tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ExclusiveTags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Triggers": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "OnAcquire",
+          "OnHit",
+          "OnKill",
+          "OnRoomClear",
+          "OnTakeDamage",
+          "Passive"
+        ]
+      }
+    },
+    "Modifiers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "Stat",
+          "Op",
+          "Value"
+        ],
+        "properties": {
+          "Stat": {
+            "type": "string"
+          },
+          "Op": {
+            "enum": [
+              "Add",
+              "Mul",
+              "Override"
+            ]
+          },
+          "Value": {
+            "type": "number"
+          },
+          "DurationSec": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "GrantWeapon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bRequiresWeaponTag": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "Icon": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Soft path to texture/sprite. AffixCard 契约字段 Icon；可空则 UI 占位。STABLE for WBP_AffixCard."
+    }
+  },
+  "affixCardContract": {
+    "version": 1,
+    "uiFields": {
+      "Name": "DisplayName",
+      "Desc": "Description",
+      "Rarity": "Rarity",
+      "Icon": "Icon"
+    },
+    "note": "UI 契约名与 DA 字段映射；改名需升 version。"
+  },
+  "contractVersion": 3
+}

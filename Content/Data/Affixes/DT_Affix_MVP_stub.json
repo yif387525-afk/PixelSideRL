@@ -1,0 +1,7 @@
+{
+  "redirect": "DT_Affix_MVP.json",
+  "note": "stub 已冻结；请读 DT_Affix_MVP.json（contractVersion 3）",
+  "contractVersion": 3,
+  "deprecated": true,
+  "deprecatedReason": "contractVersion=3 正式表已验收；请改用无 _stub 后缀文件"
+}

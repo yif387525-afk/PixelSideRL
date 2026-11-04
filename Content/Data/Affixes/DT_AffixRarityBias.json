@@ -1,0 +1,27 @@
+{
+  "note": "织局锁定。同 Tag +10% 权重；连续 5 次无 Rare+ → 第 6 次保底至少 1 Rare。",
+  "AffixRarityBias": {
+    "NormalRoom": {
+      "Common": 0.7,
+      "Rare": 0.25,
+      "Epic": 0.05
+    },
+    "EliteRoom": {
+      "Common": 0.5,
+      "Rare": 0.35,
+      "Epic": 0.15
+    },
+    "PostBoss": {
+      "Common": 0.3,
+      "Rare": 0.45,
+      "Epic": 0.25
+    }
+  },
+  "TagWeightBonus": 0.1,
+  "Pity": {
+    "StreakNoRarePlus": 5,
+    "EnsureRarityAtLeast": "Rare"
+  },
+  "contractVersion": 3,
+  "locked": true
+}
