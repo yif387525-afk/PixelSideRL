@@ -119,3 +119,37 @@ G1 追击与炮塔行见上文，数值不因本挂钩改动。调试 HUD 仍是
 F6 = `DebugGrantAffix("RapidFire")`，F7 = 三选一。授予、暂停和 1.12 的手算在 `Docs/AffixSubsystem_API.md` §10。枪在 Stat 重建后吃 `GetStat`。控制台 `PixelSide.DebugGrantAffix RapidFire` 调用同一个 `UAffixSubsystemDefault::DebugGrantAffix`。F8 / F9 是事件 Resolve，F10 开事件壳，都不走这条射速路径。
 
 手感表（JumpZ、Gravity、豌豆、Grunt、炮塔）不因本挂钩改动。
+
+## 7. P0.7 Room_Combat_01（灰盒，umap 明早）
+
+验收：进房 → 两波 → 三选一 → 右门开。
+
+`Room_Combat_01.umap` 这次不进仓库。空关用导演把 CSV 跑起来。
+
+Play 前在控制台执行：
+
+```
+PixelSide.DriveRoomCombat01 1
+```
+
+然后 Play（仍可用 `/Engine/Maps/Entry`）。`APixelSideGameMode` 看到该开关后不铺 Lab 五区，改为在原点生成 `APixelRoomDirector`（显示名 `RoomDirector`）。GameMode 上勾 `bDriveRoomCombat01` 等价。导演读：
+
+| 文件 | 用途 |
+|------|------|
+| `Content/Data/Rooms/Room_Combat_01_meta.csv` | `max_alive=4`，`clear_rule=WavesCleared`，`affix_on_clear`，`require_clear_exit=Exit.Right` |
+| `Content/Data/Rooms/Room_Combat_01_spawns.csv` | W1 `SP_G1`/`SP_G2`，W2 `SP_G3`/`SP_G4`，全是 `Enemy.Grunt.Early`，朝左 |
+| `Content/Data/Rooms/Room_Combat_01_geometry.csv` | 灰盒地板、墙、矮台、掩体、出口插座 |
+
+`Enemy.Grunt.Early` 生成 `APixelEnemyGrunt`。导演上的 `GruntEarlyClass` 可以换成它的蓝图子类；留空就是这个 C++ 类。不建敌人 DataAsset uasset。
+
+进房后 **0.75s**（运行时夹在 **0.5–1.0s**）刷 W1。两只都死后刷 W2。同时存活不超过 4。两波清空后导演调用 `RequestAffixChoice(NormalRoom)`，池子就是 F7 / P0.6 那八条。按 1 / 2 / 3 选一张，`Exit.Right` 的门碰撞关掉。清房前，或三选一关掉但没选中，右门继续挡。走到左侧 `Exit.Left`（左墙内侧的触发盒）不会把已清状态清掉，也不会把怪再刷出来。
+
+关卡里已经放了一只 `APixelRoomDirector` 时，GameMode 不再多生成一只。正式 umap 拼上之后：导演放在房间原点（入口内侧地面），关掉 `bBuildGreyboxFromCsv`，出口用 `APixelRoomExit`（显示名 `BP_RoomExit`）。右门 `Exit Id = Exit.Right` 并勾上 `bRequireClear`。导演仍按同一份 CSV 刷怪。手感表（JumpZ、Gravity、豌豆、Grunt、炮塔）不动。
+
+主机检查（不需要编辑器）：
+
+```bash
+g++ -std=c++17 -Wall -Wextra -Werror -I Source/PixelSideRL/Public -o /tmp/test_room_combat01 \
+  Scripts/test_room_combat01.cpp Source/PixelSideRL/Private/Rooms/PixelSideRoomFlow.cpp
+/tmp/test_room_combat01 .
+```

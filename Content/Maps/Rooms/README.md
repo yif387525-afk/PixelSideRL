@@ -3,7 +3,7 @@
 单房间模板规格细表（md 占位）；正式 `umap` 经 UE 创建后提交（Git LFS）。  
 规则真相源：`Docs/RoomPipeline.md`（含 §0 已拍板）。
 
-`Room_Combat_01` 已写正式几何 + 刷怪 + 出口（`Room_Combat_01.md` / `Room_Combat_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。尚无 umap / uasset。
+`Room_Combat_01` 已写正式几何 + 刷怪 + 出口（`Room_Combat_01.md` / `Room_Combat_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。P0.7 由 `APixelRoomDirector` 读这些 CSV（验收：进房 → 两波 → 三选一 → 右门开）。尚无 umap / uasset。
 
 `Room_Combat_02` 同样已有正式几何 + 刷怪 + 出口（`Room_Combat_02.md` / `Room_Combat_02_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_02_{meta,spawns,geometry}.csv`。尚无 umap / uasset。一层平台 TopY=28，无坑。
 

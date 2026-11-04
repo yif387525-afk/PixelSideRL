@@ -18,6 +18,7 @@ This is a practice project. The repository holds the design seed plus a playable
 - `Scripts/validate_shop_da.py` — checks `DA_ShopInventory` / `DA_ShopPriceCurve` against RoguelikeMeta §5 and Room_Shop_01 slots
 - `Scripts/test_affix_p05.cpp` — host check for GetStat folds and the three-choice pool (no Unreal)
 - `Scripts/test_event_ops.cpp` — host check for event ops on `DA_Event_AbandonedCache` (no Unreal)
+- `Scripts/test_room_combat01.cpp` — host check for the Room_Combat_01 wave clock (no Unreal)
 
 ## License
 

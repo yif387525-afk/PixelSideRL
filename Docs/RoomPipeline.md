@@ -129,6 +129,12 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 - 模板只声明 **插座**（左/右出口），不写死邻居房间。  
 - 拼局器按拓扑边连接同高程出口；禁止十字无缝拼接依赖（MVP 不做 2D 网格分支也可跑通 **线性 + 1 条支路**）。
 
+### 5.3 P0.7 落地（仅 Room_Combat_01）
+
+`APixelRoomDirector` 读 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。进房 0.5–1.0s 刷 W1，清 W1 再刷 W2，同时存活不超过 `max_alive`。`clear_rule=WavesCleared` 且 `affix_on_clear` 时调用 `RequestAffixChoice(NormalRoom)`（P0.6 同一池）。确认一张后打开 `require_clear_exit`（`Exit.Right`）。`Exit.Left` 回退不重置已清、不重刷。精英房 / Boss / Hub 不在本步。正式 umap 未拼，空关驱动见 `Docs/Combat_P0_LabSetup.md` §7。
+
+验收：进房 → 两波 → 三选一 → 右门开。
+
 ---
 
 ## 6. 拼局规则（Run Graph）
@@ -215,7 +221,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 
 | ID | Type | 标签 | 状态 | 备注 |
 |----|------|------|------|------|
-| Room_Combat_01 | Combat | Early | 规格定稿候选 | 平层+矮台风筝+2D Peek；CSV 已挂 |
+| Room_Combat_01 | Combat | Early | P0.7 导演已接 CSV | 平层+矮台风筝+2D Peek；umap 待拼。验收：进房 → 两波 → 三选一 → 右门开 |
 | Room_Combat_02 | Combat | Early | 规格定稿候选 | 一层平台 TopY=28 + Air@W2；CSV 已挂 |
 | Room_Combat_03 | Combat | Mid | 规格定稿候选 | 双高台主次不对称 28/56；CSV 已挂 |
 | Room_Combat_04 | Combat | Mid | 规格定稿候选 | 坑+桥；CSV 已挂 |
@@ -266,3 +272,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Event_01 正式规格 COMMENT 交审 |
 | 2026-11-05 | Shop_01 正式规格 COMMENT 交审 |
 | 2026-11-05 | Event_01 挂 `DA_Event_AbandonedCache`；开放问题关闭 |
+| 2026-11-04 | P0.7：Room_Combat_01 导演读 CSV（两波 → 三选一 → 右门）。umap 待拼 |

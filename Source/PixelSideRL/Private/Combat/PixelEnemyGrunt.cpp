@@ -91,6 +91,15 @@ APixelEnemyGrunt::APixelEnemyGrunt(const FObjectInitializer& ObjectInitializer)
 	Tags.Add(TEXT("EnemyGrunt"));
 }
 
+void APixelEnemyGrunt::SetInitialFacingSign(float Sign)
+{
+	if (FMath::IsNearlyZero(Sign))
+	{
+		return;
+	}
+	FacingSign = (Sign < 0.f) ? -1.f : 1.f;
+}
+
 void APixelEnemyGrunt::BeginPlay()
 {
 	Super::BeginPlay();
