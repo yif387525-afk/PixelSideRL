@@ -216,7 +216,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | ID | Type | 标签 | 状态 | 备注 |
 |----|------|------|------|------|
 | Room_Combat_01 | Combat | Early | 规格定稿候选 | 平层+矮台风筝+2D Peek；CSV 已挂 |
-| Room_Combat_02 | Combat | Early | 细表完成 | 一层平台 |
+| Room_Combat_02 | Combat | Early | 规格定稿候选 | 一层平台 TopY=28 + Air@W2；CSV 已挂 |
 | Room_Combat_03 | Combat | Mid | 细表完成 | 双高台 |
 | Room_Combat_04 | Combat | Mid | 细表完成 | 坑+桥 |
 | Room_Combat_05 | Combat | Mid/Late | 细表完成 | 夹击走廊 |
@@ -255,3 +255,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-04 | 附录：Lab_CombatP0 立体灰盒方案（待主管确认） |
 | 2026-11-04 | Lab 拍板落地：岛跳 / 软回收 / SpawnLabSandbox 程序化 |
 | 2026-11-05 | Combat_01 正式几何/出口/CSV 规格；Peek=2D 站位；COMMENT 交审 |
+| 2026-11-05 | Combat_02 正式规格：一层平台/刷怪/出口/CSV；COMMENT 交审 |

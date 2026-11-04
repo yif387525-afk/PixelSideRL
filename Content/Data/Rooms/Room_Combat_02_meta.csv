@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Combat_02,Combat,Early,1600,360,5,WavesCleared,true,Exit.Right,One platform layer TopY=28; Groundx3+Airx1 W2; no pit
