@@ -16,10 +16,11 @@ This is a practice project. The repository holds the design seed plus a playable
 - `Source/PixelSideRL/` — game module: affix contracts (read-only from combat) and the combat P0 classes
 - `Scripts/validate_affix_stub.py` — checks the affix MVP table, the P0.6 subset, and that stubs stay deprecated
 - `Scripts/validate_shop_da.py` — checks `DA_ShopInventory` / `DA_ShopPriceCurve` against RoguelikeMeta §5 and Room_Shop_01 slots
-- Room shop open/close: player `AC_ShopPresenter` calls `OpenShop` / `OpenShopDemo` / `CloseShop` (viewport Z 80). See [Content/Maps/Rooms/Room_Shop_01.md](Content/Maps/Rooms/Room_Shop_01.md). F11 still opens the Lab demo directly (DemoScrap 128→98) and does not spend RunScrap. `OpenShop` on the shell reads `GetRunScrap` and spends with `AddRunScrap` after a successful buy or reroll. The presenter itself still only forwards open/close.
+- Room shop open/close: `APixelShopRoomHost` (`PixelSide.DriveRoomShop01`) calls `AC_ShopPresenter::OpenShop` with the DA shelf. The shell reads `GetRunScrap` and spends with `AddRunScrap` after a successful buy or reroll. F11 still opens the Lab demo directly (DemoScrap 128→98) and does not use the presenter. See [Content/Maps/Rooms/Room_Shop_01.md](Content/Maps/Rooms/Room_Shop_01.md).
 - `Scripts/test_affix_p05.cpp` — host check for GetStat folds and the three-choice pool (no Unreal)
 - `Scripts/test_event_ops.cpp` — host check for event ops on `DA_Event_AbandonedCache` (no Unreal)
 - `Scripts/test_room_combat01.cpp` — host check for the Room_Combat_01 wave clock (no Unreal)
+- `Scripts/test_room_shop01.cpp` — host check that shop entry opens the run wallet and stays off the combat clock (no Unreal)
 
 ## License
 

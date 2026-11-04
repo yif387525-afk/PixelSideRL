@@ -69,6 +69,12 @@ public:
 	UPixelShopWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	/**
+	 * Read DA_Shop* into offers. Does not open the shell and does not touch DemoScrap or RunScrap.
+	 * Same rows OpenShopDemo would show. The room then passes them to OpenShop.
+	 */
+	static void CollectShelfOffers(int32 Layer, TArray<FPixelShopSlotOffer>& OutOffers, TArray<FPixelShopSlotOffer>& OutPool);
+
+	/**
 	 * Run wallet. Same signature AC_ShopPresenter::OpenShop already calls.
 	 * Scrap is not the balance and is not written to DemoScrap. The label is GetRunScrap().
 	 * Buy success: AddRunScrap(-Price), then GetRunScrap. Reroll success: AddRunScrap(-RerollCost), then GetRunScrap.

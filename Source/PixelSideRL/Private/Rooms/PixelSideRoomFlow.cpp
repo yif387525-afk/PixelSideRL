@@ -264,16 +264,9 @@ void FRoomFlow::SetFirstWaveDelay(float Seconds)
 	Delay = ClampFirstWaveDelay(Seconds);
 }
 
-bool LoadRoomTables(
-	std::string_view MetaCsv,
-	std::string_view SpawnCsv,
-	std::string_view ExpectedRoomId,
-	FRoomMeta& Meta,
-	std::vector<FSpawnRow>& Spawns,
-	std::string& Error)
+bool LoadRoomMetaCsv(std::string_view MetaCsv, FRoomMeta& Meta, std::string& Error)
 {
 	Meta = FRoomMeta();
-	Spawns.clear();
 	Error.clear();
 
 	std::vector<std::vector<std::string>> MetaRows;
@@ -322,14 +315,35 @@ bool LoadRoomTables(
 		Error = "meta numeric or bool field";
 		return false;
 	}
-	if (Meta.RoomId.empty() || Meta.ClearRule.empty() || Meta.RequireClearExit.empty() || Meta.MaxAlive < 1)
+	if (Meta.RoomId.empty())
 	{
-		Error = "meta room_id, clear_rule, require_clear_exit, or max_alive";
+		Error = "meta room_id";
+		return false;
+	}
+	return true;
+}
+
+bool LoadRoomTables(
+	std::string_view MetaCsv,
+	std::string_view SpawnCsv,
+	std::string_view ExpectedRoomId,
+	FRoomMeta& Meta,
+	std::vector<FSpawnRow>& Spawns,
+	std::string& Error)
+{
+	Spawns.clear();
+	if (!LoadRoomMetaCsv(MetaCsv, Meta, Error))
+	{
 		return false;
 	}
 	if (!ExpectedRoomId.empty() && Meta.RoomId != ExpectedRoomId)
 	{
 		Error = "room_id does not match the P0.7 acceptance room";
+		return false;
+	}
+	if (Meta.ClearRule.empty() || Meta.RequireClearExit.empty() || Meta.MaxAlive < 1)
+	{
+		Error = "meta room_id, clear_rule, require_clear_exit, or max_alive";
 		return false;
 	}
 
