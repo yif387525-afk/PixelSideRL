@@ -3,7 +3,8 @@
 **Owner:** 词条官  
 **协作:** 织局（内容与数值意图）· 弹芯（读取 Modifier 应用到战斗）· 界面（三选一读表展示）  
 **原则:** DataAsset 为唯一真相源；蓝图 / 战斗只读 Modifier，不写死词条逻辑。  
-**货币:** 局内 Scrap / 局外 Core。`FireRate` = 乘区默认 1.0；间隔=FireInterval/GetStat(FireRate)（见 AffixSubsystem_API）。
+**货币:** 局内 Scrap / 局外 Core。`FireRate` = 乘区默认 1.0；间隔=FireInterval/GetStat(FireRate)（见 AffixSubsystem_API）。  
+**商店：** 货架与标价不在词条 DA 内，见 `Content/Data/Shop/DA_ShopInventory.json`、`DA_ShopPriceCurve.json`（局内 Scrap；RoguelikeMeta §5）。
 
 ## 目标（MVP）
 

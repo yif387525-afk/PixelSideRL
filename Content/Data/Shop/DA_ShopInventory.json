@@ -1,0 +1,102 @@
+{
+  "assetName": "DA_ShopInventory",
+  "contractVersion": 3,
+  "locked": true,
+  "alignedWith": "Docs/RoguelikeMeta.md §5；Content/Maps/Rooms/Room_Shop_01.md Slot_1/2/3（merge 66bee7ce）",
+  "currencyId": "Scrap",
+  "currencyScope": "Run",
+  "roomId": "Room_Shop_01",
+  "sourceGeometry": "Content/Data/Rooms/Room_Shop_01_geometry.csv",
+  "priceCurveAsset": "DA_ShopPriceCurve",
+  "skipAllowed": true,
+  "forcedPurchase": false,
+  "insufficientScrap": "GreyOut",
+  "uassetPolicy": "forbidden",
+  "note": "策划入口为本文 JSON。禁止提交占位 uasset。价格只在 DA_ShopPriceCurve。货币为局内 Scrap，勿与 Core 混。默认映射：Slot_1=武器合约池，Slot_2=回复，Slot_3=三选一券。锚点只读 Room_Shop_01，本资产不改房间几何。",
+  "roomAnchors": [
+    { "id": "ShopKeep", "kind": "NPCAnchor", "x": 400, "y": 0 },
+    { "id": "Slot_1", "kind": "ShopSlot", "x": 720, "y": 0 },
+    { "id": "Slot_2", "kind": "ShopSlot", "x": 840, "y": 0 },
+    { "id": "Slot_3", "kind": "ShopSlot", "x": 960, "y": 0 },
+    { "id": "LeaveHint", "kind": "UIHint", "x": 1100, "y": 0 }
+  ],
+  "slots": [
+    {
+      "slotId": "Slot_1",
+      "kind": "WeaponContract",
+      "displayName": "武器临时合约",
+      "description": "本局临时武器。货位从武器合约池展示一把；三把均有独立标价，本表不写权重。",
+      "effectScope": "Run",
+      "offerMode": "PickOneFromPool",
+      "poolId": "WeaponContractPool",
+      "offerId": null,
+      "priceKey": null,
+      "onPurchase": "GrantRunWeapon",
+      "healFractionOfMaxHp": null,
+      "choiceCount": null,
+      "anchorX": 720,
+      "anchorY": 0
+    },
+    {
+      "slotId": "Slot_2",
+      "kind": "Heal",
+      "displayName": "回复",
+      "description": "回复约 40% MaxHP",
+      "effectScope": "Immediate",
+      "offerMode": "Fixed",
+      "poolId": null,
+      "offerId": "HealMaxHp",
+      "priceKey": "Heal",
+      "onPurchase": "HealFractionOfMaxHp",
+      "healFractionOfMaxHp": 0.4,
+      "choiceCount": null,
+      "anchorX": 840,
+      "anchorY": 0
+    },
+    {
+      "slotId": "Slot_3",
+      "kind": "AffixVoucher",
+      "displayName": "三选一券",
+      "description": "购买确认后立即三选一",
+      "effectScope": "Immediate",
+      "offerMode": "Fixed",
+      "poolId": null,
+      "offerId": "AffixChoiceVoucher",
+      "priceKey": "AffixVoucher",
+      "onPurchase": "OpenAffixChoiceImmediate",
+      "healFractionOfMaxHp": null,
+      "choiceCount": 3,
+      "anchorX": 960,
+      "anchorY": 0
+    }
+  ],
+  "weaponContractPool": [
+    {
+      "offerId": "WeaponContract_Peashooter",
+      "weaponId": "Peashooter",
+      "dataAssetName": "DA_Weapon_Peashooter",
+      "displayName": "豆射手",
+      "priceKey": "Weapon_Peashooter",
+      "effectScope": "Run",
+      "docAlias": null
+    },
+    {
+      "offerId": "WeaponContract_Scattergun",
+      "weaponId": "Scattergun",
+      "dataAssetName": "DA_Weapon_Scattergun",
+      "displayName": "散射",
+      "priceKey": "Weapon_Scattergun",
+      "effectScope": "Run",
+      "docAlias": null
+    },
+    {
+      "offerId": "WeaponContract_RailPierce",
+      "weaponId": "RailPierce",
+      "dataAssetName": "DA_Weapon_RailPierce",
+      "displayName": "穿透轨",
+      "priceKey": "Weapon_RailPierce",
+      "effectScope": "Run",
+      "docAlias": "Rail"
+    }
+  ]
+}

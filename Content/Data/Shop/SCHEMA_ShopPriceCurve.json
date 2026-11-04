@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DA_ShopPriceCurve",
+  "type": "object",
+  "contractVersion": 3,
+  "contractVersionPolicy": "contractVersion=3 与 DT_Affix_MVP / DA_Economy / RoguelikeMeta 正式锁表同一代。不另设 shopContractVersion。层2 倍率是 §5 建议价 ×1.15，resolvedScrap = baseScrap * layerMultiplier，不在本表另起四舍五入整数。",
+  "additionalProperties": false,
+  "required": [
+    "assetName",
+    "contractVersion",
+    "locked",
+    "alignedWith",
+    "currencyId",
+    "currencyScope",
+    "inventoryAsset",
+    "formula",
+    "rounding",
+    "uassetPolicy",
+    "note",
+    "layers",
+    "prices"
+  ],
+  "properties": {
+    "assetName": { "const": "DA_ShopPriceCurve" },
+    "contractVersion": { "const": 3 },
+    "locked": { "const": true },
+    "alignedWith": { "type": "string", "minLength": 1 },
+    "currencyId": {
+      "const": "Scrap",
+      "description": "只花局内 Scrap。禁止 Core。"
+    },
+    "currencyScope": { "const": "Run" },
+    "inventoryAsset": { "const": "DA_ShopInventory" },
+    "formula": { "const": "resolvedScrap = baseScrap * layerMultiplier" },
+    "rounding": {
+      "const": "None",
+      "description": "不另起整数价。30×1.15=34.5，45×1.15=51.75，其余层2结果为整数仅因能整除。"
+    },
+    "uassetPolicy": { "const": "forbidden" },
+    "note": { "type": "string", "minLength": 1 },
+    "layers": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["layer", "multiplier"],
+        "properties": {
+          "layer": { "type": "integer", "minimum": 1 },
+          "multiplier": { "type": "number", "exclusiveMinimum": 0 }
+        }
+      }
+    },
+    "prices": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["priceKey", "offerId", "slotId", "weaponId", "docAlias", "baseScrap"],
+        "properties": {
+          "priceKey": {
+            "enum": [
+              "Heal",
+              "AffixVoucher",
+              "Weapon_Peashooter",
+              "Weapon_Scattergun",
+              "Weapon_RailPierce"
+            ]
+          },
+          "offerId": { "type": "string", "minLength": 1 },
+          "slotId": { "enum": ["Slot_1", "Slot_2", "Slot_3"] },
+          "weaponId": {
+            "enum": ["Peashooter", "Scattergun", "RailPierce", null]
+          },
+          "docAlias": { "enum": ["Rail", null] },
+          "baseScrap": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "层1 标价，单位 Scrap。"
+          }
+        }
+      }
+    }
+  }
+}

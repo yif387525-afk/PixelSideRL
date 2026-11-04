@@ -160,8 +160,10 @@ function RollAffixChoice(RoomType, PlayerInv, RunState):
 | 三选一券 | 60 |
 | 武器合约 Peashooter / Scattergun / Rail | 45 / 60 / 80 |
 
-层2 建议价格 ×1.15（可进 `DA_ShopPriceCurve`）。  
+层2 建议价格 ×1.15（`Content/Data/Shop/DA_ShopPriceCurve.json`，`resolvedScrap = baseScrap × 1.15`，不另起整数）。  
 **失败态：** Scrap 不足灰显；券购买确认后立即弹出三选一。
+
+数据：`Content/Data/Shop/DA_ShopInventory.json`（Slot_1=武器合约池，Slot_2=回复，Slot_3=三选一券；锚点对齐 Room_Shop_01）、`DA_ShopPriceCurve.json`。策划改 JSON，禁止占位 uasset。
 
 ### 5.1 事件房（非商店）
 
@@ -235,6 +237,7 @@ Core = min(Core, SoftCapPerRun)   // 单局入账软顶
 | `Content/Data/Affixes/DA_Affix_*` | 运行时真相源 |
 | `Content/Data/Meta/DA_Economy.json` | 结算参数（已锁 v3） |
 | `Content/Data/Meta/DA_MetaNode_*` / `DA_MetaTree` | 永久节点 |
+| `Content/Data/Shop/DA_ShopInventory.json` / `DA_ShopPriceCurve.json` | 商店三槽与层价格（§5）；无占位 uasset |
 | `Content/Blueprints/Roguelike/` | `AC_AffixInventory`、三选一、商店 |
 | `Content/Blueprints/Meta/` | Hub 消费与存档 |
 | `Content/Blueprints/UI/` | `WBP_AffixChoice`、`WBP_Shop`、`WBP_RunSummary` |
@@ -289,3 +292,4 @@ Core = min(Core, SoftCapPerRun)   // 单局入账软顶
 | 2026-11-04 | 织局 / 词条官 | 对齐 contractVersion=3；冻 `DA_Affix_<AffixId>` |
 | 2026-11-05 | 织局 | 签收手感本版；补 P0.6 三选一最小闭环定义与近端验收；顺序服从 GDD §6.5 |
 | 2026-11-05 | 织局 | P0.6 策划签收勾近端项；Event 指向 `DA_Event_AbandonedCache` |
+| 2026-11-05 | 词条官 | 商店锁表：`Content/Data/Shop/DA_ShopInventory.json`、`DA_ShopPriceCurve.json`（无 uasset） |

@@ -12,7 +12,7 @@
 | 同时存活上限 | 0 |
 | Exit | Left / Right · **不锁** · **无** `RequireClear` |
 | 清房 | 玩家离开即可；**无三选一**；无强制购买 |
-| 数据 | `Content/Data/Rooms/Room_Shop_01_*.csv`；货架内容见词条官 `DA_Shop*` |
+| 数据 | `Content/Data/Rooms/Room_Shop_01_*.csv`；货架 `Content/Data/Shop/DA_ShopInventory.json` 与 `DA_ShopPriceCurve.json` |
 | 上场 | **仅支路**；与 Event 二选一上场（最多 1 支路） |
 | 禁止 | 战斗、强制购买、清房门锁、fake uasset、改 Lab |
 
@@ -101,7 +101,7 @@ MVP：可购买任意槽或 **直接走门跳过**；门常开。
 | `Content/Data/Rooms/Room_Shop_01_geometry.csv` | 几何/出口/商店锚点 |
 
 `clear_rule=None`；`affix_on_clear=false`；`require_clear_exit` 空；`max_alive=0`。  
-商品池/价格曲线：词条官 `DA_ShopInventory` / `DA_ShopPriceCurve`（本 PR 不建 DA）。
+商品池/价格曲线：`Content/Data/Shop/DA_ShopInventory.json`、`DA_ShopPriceCurve.json`（冻名；Slot_1 武器合约池 / Slot_2 回复 / Slot_3 三选一券；无 uasset）。本文件只定几何与锚点。
 
 ---
 
@@ -120,3 +120,4 @@ MVP：可购买任意槽或 **直接走门跳过**；门常开。
 |------|------|
 | 2026-11-04 | 细表占位 |
 | 2026-11-05 | 正式规格：柜台/货位/出口/CSV；COMMENT 交审；商品 DA 归词条官 |
+| 2026-11-05 | 货架改指 `Content/Data/Shop/DA_Shop*`；几何未改 |

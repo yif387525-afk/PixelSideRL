@@ -1,0 +1,59 @@
+{
+  "assetName": "DA_ShopPriceCurve",
+  "contractVersion": 3,
+  "locked": true,
+  "alignedWith": "Docs/RoguelikeMeta.md §5",
+  "currencyId": "Scrap",
+  "currencyScope": "Run",
+  "inventoryAsset": "DA_ShopInventory",
+  "formula": "resolvedScrap = baseScrap * layerMultiplier",
+  "rounding": "None",
+  "uassetPolicy": "forbidden",
+  "note": "层1 标价对齐 RoguelikeMeta §5。层2 multiplier=1.15，resolvedScrap=baseScrap*layerMultiplier，不另起四舍五入整数。货币为局内 Scrap，勿与 Core 混。",
+  "layers": [
+    { "layer": 1, "multiplier": 1 },
+    { "layer": 2, "multiplier": 1.15 }
+  ],
+  "prices": [
+    {
+      "priceKey": "Heal",
+      "offerId": "HealMaxHp",
+      "slotId": "Slot_2",
+      "weaponId": null,
+      "docAlias": null,
+      "baseScrap": 30
+    },
+    {
+      "priceKey": "AffixVoucher",
+      "offerId": "AffixChoiceVoucher",
+      "slotId": "Slot_3",
+      "weaponId": null,
+      "docAlias": null,
+      "baseScrap": 60
+    },
+    {
+      "priceKey": "Weapon_Peashooter",
+      "offerId": "WeaponContract_Peashooter",
+      "slotId": "Slot_1",
+      "weaponId": "Peashooter",
+      "docAlias": null,
+      "baseScrap": 45
+    },
+    {
+      "priceKey": "Weapon_Scattergun",
+      "offerId": "WeaponContract_Scattergun",
+      "slotId": "Slot_1",
+      "weaponId": "Scattergun",
+      "docAlias": null,
+      "baseScrap": 60
+    },
+    {
+      "priceKey": "Weapon_RailPierce",
+      "offerId": "WeaponContract_RailPierce",
+      "slotId": "Slot_1",
+      "weaponId": "RailPierce",
+      "docAlias": "Rail",
+      "baseScrap": 80
+    }
+  ]
+}

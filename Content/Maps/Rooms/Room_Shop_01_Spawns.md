@@ -24,8 +24,11 @@
 | LeaveHint | (1100, 0) | 离开提示 |
 | P_shelf | (720–1040, 28) | 货架台 |
 
+货架卖什么、卖多少：`Content/Data/Shop/DA_ShopInventory.json`、`DA_ShopPriceCurve.json`。本表只定锚点。
+
 ## 变更
 
 | 日期 | 说明 |
 |------|------|
 | 2026-11-05 | 初版：无刷怪 + 商店锚点 |
+| 2026-11-05 | 货位内容改指 Shop DA；坐标未改 |
