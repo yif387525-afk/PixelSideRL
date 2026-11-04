@@ -6,7 +6,6 @@
 #include "Affix/AffixTypes.h"
 #include "AffixSubsystem.generated.h"
 
-class UAffixDefinition;
 class UTexture2D;
 
 USTRUCT(BlueprintType)
