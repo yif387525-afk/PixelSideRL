@@ -6,7 +6,7 @@
 
 /**
  * Default mode for the combat slice. On an empty map, spawns a greybox lane,
- * a damage dummy, and a debug turret when bSpawnLabSandbox is set.
+ * a damage dummy, a debug turret, and a directional light when bSpawnLabSandbox is set.
  */
 UCLASS(Blueprintable)
 class PIXELSIDERL_API APixelSideGameMode : public AGameModeBase
