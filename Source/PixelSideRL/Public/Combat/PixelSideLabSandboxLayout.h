@@ -79,7 +79,9 @@ constexpr int P_E_CenterX = 2880;
 constexpr int P_E_Width = 180;
 constexpr int P_E_TopY = 56;
 
-// --- §3.3 covers. Bottom center on the floor, top is walkable. ---
+// --- §3.3 covers. Bottom center on the floor. Heights stay above the live jump.
+// SpawnLabSandbox lets Pawns through these three only. Shots and visibility still hit.
+// Peek is the far side along X (stand past the slab), not the top and not around Y. ---
 constexpr int CV1_X = 2080;
 constexpr int CV1_BottomY = 0;
 constexpr int CV1_Height = 44;
@@ -154,6 +156,8 @@ static_assert(P2TopY - P1TopY == 28 && P3TopY - P2TopY == 28, "uniform 28px rise
 static_assert(P1TopY < 32 && IslandTopY < 32, "first rises sit under the live ~32 jump");
 static_assert(D2_FeetX == P2CenterX && D2_FeetY == P2TopY, "D2 stands on P2");
 static_assert(D4_FeetX == P_E_CenterX && D4_FeetY == P_E_TopY, "D4 stands on P_E_high");
+static_assert(CV1_Height == 44 && CV2_Height == 48 && CV3_Height == 40, "cover heights are not the route fix");
+static_assert(CV1_Height > 32 && CV2_Height > 32 && CV3_Height > 32, "covers stay above the live ~32 jump");
 static_assert(CV2_X + CV2_Width / 2 < T1_FeetX, "CV2 is between the lane and T1");
 static_assert(T1_FeetX >= 2000, "T1 is outside the opening screen");
 static_assert(SafeFeetX == PitX0 - 80, "safe point is 80 uu left of the pit");

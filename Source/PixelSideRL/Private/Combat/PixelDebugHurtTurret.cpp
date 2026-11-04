@@ -35,7 +35,10 @@ APixelDebugHurtTurret::APixelDebugHurtTurret()
 void APixelDebugHurtTurret::BeginPlay()
 {
 	Super::BeginPlay();
-	PixelSideMesh::Tint(BodyMesh, TEXT("/Engine/BasicShapes/Cube.Cube"), PixelSidePalette::EnemyWarning(), true);
+	// Same plane as the pawn (Y = 0, body half-depth 8, capsule radius 12), so BlockAll
+	// stops the corridor. Ignore Pawn only. Object type stays WorldStatic: peas that
+	// actually meet the mesh still Block, and bAcceptsDamage is unchanged.
+	PixelSideMesh::Tint(BodyMesh, TEXT("/Engine/BasicShapes/Cube.Cube"), PixelSidePalette::EnemyWarning(), PixelSideMesh::EMeshCollision::PassThroughPawn);
 
 	if (UWorld* World = GetWorld())
 	{

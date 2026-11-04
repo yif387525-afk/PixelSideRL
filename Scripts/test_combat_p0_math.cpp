@@ -76,6 +76,9 @@ int main()
 	Expect(SafeFeetX > G_A_X0 && SafeFeetX < PitX0 && SafeFeetX + 12 < PitCatchX0, "safe point is on G_A left of the pit");
 	Expect(PitDeathY == -80 && PitCatchX0 < G_A_X1 && PitCatchX1 > PitX1, "pit catch includes the lip and edge");
 	Expect(T1_FeetX >= 2000 && CV2_X + CV2_Width / 2 < T1_FeetX, "T1 sits behind CV2");
+	Expect(CV1_Height == 44 && CV2_Height == 48 && CV3_Height == 40, "cover heights unchanged");
+	Expect(CV1_Height > 32 && CV2_Height > 32 && CV3_Height > 32, "covers stay above the live jump");
+	Expect(D1_FeetX > PlayerSpawnFeetX && D1_FeetY == G_A_TopY, "D1 stands on the opening route");
 	Expect(SlabDepth / 2 >= 15, "slab reaches the projectile plane");
 	Expect(WallLeftX + WallThickness / 2 == G_A_X0, "left wall seals X=0");
 	Expect(WallRightX - WallThickness / 2 == PlayWidth, "right wall seals X=3200");

@@ -31,8 +31,8 @@ public:
 protected:
 	bool HasDamageDummy() const;
 	void SpawnLabSandbox();
-	void SpawnBlock(const FVector& Location, const FVector& Scale, const FLinearColor& Color, const TCHAR* LayoutId) const;
-	void SpawnLabBox(const FVector& Center, float SizeX, float SizeZ, const FLinearColor& Color, const TCHAR* LayoutId) const;
+	void SpawnBlock(const FVector& Location, const FVector& Scale, const FLinearColor& Color, const TCHAR* LayoutId, bool bLetPawnsPass = false) const;
+	void SpawnLabBox(const FVector& Center, float SizeX, float SizeZ, const FLinearColor& Color, const TCHAR* LayoutId, bool bLetPawnsPass = false) const;
 	void RecoverLabPitFall();
 
 	bool bLabPitRecoveryActive = false;
