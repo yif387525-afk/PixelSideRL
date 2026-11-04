@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Event_01,Event,Branch,1280,360,0,None,false,,"Branch-only safe event; no combat; interact or skip; unlocked exits; no affix; copy pending GDD/织局 DA"

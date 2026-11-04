@@ -1,0 +1,12 @@
+id,kind,x0,x1,x_center,width,top_y,height,facing,rule,notes
+G_main,Floor,0,1280,,,0,,,,"safe floor; no pit"
+WALL_L,Wall,-40,0,,,280,,,,"left bound"
+WALL_R,Wall,1280,1320,,,280,,,,"right bound"
+P_atmos,Platform,880,1080,,,28,,,,"atmosphere step; optional"
+CV_A,Cover,,,360,24,0,40,,PawnIgnore_ProjectileBlock,"atmosphere column"
+PlayerStart,Anchor,48,0,,,,,,,"spawn feet"
+Exit_Left,Exit,-40,0,,,,,Exit.Left,,"back to trunk; unlocked"
+Exit_Right,Exit,1200,0,,,,,Exit.Right,,"return to trunk; unlocked; no RequireClear"
+Interact_Main,Interactable,640,0,,,,,,,"main event; DA from 织局"
+SkipHint,UIHint,1040,0,,,,,,,"skip cue near exit"
+EventResolve,Anchor,640,0,,,,,,,"resolve reference"
