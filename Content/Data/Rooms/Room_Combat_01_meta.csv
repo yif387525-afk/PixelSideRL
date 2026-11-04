@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Combat_01,Combat,Early,1280,360,4,WavesCleared,true,Exit.Right,Teaching flat + kite pad; no pit

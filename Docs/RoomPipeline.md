@@ -70,6 +70,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 - 主路径水平可读；垂直差控制在可跳/可平台链范围内（具体像素以 ArtBible / 碰撞为准）。  
 - 出生点：默认入口内侧 **1 屏内安全区**，无即时伤害体积。  
 - 掩体/高低差至少提供 **一条近战压迫线 + 一条风筝线**（Combat/Elite）。
+- 掩体 Peek（横版）：**穿过掩体后站对侧（沿 X）**；禁止依赖跳上掩体顶或绕 Y 侧面。级差必过台 ≤ 现行净跳窗（约 28，净跳 ~32）。
 
 ---
 
@@ -214,7 +215,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 
 | ID | Type | 标签 | 状态 | 备注 |
 |----|------|------|------|------|
-| Room_Combat_01 | Combat | Early | 细表完成 | 平层教学压枪 |
+| Room_Combat_01 | Combat | Early | 规格定稿候选 | 平层+矮台风筝+2D Peek；CSV 已挂 |
 | Room_Combat_02 | Combat | Early | 细表完成 | 一层平台 |
 | Room_Combat_03 | Combat | Mid | 细表完成 | 双高台 |
 | Room_Combat_04 | Combat | Mid | 细表完成 | 坑+桥 |
@@ -253,3 +254,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-04 | MVP 全模板规格细表落盘（11 间）；登记表状态→细表完成 |
 | 2026-11-04 | 附录：Lab_CombatP0 立体灰盒方案（待主管确认） |
 | 2026-11-04 | Lab 拍板落地：岛跳 / 软回收 / SpawnLabSandbox 程序化 |
+| 2026-11-05 | Combat_01 正式几何/出口/CSV 规格；Peek=2D 站位；COMMENT 交审 |
