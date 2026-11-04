@@ -43,7 +43,7 @@ UI 文案禁止把局外货币写成 Scrap。
 | `WBP_MainMenu` | Entry 开始/设置占位/退出 | P1 | ✅ 线框 |
 | `WBP_RunMap` | 节点类型预览 | 后置 | ⏸ 等廊道 |
 | `WBP_Pause` | 暂停 | P2 | 待做 |
-| `WBP_DebugCombatHUD` | Combat P0 验收只读 | _Dev | ✅ 线框绑定槽 |
+| `WBP_DebugCombatHUD` | Combat P0 验收只读 | _Dev | ✅ C++ 父类 + 配方，不进正式包 |
 
 ## 交互约定
 

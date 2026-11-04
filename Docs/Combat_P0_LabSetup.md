@@ -23,6 +23,8 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | 鼠标左键，右扳机 | 豌豆枪连发，朝向 ±X |
 | H | 调试受击（非 Shipping） |
 
+非 Shipping 且角色 `bEnableCombatDebugHUD` 为开（默认开）时，左上角 (8, 40) 有调试战斗 HUD：HP、无敌帧、武器、冷却、最近一次伤害。父类 `UPixelDebugCombatHUD`，没有蓝图资产也会画。要换成自己的皮，按 `Content/_Dev/Combat/UI/README.md` 做 `WBP_DebugCombatHUD`。正式 `WBP_HUD` 不要引用它。Shipping 不创建。
+
 验收：急停更干脆；短按跳更矮、按住跳更高；空中可改线；弹是暖黄色小球，撞两端墙消失；打木桩掉血、闪白、击退更明显；炮塔或 H 打到玩家会闪白、击退，并在 0.6s 内闪烁且不再叠伤。从出生点能走过 G1 和 D1，穿过 CV1/2/3 去炮塔廊。木桩、G1 和 T1 不挡玩家位移，开火仍打中木桩和 Grunt；掩体仍挡住炮塔弹。挡弹站在掩体对侧（沿 X），不是跳上顶，也不是绕到深度侧面。玩家走到约 X=200（与 G1 相距 280）时它会警戒、朝你走，并水平射出慢弹（0.8 s、伤害 6）。豌豆能把它打死。炮塔仍是 7.5 / 1.0 s。
 
 灰盒只在关卡里还没有 `APixelDamageDummy`（或其蓝图子类）时生成。自己摆好木桩后就不会再铺。关掉它：GameMode 上取消 `bSpawnLabSandbox`。
@@ -96,3 +98,4 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 - [ ] 站掩体对侧时炮塔弹被挡住；探出挡线仍会挨打
 - [ ] H 或炮塔打中玩家：闪白、击退、闪烁，无敌期间不连扣
 - [ ] 若挂了 Jump Flipbook，Output Log 没有 “expects 5” 警告，滞空能看到 rise / apex / fall
+- [ ] 非 Shipping：左上角调试 HUD 的 HP / IFR / WPN / CD / DMG 会随开火和受击变化；Shipping 不应出现

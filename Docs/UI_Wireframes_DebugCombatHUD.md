@@ -2,7 +2,8 @@
 
 **来源需求：** [Combat_P0_DebugHUD.md](./Combat_P0_DebugHUD.md)（弹芯）  
 **约束：** 仅 `_Dev` / 非 Shipping / `bEnableCombatDebugHUD`；**不进**正式 `WBP_HUD`；不写战斗逻辑。  
-**路径建议：** `Content/_Dev/Combat/UI/WBP_DebugCombatHUD`
+**路径建议：** `Content/_Dev/Combat/UI/WBP_DebugCombatHUD`  
+**落地：** C++ 父类 `UPixelDebugCombatHUD`（`Source/PixelSideRL/Public/UI/PixelDebugCombatHUD.h`）。只读门面 `UCombatDebugRead`（显示名 `BI_CombatDebugRead`）由 `UCombatDebugReadComponent` 转发，不另写战斗。蓝图配方 `Content/_Dev/Combat/UI/README.md`。仓库不提交 `WBP_*.uasset`；没有资产时父类自建下表同名控件。
 
 ---
 
@@ -48,3 +49,17 @@ Tick：Timer 0.05s 或 Bind to 玩家；**禁止** `ApplyDamage` / `Fire`。
 3. 同关 `Lab_CombatP0` 对验收。
 
 P0 **不做** `WBP_DebugDmgNumber`（非阻塞）。
+
+## 落地（C++，无 uasset）
+
+线框与上表仍然有效。运行时父类是 `UPixelDebugCombatHUD`，挂在 `APixelSideCharacter` 上，开关 `bEnableCombatDebugHUD`（Shipping 强制关）。
+
+| 线框 | 代码 |
+|------|------|
+| `WBP_DebugCombatHUD` | 编辑器子蓝图，父类 `UPixelDebugCombatHUD`。路径 `Content/_Dev/Combat/UI/`。步骤见该目录 README |
+| `BI_CombatDebugRead` | `UCombatDebugRead` + `UCombatDebugReadComponent`（`AC_CombatDebugRead`）。只转发 `GetDamageable()` / `GetWeaponController()` |
+| `Txt_*` / `Bar_HP` | `BindWidgetOptional`，名字与上表一致。没有设计师根节点时 C++ 按 (8, 40) 自建 |
+| CD 分母 | `GetResolvedFireCooldown` = `DA.FireInterval / GetStat(FireRate)`。FireRate 为 1 时等于 DA 间隔。没有间隔时用 `1/FireRateBase` |
+| 刷新 | 定时器 0.05s。不调用 `ApplyDamage` / `Fire`，不改 DA |
+
+`Hidden`：Shipping 或 `bEnableCombatDebugHUD` 关闭 → Collapse。正式 `WBP_HUD` 不引用本 Widget。
