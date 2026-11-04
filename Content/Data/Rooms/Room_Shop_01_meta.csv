@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Shop_01,Shop,Branch,1280,360,0,None,false,,"Branch-only shop; no combat; buy or skip; unlocked exits; no affix; inventory/price DA owned by 词条官"
