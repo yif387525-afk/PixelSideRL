@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Affix/AffixTypes.generated.h"
+#include "AffixTypes.generated.h"
 
 UENUM(BlueprintType)
 enum class EAffixRarity : uint8

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Combat/DamageSpec.generated.h"
+#include "DamageSpec.generated.h"
 
 class AActor;
 class AController;

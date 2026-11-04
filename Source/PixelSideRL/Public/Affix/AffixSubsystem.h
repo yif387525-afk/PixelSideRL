@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Affix/AffixTypes.h"
-#include "Affix/AffixSubsystem.generated.h"
+#include "AffixSubsystem.generated.h"
 
 class UAffixDefinition;
 class UTexture2D;

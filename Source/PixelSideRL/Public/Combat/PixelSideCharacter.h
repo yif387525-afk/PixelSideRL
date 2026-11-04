@@ -5,7 +5,7 @@
 #include "InputActionValue.h"
 #include "Affix/AffixSubsystem.h"
 #include "Combat/Damageable.h"
-#include "Combat/PixelSideCharacter.generated.h"
+#include "PixelSideCharacter.generated.h"
 
 class UInputAction;
 class UInputMappingContext;

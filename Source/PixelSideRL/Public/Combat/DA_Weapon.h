@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Combat/ProjectilePea.h"
-#include "Combat/DA_Weapon.generated.h"
+#include "DA_Weapon.generated.h"
 
 /**
  * Weapon row. UDA_Weapon_Peashooter seeds CombatFeel §4.1.

@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "Combat/PixelSideGameMode.generated.h"
+#include "PixelSideGameMode.generated.h"
 
 /**
  * Default mode for the combat slice. On an empty map, spawns a greybox lane,
