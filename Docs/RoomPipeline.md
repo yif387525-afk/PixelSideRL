@@ -220,7 +220,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | Room_Combat_03 | Combat | Mid | 规格定稿候选 | 双高台主次不对称 28/56；CSV 已挂 |
 | Room_Combat_04 | Combat | Mid | 规格定稿候选 | 坑+桥；CSV 已挂 |
 | Room_Combat_05 | Combat | Mid/Late | 规格定稿候选 | 夹击走廊；CSV 已挂 |
-| Room_Combat_06 | Combat | Late | 细表完成 | 开阔风筝 |
+| Room_Combat_06 | Combat | Late | 规格定稿候选 | 开阔风筝；CSV 已挂 |
 | Room_Elite_01 | Elite | Mid | 规格定稿候选 | 中央竞技场；CSV 已挂 |
 | Room_Event_01 | Event | Branch | 细表完成 | 无战斗；仅支路 |
 | Room_Shop_01 | Shop | Branch | 细表完成 | 仅支路；与 Event 二选一上场 |
@@ -262,3 +262,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Elite_01 骨架正式规格 COMMENT 交审 |
 | 2026-11-05 | Combat_04 正式规格 COMMENT 交审 |
 | 2026-11-05 | Combat_05 正式规格 COMMENT 交审 |
+| 2026-11-05 | Combat_06 正式规格 COMMENT 交审 |
