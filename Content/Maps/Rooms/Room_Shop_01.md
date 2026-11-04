@@ -107,19 +107,18 @@ MVP：可购买任意槽或 **直接走门跳过**；门常开。
 
 ## 7. 流程开店
 
-玩家 `APixelSideCharacter` 上已有 `AC_ShopPresenter`（`UPixelShopPresenterComponent`）。进入本房时由流程调用，不新绑键，不建 umap，不提交 uasset。
+玩家 `APixelSideCharacter` 上已有 `AC_ShopPresenter`（`UPixelShopPresenterComponent`）。进房由 `APixelShopRoomHost` 调用（`PixelSide.DriveRoomShop01 1`，或 GameMode `bDriveRoomShop01`）。它不走 `APixelRoomDirector`，不新绑键，不建 umap，不提交 uasset。Combat_01 导演开关优先：两者同时开时商店让路。
 
 ```cpp
 UPixelShopPresenterComponent* Presenter = Player->GetShopPresenter();
-Presenter->OpenShopDemo(/*Layer=*/1); // Demo：读 DA_Shop*，壳内 Scrap 128，不写 RunScrap
-// Run：签名不变。壳忽略 Scrap，改读 GetRunScrap：
-// Presenter->OpenShop(Offers, Scrap, /*bDemoPause=*/true);
+TArray<FPixelShopSlotOffer> Offers;
+TArray<FPixelShopSlotOffer> Pool;
+UPixelShopWidget::CollectShelfOffers(/*Layer=*/1, Offers, Pool); // 只读 DA_Shop*，不开店
+Presenter->OpenShop(Offers, /*Scrap=*/0.0, /*bDemoPause=*/true); // 壳忽略 Scrap，读 GetRunScrap
 Presenter->CloseShop(); // 与 Leave / Esc 相同
 ```
 
-`OpenShop` / `OpenShopDemo` / `CloseShop` 仍是 `UPixelShopWidget` 的同名函数。控件自己挂到视口，Z = 80（与现壳一致；HUD 10，三选一 100）。本组件不另选 Z，开/关代码不改。
-
-`OpenShopDemo` 的买和刷新只改壳内 DemoScrap。`OpenShop` 的买成功 `AddRunScrap(-Price)`，刷新成功 `AddRunScrap(-RerollCost)`，然后再 `GetRunScrap`。Presenter 自己不调用 `AddRunScrap`。购买事件仍在返回的控件上听。`F11` 仍直接开 Lab Demo（128→买回复→98），不经过本组件。`F6`–`F10` 不动。
+`OpenShop` 是进房主路径。传入的 `Scrap` 不是余额。买成功 `AddRunScrap(-Price)`，刷新成功 `AddRunScrap(-RerollCost)`，然后再 `GetRunScrap`。Presenter 自己不调用 `AddRunScrap`。`OpenShopDemo` 不是本房验收路径。`F11` 仍直接开 Lab Demo（128→买回复→98），不经过本组件。`F6`–`F10` 不动。
 
 门仍不锁。可以不买，直接走门；关店用 `CloseShop`、Esc 或 `离开`。
 
@@ -145,3 +144,4 @@ Presenter->CloseShop(); // 与 Leave / Esc 相同
 | 2026-11-05 | 货架改指 `Content/Data/Shop/DA_Shop*`；几何未改 |
 | 2026-11-05 | 流程开店：`AC_ShopPresenter` 调 `OpenShop` / `OpenShopDemo` / `CloseShop`。不改扣款，不改 F11 |
 | 2026-11-05 | 壳上两路钱包。`OpenShop` 读 `GetRunScrap` 并在买/刷成功 `AddRunScrap`。Presenter 开/关不改。F11 仍是 Demo |
+| 2026-11-05 | 进房 `APixelShopRoomHost` 调 `OpenShop`（真 RunScrap）。不走 OpenShopDemo，不改 F11 |

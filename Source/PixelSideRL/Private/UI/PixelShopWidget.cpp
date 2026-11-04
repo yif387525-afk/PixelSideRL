@@ -657,6 +657,19 @@ UPixelShopWidget::UPixelShopWidget(const FObjectInitializer& ObjectInitializer)
 	SetVisibility(ESlateVisibility::Collapsed);
 }
 
+void UPixelShopWidget::CollectShelfOffers(int32 Layer, TArray<FPixelShopSlotOffer>& OutOffers, TArray<FPixelShopSlotOffer>& OutPool)
+{
+	OutOffers.Reset();
+	OutPool.Reset();
+	FString Error;
+	const int32 UseLayer = Layer > 0 ? Layer : 1;
+	if (!ReadShopShelf(UseLayer, OutOffers, OutPool, Error))
+	{
+		UE_LOG(LogPixelShopUI, Warning, TEXT("Shop tables unread (%s). Using the locked #35 rows."), *Error);
+		FillLockedShelf(UseLayer, OutOffers, OutPool);
+	}
+}
+
 void UPixelShopWidget::OpenShop(const TArray<FPixelShopSlotOffer>& InOffers, double Scrap, bool bDemoPause)
 {
 	if (IsDesignTime())

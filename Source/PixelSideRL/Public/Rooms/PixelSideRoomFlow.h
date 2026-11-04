@@ -15,6 +15,11 @@ inline constexpr float FirstWaveDelayMinSec = 0.5f;
 inline constexpr float FirstWaveDelayMaxSec = 1.0f;
 inline constexpr float FirstWaveDelayDefaultSec = 0.75f;
 inline constexpr char RoomCombat01Id[] = "Room_Combat_01";
+inline constexpr char RoomShop01Id[] = "Room_Shop_01";
+inline constexpr char RoomTypeShop[] = "Shop";
+inline constexpr int ShopShelfLayer = 1;
+inline constexpr float RoomShop01PlayerStartX = 48.f;
+inline constexpr float RoomShop01PlayerStartY = 0.f;
 inline constexpr char EnemyGruntEarlyId[] = "Enemy.Grunt.Early";
 inline constexpr char ExitLeftId[] = "Exit.Left";
 inline constexpr char ExitRightId[] = "Exit.Right";
@@ -113,6 +118,54 @@ inline bool IsP07AcceptanceRoom(std::string_view RoomId)
 	return RoomId == RoomCombat01Id;
 }
 
+/** Room id or meta type. Combat_01 is neither. */
+inline bool IsShopRoom(std::string_view RoomId, std::string_view Type)
+{
+	return RoomId == RoomShop01Id || Type == RoomTypeShop;
+}
+
+/**
+ * What entering a shop room is allowed to do.
+ * OpenShop on the run wallet, price-curve layer 1. Doors stay unlocked.
+ * No affix. No forced buy. A non-shop room leaves bOpenRunShop false.
+ */
+struct FShopEntry
+{
+	bool bOpenRunShop = false;
+	int ShelfLayer = ShopShelfLayer;
+	bool bLockDoors = false;
+	bool bAffixOnClear = false;
+	bool bForcePurchase = false;
+};
+
+inline FShopEntry MakeShopEntry(const FRoomMeta& Meta)
+{
+	FShopEntry Entry;
+	if (!IsShopRoom(Meta.RoomId, Meta.Type))
+	{
+		return Entry;
+	}
+	Entry.bOpenRunShop = true;
+	Entry.ShelfLayer = ShopShelfLayer;
+	Entry.bLockDoors = false;
+	Entry.bAffixOnClear = false;
+	Entry.bForcePurchase = false;
+	return Entry;
+}
+
+/** Platform/cover row: width>0 is center+width; otherwise x0–x1. */
+inline void ResolveHorizontalSpan(const FGeometryRow& Row, float& OutX0, float& OutX1)
+{
+	if (Row.Width > 0.f)
+	{
+		OutX0 = Row.XCenter - Row.Width * 0.5f;
+		OutX1 = Row.XCenter + Row.Width * 0.5f;
+		return;
+	}
+	OutX0 = Row.X0;
+	OutX1 = Row.X1;
+}
+
 inline EEnemyKind ResolveEnemyKind(std::string_view EnemyId)
 {
 	if (EnemyId == EnemyGruntEarlyId)
@@ -166,6 +219,9 @@ inline std::string ExitTagOf(const FGeometryRow& Row)
 	}
 	return {};
 }
+
+/** Meta row only. Allows max_alive 0 and an empty require_clear_exit (shop / event). */
+bool LoadRoomMetaCsv(std::string_view MetaCsv, FRoomMeta& Meta, std::string& Error);
 
 bool LoadRoomTables(
 	std::string_view MetaCsv,

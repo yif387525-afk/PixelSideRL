@@ -74,6 +74,12 @@ public:
 	 * Buy success: AddRunScrap(-Price), then GetRunScrap. Reroll success: AddRunScrap(-RerollCost), then GetRunScrap.
 	 * bDemoPause defaults on. Refuses to open while an affix choice is pending, or when UEventSubsystem is missing.
 	 */
+	/**
+	 * Read DA_Shop* into offers. Does not open the shell and does not touch DemoScrap or RunScrap.
+	 * Same rows OpenShopDemo would show. The room then passes them to OpenShop.
+	 */
+	static void CollectShelfOffers(int32 Layer, TArray<FPixelShopSlotOffer>& OutOffers, TArray<FPixelShopSlotOffer>& OutPool);
+
 	UFUNCTION(BlueprintCallable, Category = "PixelSide|UI")
 	void OpenShop(const TArray<FPixelShopSlotOffer>& Offers, double Scrap, bool bDemoPause = true);
 
