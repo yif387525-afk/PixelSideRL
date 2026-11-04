@@ -43,12 +43,20 @@ int main()
 
 	Expect(Near(KnockbackDistance(PeaKnockback, false), PeaKnockback), "ground knockback");
 	Expect(Near(KnockbackDistance(PlayerHitKnockback, true), PlayerHitKnockback * KnockbackAirRetain), "air keeps 60%");
-	Expect(Near(KnockbackInitialSpeed(40.f, KnockbackSlideDuration), 80.f / KnockbackSlideDuration), "ease-out speed");
+	Expect(Near(KnockbackInitialSpeed(70.f, KnockbackSlideDuration), 140.f / KnockbackSlideDuration), "ease-out speed");
+
+	Expect(Near(ApplyJumpCutRisingZ(400.f), 140.f), "jump cut scales rising Z");
+	Expect(Near(ApplyJumpCutRisingZ(0.f), 0.f), "jump cut ignores apex");
+	Expect(Near(ApplyJumpCutRisingZ(-80.f), -80.f), "jump cut ignores falling");
 
 	Expect(Near(HitFlashDuration, 2.f / PixelAnimFps), "hit flash is 2 frames at 12 fps");
-	Expect(PeaFireInterval == 0.14f && PeaDamage == 8.f && PeaProjectileSpeed == 520.f, "peashooter §4.1");
-	Expect(MaxWalkSpeed == 220.f && CoyoteTime == 0.08f && JumpBuffer == 0.10f, "move §2");
-	Expect(PlayerIFrameDuration == 0.60f && PlayerHitKnockback == 120.f, "player hurt §6");
+	Expect(PeaFireInterval == 0.12f && PeaDamage == 8.f && PeaProjectileSpeed == 560.f, "peashooter §4.1");
+	Expect(PeaSpreadDegrees == 1.f && PeaKnockback == 70.f && PeaHitStopEnemy == 0.08f && PeaCamShakeScale == 1.1f, "peashooter hit feel");
+	Expect(MaxWalkSpeed == 245.f && GroundDeceleration == 4000.f && AirControl == 0.70f, "move §2");
+	Expect(JumpZVelocity == 400.f && JumpCutRisingZScale == 0.35f && GravityScale == 2.55f, "jump and gravity");
+	Expect(CoyoteTime == 0.08f && JumpBuffer == 0.10f, "coyote and buffer unchanged");
+	Expect(PlayerIFrameDuration == 0.60f && PlayerHitKnockback == 145.f && PlayerHitStop == 0.07f, "player hurt §6");
+	Expect(KnockbackSlideDuration == 0.11f, "knockback slide");
 
 	if (gFails != 0)
 	{

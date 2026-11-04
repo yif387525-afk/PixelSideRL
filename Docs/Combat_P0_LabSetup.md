@@ -19,11 +19,11 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | 键 | 作用 |
 |----|------|
 | A / D，左摇杆 X | 左右 |
-| Space，手柄下键 | 跳（Coyote 0.08s，Jump Buffer 0.10s） |
+| Space，手柄下键 | 跳（Coyote 0.08s，Jump Buffer 0.10s；松跳且上升时竖直速度 ×0.35，短按更矮） |
 | 鼠标左键，右扳机 | 豌豆枪连发，朝向 ±X |
 | H | 调试受击（非 Shipping） |
 
-验收：急停干脆；弹是暖黄色小球，撞两端墙消失；打木桩掉血、闪白、轻推；炮塔或 H 打到玩家会闪白、击退，并在 0.6s 内闪烁且不再叠伤。
+验收：急停更干脆；短按跳更矮、按住跳更高；空中可改线；弹是暖黄色小球，撞两端墙消失；打木桩掉血、闪白、击退更明显；炮塔或 H 打到玩家会闪白、击退，并在 0.6s 内闪烁且不再叠伤。
 
 灰盒只在关卡里还没有 `APixelDamageDummy`（或其蓝图子类）时生成。自己摆好木桩后就不会再铺。关掉它：GameMode 上取消 `bSpawnLabSandbox`。
 
@@ -73,14 +73,14 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 
 | 内容 | 位置 |
 |------|------|
-| 走、跳、Coyote、Buffer、重力 | `UPixelSideCharacterMovement`，默认 CombatFeel §2 |
+| 走、跳、Coyote、Buffer、重力、Jump Cut | `UPixelSideCharacterMovement` 与 `HandleJumpCompleted`，默认 CombatFeel §2 |
 | 豌豆枪 | `UDA_Weapon` / `UDA_Weapon_Peashooter`，§4.1 |
 | 玩家受击 | `UDamageableComponent` 且 `bUsePlayerHurtProfile`，§6 |
 | 常量只写在 | `Source/PixelSideRL/Public/Combat/PixelSideCombatMath.h` |
 
 战斗只读 `AC_StatModifiers.GetStat`。没有该组件时开火回退到 FireRate = 1 和武器 DA 的伤害/击退。不要在战斗蓝图里 Roll 词条。
 
-击退距离用表里的 uu（40 / 120），0.14s 内 ease-out 走完。空中保留 60%。这样不会被地面急停摩擦（3200）收成不到 1 像素。
+击退距离用表里的 uu（70 / 145），0.11s 内 ease-out 走完。空中保留 60%。这样不会被地面急停摩擦（4000）收成不到 1 像素。
 
 ## 5. 本机验收勾选
 

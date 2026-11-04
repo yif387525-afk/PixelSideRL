@@ -315,6 +315,10 @@ void APixelSideCharacter::HandleJumpCompleted(const FInputActionValue& Value)
 {
 	bJumpHeld = false;
 	StopJumping();
+	if (UPixelSideCharacterMovement* Move = Cast<UPixelSideCharacterMovement>(GetCharacterMovement()))
+	{
+		Move->ApplyJumpCut();
+	}
 }
 
 void APixelSideCharacter::HandleFireStarted(const FInputActionValue& Value)
@@ -417,10 +421,17 @@ void APixelSideCharacter::UpdateCoyoteAndJump(float DeltaSeconds)
 	if (!bJumpConsumed && bIntent && CanRequestFeelJump())
 	{
 		// Impulse now. A same-frame release calls StopJumping and would eat bPressedJump
-		// before CharacterMovement sampled it.
+		// before CharacterMovement sampled it. Height is cut in HandleJumpCompleted.
+		// A buffered jump whose button is already up has no later release while rising,
+		// so it launches at the cut speed. JumpBuffer itself stays 0.10s.
 		if (UCharacterMovementComponent* MutableMove = GetCharacterMovement())
 		{
-			LaunchCharacter(FVector(0.f, 0.f, MutableMove->JumpZVelocity), false, true);
+			float LaunchZ = MutableMove->JumpZVelocity;
+			if (!bJumpHeld)
+			{
+				LaunchZ = PixelSideCombat::ApplyJumpCutRisingZ(LaunchZ);
+			}
+			LaunchCharacter(FVector(0.f, 0.f, LaunchZ), false, true);
 		}
 		bJumpConsumed = true;
 		JumpLockFrames = 3;
