@@ -1,0 +1,7 @@
+spawn_id,spawn_tag,wave_group,x,y,facing,optional,enemy_id_placeholder,notes
+SP_G1,Ground,1,520,0,Left,false,Enemy.Grunt.Early,W1 near
+SP_G2,Ground,1,720,0,Left,false,Enemy.Grunt.Early,W1 mid rush
+SP_G3,Ground,2,1280,0,Left,false,Enemy.Grunt.Early,W2 under main
+SP_A1,Air,2,460,72,Left,false,Enemy.Flyer.Early,W2 over secondary
+SP_A2,Air,2,1180,100,Left,false,Enemy.Flyer.Early,W2 over main
+SP_G4,Ground,3,1560,0,Left,true,Enemy.Grunt.Early,optional W3
