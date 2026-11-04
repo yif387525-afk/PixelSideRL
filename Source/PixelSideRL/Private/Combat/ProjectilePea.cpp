@@ -163,14 +163,7 @@ void AProjectilePea::HandleActor(AActor* OtherActor, const FHitResult* Hit, bool
 		}
 
 		const FDamageSpec Spec = BuildSpec();
-		if (Target)
-		{
-			Target->ApplyDamage(Spec);
-		}
-		else
-		{
-			IDamageable::Execute_ApplyDamage(OtherActor, Spec);
-		}
+		IDamageable::Execute_ApplyDamage(Target ? static_cast<UObject*>(Target) : OtherActor, Spec);
 		Destroy();
 		return;
 	}

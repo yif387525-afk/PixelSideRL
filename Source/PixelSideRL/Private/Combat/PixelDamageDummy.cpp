@@ -43,14 +43,14 @@ APixelDamageDummy::APixelDamageDummy(const FObjectInitializer& ObjectInitializer
 
 bool APixelDamageDummy::ApplyDamage_Implementation(const FDamageSpec& Spec)
 {
-	return Damageable ? Damageable->ApplyDamage(Spec) : false;
+	return Damageable ? IDamageable::Execute_ApplyDamage(Damageable, Spec) : false;
 }
 
 void APixelDamageDummy::GetHealth_Implementation(float& CurrentHealth, float& MaxHealth)
 {
 	if (Damageable)
 	{
-		Damageable->GetHealth(CurrentHealth, MaxHealth);
+		IDamageable::Execute_GetHealth(Damageable, CurrentHealth, MaxHealth);
 		return;
 	}
 	CurrentHealth = 0.f;
@@ -59,7 +59,7 @@ void APixelDamageDummy::GetHealth_Implementation(float& CurrentHealth, float& Ma
 
 bool APixelDamageDummy::IsAlive_Implementation()
 {
-	return Damageable ? Damageable->IsAlive() : false;
+	return Damageable ? IDamageable::Execute_IsAlive(Damageable) : false;
 }
 
 ETeamId APixelDamageDummy::GetTeamId_Implementation()

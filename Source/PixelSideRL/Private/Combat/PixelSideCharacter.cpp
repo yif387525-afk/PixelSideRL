@@ -165,14 +165,14 @@ void APixelSideCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 bool APixelSideCharacter::ApplyDamage_Implementation(const FDamageSpec& Spec)
 {
-	return Damageable ? Damageable->ApplyDamage(Spec) : false;
+	return Damageable ? IDamageable::Execute_ApplyDamage(Damageable, Spec) : false;
 }
 
 void APixelSideCharacter::GetHealth_Implementation(float& CurrentHealth, float& MaxHealth)
 {
 	if (Damageable)
 	{
-		Damageable->GetHealth(CurrentHealth, MaxHealth);
+		IDamageable::Execute_GetHealth(Damageable, CurrentHealth, MaxHealth);
 		return;
 	}
 	CurrentHealth = 0.f;
@@ -181,7 +181,7 @@ void APixelSideCharacter::GetHealth_Implementation(float& CurrentHealth, float& 
 
 bool APixelSideCharacter::IsAlive_Implementation()
 {
-	return Damageable ? Damageable->IsAlive() : false;
+	return Damageable ? IDamageable::Execute_IsAlive(Damageable) : false;
 }
 
 ETeamId APixelSideCharacter::GetTeamId_Implementation()
@@ -353,7 +353,7 @@ void APixelSideCharacter::HandleDebugHurt(const FInputActionValue& Value)
 	Spec.HitStopVictim = PixelSideCombat::PlayerHitStop;
 	Spec.SourceActor = Marker;
 	Spec.DamageTypeTag = FName(TEXT("Default"));
-	Damageable->ApplyDamage(Spec);
+	IDamageable::Execute_ApplyDamage(Damageable, Spec);
 	if (Marker)
 	{
 		Marker->SetLifeSpan(0.25f);
