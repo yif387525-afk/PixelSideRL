@@ -2,7 +2,7 @@
 
 **状态：** contractVersion=3 正式表已验收；等待 Git/UE 仓库后执行。  
 **Owner：** 词条官  
-**真相源：** `Content/Data/Affixes/DT_Affix_MVP.json`、`Content/Data/Meta/DA_Economy.json`、`DT_MetaNodes_MVP.json`
+**真相源：** `Content/Data/Affixes/DT_Affix_MVP.json`、`Content/Data/Meta/DA_Economy.json`、`DT_MetaNodes_MVP.json`、`Content/Data/Shop/DA_ShopInventory.json`、`DA_ShopPriceCurve.json`
 
 ---
 
@@ -14,8 +14,10 @@
 | NodeId `Y` | `DA_MetaNode_Y` |
 | 经济 | `DA_Economy` |
 | 稀有度权重 | `DA_AffixRarityBias` 或 `DT_AffixRarityBias` |
+| `Content/Data/Shop/DA_ShopInventory.json` | `DA_ShopInventory` |
+| `Content/Data/Shop/DA_ShopPriceCurve.json` | `DA_ShopPriceCurve` |
 
-路径：`Content/Data/Affixes/`、`Content/Data/Meta/`。
+路径：`Content/Data/Affixes/`、`Content/Data/Meta/`、`Content/Data/Shop/`。
 
 ---
 
@@ -63,3 +65,18 @@
 ## 6. P0.6 子集（无 uasset）
 
 `DT_Affix_P05.json` / `DT_Affix_P05.csv` 是正式锁表的 8 条子集，冻名仍是 `DA_Affix_<AffixId>`。编辑器没导入 uasset 时，`UAffixSubsystemDefault` 读 JSON，否则 CSV，否则 `UAffixDefinition::ApplyBuiltinP05` / `BuiltinP05Rows`。不要提交占位 `.uasset`。
+
+## 7. 商店冻名（contractVersion=3）
+
+策划入口是 JSON，同名 `.csv` 只做表审镜像。`contractVersion=3` 与 Affix / `DA_Economy` 正式锁表同一代，不另设 `shopContractVersion`。货币字段只有局内 `Scrap`（`currencyScope=Run`），禁止写成 Core。
+
+| JSON | UE 资产名 | 契约 |
+|------|-----------|------|
+| `Content/Data/Shop/DA_ShopInventory.json` | `DA_ShopInventory` | `SCHEMA_ShopInventory.json` |
+| `Content/Data/Shop/DA_ShopPriceCurve.json` | `DA_ShopPriceCurve` | `SCHEMA_ShopPriceCurve.json` |
+
+默认货位（可改字段，本锁表固定）：`Slot_1` 武器合约池（`Peashooter` / `Scattergun` / `RailPierce`）、`Slot_2` 回复（约 40% MaxHP）、`Slot_3` 三选一券。锚点对齐 `Room_Shop_01`，不在本表改几何。层 1 标价见 RoguelikeMeta §5；层 2 `resolvedScrap = baseScrap * 1.15`，`rounding=None`。
+
+校验：`python3 Scripts/validate_shop_da.py`。
+
+**不要**提交占位 `.uasset`。本表不新增 C++：`DA_Economy` / `DT_MetaNodes_MVP` 同样先以 JSON 为入口。`UAffixDefinition` 已存在，是因为 P0.6 子系统在读表。商店购买、`WBP_Shop`、刷怪留到 runtime PR。导入时再按 schema 建 `UShopInventoryDefinition` / `UShopPriceCurveDefinition`（`UPrimaryDataAsset`），资产名仍用上表冻名。

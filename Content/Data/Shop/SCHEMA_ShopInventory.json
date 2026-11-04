@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DA_ShopInventory",
+  "type": "object",
+  "contractVersion": 3,
+  "contractVersionPolicy": "contractVersion=3 与 DT_Affix_MVP / DA_Economy / RoguelikeMeta 正式锁表同一代。不另设 shopContractVersion。本文件只约束字段形状；§5 标价在 DA 实例里，由 Scripts/validate_shop_da.py 核对。",
+  "additionalProperties": false,
+  "required": [
+    "assetName",
+    "contractVersion",
+    "locked",
+    "alignedWith",
+    "currencyId",
+    "currencyScope",
+    "roomId",
+    "sourceGeometry",
+    "priceCurveAsset",
+    "skipAllowed",
+    "forcedPurchase",
+    "insufficientScrap",
+    "uassetPolicy",
+    "note",
+    "roomAnchors",
+    "slots",
+    "weaponContractPool"
+  ],
+  "properties": {
+    "assetName": {
+      "const": "DA_ShopInventory",
+      "description": "UE 冻名。禁止另起资产名，禁止占位 uasset。"
+    },
+    "contractVersion": {
+      "const": 3
+    },
+    "locked": {
+      "const": true
+    },
+    "alignedWith": {
+      "type": "string",
+      "minLength": 1
+    },
+    "currencyId": {
+      "const": "Scrap",
+      "description": "只花局内 Scrap。禁止 Core。"
+    },
+    "currencyScope": {
+      "const": "Run"
+    },
+    "roomId": {
+      "const": "Room_Shop_01"
+    },
+    "sourceGeometry": {
+      "const": "Content/Data/Rooms/Room_Shop_01_geometry.csv"
+    },
+    "priceCurveAsset": {
+      "const": "DA_ShopPriceCurve"
+    },
+    "skipAllowed": {
+      "const": true,
+      "description": "可跳过，不强制购买。"
+    },
+    "forcedPurchase": {
+      "const": false
+    },
+    "insufficientScrap": {
+      "const": "GreyOut",
+      "description": "Scrap 不足时灰显。本资产不实现购买流程。"
+    },
+    "uassetPolicy": {
+      "const": "forbidden"
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    },
+    "roomAnchors": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "x", "y"],
+        "properties": {
+          "id": {
+            "enum": ["ShopKeep", "Slot_1", "Slot_2", "Slot_3", "LeaveHint"]
+          },
+          "kind": {
+            "enum": ["NPCAnchor", "ShopSlot", "UIHint"]
+          },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" }
+        }
+      }
+    },
+    "slots": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "默认映射可改字段，锁表为 Slot_1=WeaponContract、Slot_2=Heal、Slot_3=AffixVoucher。锚点对齐 Room_Shop_01，本资产不改几何。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "slotId",
+          "kind",
+          "displayName",
+          "description",
+          "effectScope",
+          "offerMode",
+          "poolId",
+          "offerId",
+          "priceKey",
+          "onPurchase",
+          "healFractionOfMaxHp",
+          "choiceCount",
+          "anchorX",
+          "anchorY"
+        ],
+        "properties": {
+          "slotId": { "enum": ["Slot_1", "Slot_2", "Slot_3"] },
+          "kind": { "enum": ["WeaponContract", "Heal", "AffixVoucher"] },
+          "displayName": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "effectScope": {
+            "enum": ["Run", "Immediate"],
+            "description": "Run=本局持续（武器合约）。Immediate=购买当即结算（回复、三选一券）。"
+          },
+          "offerMode": {
+            "enum": ["PickOneFromPool", "Fixed"],
+            "description": "PickOneFromPool：该货位只展示池中一把，三把都合法；本契约不写权重。Fixed：货位即 offerId。"
+          },
+          "poolId": { "type": ["string", "null"] },
+          "offerId": { "type": ["string", "null"] },
+          "priceKey": {
+            "type": ["string", "null"],
+            "description": "标价在 DA_ShopPriceCurve。武器池货位本身无单一价格，priceKey 为 null。"
+          },
+          "onPurchase": {
+            "enum": ["GrantRunWeapon", "HealFractionOfMaxHp", "OpenAffixChoiceImmediate"]
+          },
+          "healFractionOfMaxHp": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "choiceCount": {
+            "type": ["integer", "null"],
+            "minimum": 1
+          },
+          "anchorX": { "type": "integer" },
+          "anchorY": { "type": "integer" }
+        }
+      }
+    },
+    "weaponContractPool": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "weaponId 对齐 GDD：Peashooter / Scattergun / RailPierce。RoguelikeMeta §5 的 Rail 只作 docAlias，不另起 Id。不改 CombatFeel 手感表。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "offerId",
+          "weaponId",
+          "dataAssetName",
+          "displayName",
+          "priceKey",
+          "effectScope",
+          "docAlias"
+        ],
+        "properties": {
+          "offerId": {
+            "type": "string",
+            "pattern": "^WeaponContract_[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "weaponId": {
+            "enum": ["Peashooter", "Scattergun", "RailPierce"]
+          },
+          "dataAssetName": {
+            "type": "string",
+            "pattern": "^DA_Weapon_[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "displayName": { "type": "string", "minLength": 1 },
+          "priceKey": { "type": "string", "minLength": 1 },
+          "effectScope": { "const": "Run" },
+          "docAlias": { "enum": ["Rail", null] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+contract_version,currency_id,currency_scope,slot_id,slot_kind,slot_display_name,offer_id,weapon_id,data_asset_name,offer_display_name,price_key,heal_fraction_of_max_hp,effect_scope,on_purchase,choice_count,anchor_x,anchor_y,doc_alias
+3,Scrap,Run,Slot_1,WeaponContract,武器临时合约,WeaponContract_Peashooter,Peashooter,DA_Weapon_Peashooter,豆射手,Weapon_Peashooter,,Run,GrantRunWeapon,,720,0,
+3,Scrap,Run,Slot_1,WeaponContract,武器临时合约,WeaponContract_Scattergun,Scattergun,DA_Weapon_Scattergun,散射,Weapon_Scattergun,,Run,GrantRunWeapon,,720,0,
+3,Scrap,Run,Slot_1,WeaponContract,武器临时合约,WeaponContract_RailPierce,RailPierce,DA_Weapon_RailPierce,穿透轨,Weapon_RailPierce,,Run,GrantRunWeapon,,720,0,Rail
+3,Scrap,Run,Slot_2,Heal,回复,HealMaxHp,,,回复,Heal,0.4,Immediate,HealFractionOfMaxHp,,840,0,
+3,Scrap,Run,Slot_3,AffixVoucher,三选一券,AffixChoiceVoucher,,,三选一券,AffixVoucher,,Immediate,OpenAffixChoiceImmediate,3,960,0,
