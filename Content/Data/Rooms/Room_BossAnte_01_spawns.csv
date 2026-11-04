@@ -1,0 +1,3 @@
+spawn_id,spawn_tag,wave_group,x,y,facing,optional,enemy_id_placeholder,notes
+SP_G1,Guide,0,560,0,Right,true,Enemy.Guide.Harmless,optional harmless guide mid
+SP_G2,Guide,0,880,0,Left,true,Enemy.Guide.Harmless,optional harmless guide near gate

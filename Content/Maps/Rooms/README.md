@@ -9,6 +9,8 @@
 
 `Room_Combat_03` 已有正式几何 + 刷怪 + 出口（`Room_Combat_03.md` / `Room_Combat_03_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_03_{meta,spawns,geometry}.csv`。尚无 umap / uasset。Mid 双高台：次台/踏板 TopY=28，主台 TopY=56，中路可冲，无坑。
 
+`Room_BossAnte_01` 已有骨架几何 + 可选引导 + BossGate 出口（`Room_BossAnte_01.md` / `Room_BossAnte_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_BossAnte_01_{meta,spawns,geometry}.csv`。尚无 umap / uasset。平层宽 1280，无坑，无战斗波，无三选一。
+
 ## 建图顺序
 
 `Combat_01/02` → `Boss_01` 骨架（含 `BossAnte_01`）→ `Elite_01` → 其余 Combat → Event/Shop
@@ -21,7 +23,8 @@
 | Room_Combat_01_Spawns.md | Combat_01 刷怪点（相对入口） | P0 |
 | Room_Combat_02.md | Combat Early · 一层平台定稿候选 | P0 |
 | Room_Combat_02_Spawns.md | Combat_02 刷怪点（相对入口） | P0 |
-| Room_BossAnte_01.md | BossAnte | P0（与 Boss 同批） |
+| Room_BossAnte_01.md | BossAnte · 骨架定稿候选 | P0（与 Boss 同批） |
+| Room_BossAnte_01_Spawns.md | BossAnte 可选引导点（相对入口） | P0（与 Boss 同批） |
 | Room_Boss_01.md | Boss | P0 |
 | Room_Elite_01.md | Elite | P1 |
 | Room_Combat_03.md | Combat Mid · 双高台定稿候选 | P2 |
