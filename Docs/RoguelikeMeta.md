@@ -163,6 +163,10 @@ function RollAffixChoice(RoomType, PlayerInv, RunState):
 层2 建议价格 ×1.15（可进 `DA_ShopPriceCurve`）。  
 **失败态：** Scrap 不足灰显；券购买确认后立即弹出三选一。
 
+### 5.1 事件房（非商店）
+
+支路 Event 不花 Scrap、不卖券。MVP 默认 `DA_Event_AbandonedCache`（GDD §2.8）：`CarefulLoot`=+25 Scrap；`ForceLoot`=−15 HP +50 Scrap；跳过无奖。数据：`Content/Data/Events/`。
+
 ---
 
 ## 6. 经济定稿 `DA_Economy`
@@ -259,12 +263,12 @@ Core = min(Core, SoftCapPerRun)   // 单局入账软顶
 
 ### 近端（P0.6）优先勾
 
-- [ ] Debug 或清房可弹出三选一
-- [ ] 10 Id 均可被抽到（权重可先不管手感）
-- [ ] `RapidFire` 选中后射速乘区生效
-- [ ] `Magnet` / `TwinShot` / `GlassCannon` Unique 不重复
+- [x] Debug 或清房可弹出三选一（F7 / RequestAffixChoice；主机测过）
+- [x] **P0.6 运行池 8 Id**（`DT_Affix_P05`）：无 Adrenaline/GlassCannon；正式锁表仍 10
+- [x] `RapidFire` 选中后射速乘区生效（GetStat FireRate≈1.12）
+- [x] 池内 Unique：`Magnet` / `TwinShot` 不重复（`GlassCannon` 留正式 MVP）
 
-- [ ] 10 个 PascalCase AffixId（`RapidFire`…`Scavenger`）均可配表并出现在三选一
+- [x] 正式 10 个 PascalCase AffixId 已锁表（`DT_Affix_MVP` cv3）；P0.6 抽卡读八条子集
 - [ ] `Magnet` 保留在 MVP 池；无另起 Id
 - [ ] `CritOptics` CritChance = **0.08**；`Scavenger` 文档为 ScrapGain（或 note 映射 CoinGain）
 - [ ] `Unique`（Magnet / TwinShot / GlassCannon）不会第二次出现
@@ -284,3 +288,4 @@ Core = min(Core, SoftCapPerRun)   // 单局入账软顶
 | 2026-11-04 | 织局 | 首版：10 AffixId、构筑、经济 Core、Meta 五节点 |
 | 2026-11-04 | 织局 / 词条官 | 对齐 contractVersion=3；冻 `DA_Affix_<AffixId>` |
 | 2026-11-05 | 织局 | 签收手感本版；补 P0.6 三选一最小闭环定义与近端验收；顺序服从 GDD §6.5 |
+| 2026-11-05 | 织局 | P0.6 策划签收勾近端项；Event 指向 `DA_Event_AbandonedCache` |

@@ -4,7 +4,7 @@
 |------|------|
 | Type / Tag | Event / Branch |
 | Owner | 廊道 |
-| 状态 | **规格定稿候选** · COMMENT 交审 · 待 UE umap；交互文案挂 GDD/织局 DA |
+| 状态 | **规格定稿候选** · 待 UE umap；交互已挂 `DA_Event_AbandonedCache` |
 | 尺寸 | 设计宽 **1280**（2 屏）· **安全区** |
 | 意图 | 支路非战斗事件；交互完成或跳过即可离开 |
 | 入口安全区 | 平层 X≈0–240；无威胁 |
@@ -76,11 +76,23 @@ Y
 
 | ID | Kind | (X,Y) | 备注 |
 |----|------|-------|------|
-| Interact_Main | Interactable | (640, 0) | 主事件交互；居中可读；文案/效果由织局 DA 挂 |
-| SkipHint | UIHint | (1040, 0) | 跳过提示；靠近右出口 |
+| Interact_Main | Interactable | (640, 0) | 主事件交互；挂 `DA_Event_AbandonedCache` |
+| SkipHint | UIHint | (1040, 0) | 文案：「走开（无奖励）」；靠近右出口 |
 | EventResolve | Anchor | (640, 0) | 结算/Resolve 参考（与交互同点可） |
 
 MVP：玩家可 **交互** 或 **直接走门跳过**；两种都立刻可离。
+
+### 4.1 交互 DA（织局定稿）
+
+| 项 | 值 |
+|----|----|
+| DA | `Content/Data/Events/DA_Event_AbandonedCache.json` |
+| EventId | `AbandonedCache` |
+| 标题 / 正文 | 见 DA；GDD §2.8 |
+| CarefulLoot | `GrantScrap 25` |
+| ForceLoot | `DamageSelf 15` → `GrantScrap 50`（HP 下限 1） |
+| 跳过 | 走门 / SkipHint；无奖励；不弹三选一 |
+
 
 ---
 
@@ -99,6 +111,8 @@ MVP：玩家可 **交互** 或 **直接走门跳过**；两种都立刻可离。
 | `Content/Data/Rooms/Room_Event_01_meta.csv` | 元数据 |
 | `Content/Data/Rooms/Room_Event_01_spawns.csv` | **仅表头**（无刷怪行） |
 | `Content/Data/Rooms/Room_Event_01_geometry.csv` | 几何/出口/交互锚点 |
+| `Content/Data/Events/DA_Event_AbandonedCache.json` | 交互文案与效果 |
+| `Content/Data/Events/DT_Event_MVP.json` | 事件池（MVP 仅本条） |
 
 `clear_rule=None`；`affix_on_clear=false`；`require_clear_exit` 空；`max_alive=0`。
 
@@ -110,6 +124,7 @@ MVP：玩家可 **交互** 或 **直接走门跳过**；两种都立刻可离。
 - [ ] 交互物居中可读；跳过靠近出口；可跳过离开  
 - [ ] 无三选一；CSV 齐；无 Lab 改动  
 - [ ] 登记为 Branch；与 Shop 二选一支路上场  
+- [x] Interact 挂 `DA_Event_AbandonedCache`；SkipHint 文案齐  
 
 ---
 
@@ -119,3 +134,4 @@ MVP：玩家可 **交互** 或 **直接走门跳过**；两种都立刻可离。
 |------|------|
 | 2026-11-04 | 细表占位 |
 | 2026-11-05 | 正式规格：安全区几何/交互锚点/CSV；COMMENT 交审；文案待织局 DA |
+| 2026-11-05 | 挂 `DA_Event_AbandonedCache`（CarefulLoot / ForceLoot / 跳过） |

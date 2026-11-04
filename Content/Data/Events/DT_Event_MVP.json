@@ -1,0 +1,17 @@
+{
+  "note": "MVP 事件池。Room_Event_01 默认绑 AbandonedCache。扩池时只追加 EventId，不改已锁数值。",
+  "contractVersion": 3,
+  "choiceCountDefault": 2,
+  "daNamingRule": "DA_Event_<EventId>",
+  "daNamingFrozen": true,
+  "events": [
+    {
+      "EventId": "AbandonedCache",
+      "DataAssetName": "DA_Event_AbandonedCache",
+      "Weight": 10,
+      "BindRoomId": "Room_Event_01"
+    }
+  ],
+  "locked": true,
+  "alignedWith": "Content/Data/Events/DA_Event_AbandonedCache.json"
+}

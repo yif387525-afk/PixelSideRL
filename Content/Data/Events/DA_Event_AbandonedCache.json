@@ -1,0 +1,38 @@
+{
+  "EventId": "AbandonedCache",
+  "DisplayName": "废弃补给箱",
+  "PromptBody": "封条已经裂开。小心撬开能摸到 Scrap；硬拽更快，但箱缘会割手。也可以直接走开。",
+  "SkipHint": "走开（无奖励）",
+  "bAllowDoorSkip": true,
+  "bCombatAllowed": false,
+  "bAffixOnResolve": false,
+  "BindRoomId": "Room_Event_01",
+  "InteractAnchor": "Interact_Main",
+  "ResolveAnchor": "EventResolve",
+  "SkipHintAnchor": "SkipHint",
+  "Choices": [
+    {
+      "ChoiceId": "CarefulLoot",
+      "Label": "小心撬开",
+      "Effects": [
+        { "Op": "GrantScrap", "Value": 25 }
+      ],
+      "ResultToast": "摸到一撮 Scrap。"
+    },
+    {
+      "ChoiceId": "ForceLoot",
+      "Label": "硬拽出来",
+      "Effects": [
+        { "Op": "DamageSelf", "Value": 15 },
+        { "Op": "GrantScrap", "Value": 50 }
+      ],
+      "ResultToast": "手被割破，但箱子更满。"
+    }
+  ],
+  "balanceNote": "安全档 25 < BaseClearBonus 40（无战斗）；风险档 50≈清房奖，固定扣 15 HP（结算后 HP 下限 1）。与商店回复(30 Scrap/约40%MaxHP)错位，不替代休息房。",
+  "DataAssetName": "DA_Event_AbandonedCache",
+  "contractVersion": 3,
+  "locked": true,
+  "lockedBy": "织局 2026-11-05 Event_01 挂 DA",
+  "alignedWith": "Docs/GDD.md §2.8 + Content/Maps/Rooms/Room_Event_01.md"
+}

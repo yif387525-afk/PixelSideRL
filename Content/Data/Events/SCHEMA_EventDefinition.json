@@ -1,0 +1,31 @@
+{
+  "$schemaNote": "Event 交互 DA 字段约定。实现读 JSON/CSV → DA_Event_*；禁止另起 EventId。",
+  "requiredTopLevel": [
+    "EventId",
+    "DisplayName",
+    "PromptBody",
+    "SkipHint",
+    "Choices",
+    "contractVersion"
+  ],
+  "fields": {
+    "EventId": "PascalCase 稳定 Id，与 DA_Event_<EventId> 一一对应",
+    "DisplayName": "UI 标题",
+    "PromptBody": "交互打开后的正文",
+    "SkipHint": "SkipHint 锚点 / 走门提示；跳过无奖励",
+    "bAllowDoorSkip": "true=门不锁，可不交互离开",
+    "bCombatAllowed": "MVP 必须 false",
+    "bAffixOnResolve": "MVP 必须 false（不触发三选一）",
+    "BindRoomId": "默认挂接的房间模板，如 Room_Event_01",
+    "InteractAnchor": "Interact_Main",
+    "Choices": "1–3 个选项；选后立刻 Resolve 并关闭 UI",
+    "Choice.ChoiceId": "PascalCase",
+    "Choice.Label": "按钮文案",
+    "Choice.Effects": "有序效果数组；同帧依次执行",
+    "Effect.Op": "GrantScrap | DamageSelf | HealSelf | None",
+    "Effect.Value": "数值；DamageSelf 结算后 CurrentHP 下限 1（事件不可直接致死）",
+    "Effect.Stat": "可选；本 MVP 不用",
+    "contractVersion": "整数；与经济/词条锁表同代"
+  },
+  "opsMVP": ["GrantScrap", "DamageSelf", "HealSelf", "None"]
+}
