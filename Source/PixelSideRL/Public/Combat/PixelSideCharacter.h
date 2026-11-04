@@ -4,6 +4,7 @@
 #include "PaperCharacter.h"
 #include "InputActionValue.h"
 #include "Affix/AffixChoicePresenterComponent.h"
+#include "UI/PixelHUDPresenterComponent.h"
 #include "Affix/AffixInventoryComponent.h"
 #include "Affix/AffixSubsystem.h"
 #include "Combat/Damageable.h"
@@ -68,6 +69,7 @@ protected:
 	void EnsureCombatInput();
 	void EnsureStatModifiers();
 	void AddMappingContext();
+	void MountFormalHUD();
 	void MountCombatDebugHUD();
 	void CacheStatBases();
 	void RefreshFromStats();
@@ -135,6 +137,10 @@ protected:
 	/** Choice mount. Native text UI is off; AffixChoiceWidgetClass is the WBP_AffixChoice parent. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UAffixChoicePresenterComponent> AffixChoicePresenter = nullptr;
+
+	/** In-run WBP_HUD. Does not pause and does not touch the choice presenter. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
+	TObjectPtr<UPixelHUDPresenterComponent> HUDPresenter = nullptr;
 
 	/** Read-only BI_CombatDebugRead facade. No tick, no damage, no fire. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide|Debug")

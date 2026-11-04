@@ -11,7 +11,7 @@
 
 | Widget | 线框文档 | 正式路径 | 状态 |
 |--------|----------|----------|------|
-| `WBP_HUD` | [UI_Wireframes_P0.md](./UI_Wireframes_P0.md) §1 | `Content/Blueprints/UI/` | ✅ 线框 |
+| `WBP_HUD` | [UI_Wireframes_P0.md](./UI_Wireframes_P0.md) §1 | `Content/Blueprints/UI/` | ✅ C++ `UPixelHUDWidget` + 配方 · 无 uasset。词条格 `UPixelHUDAffixIconWidget` |
 | `WBP_AffixChoice` | P0 §2 | 同上 | ✅ C++ `UPixelAffixChoiceWidget` + 配方 · 无 uasset |
 | `WBP_AffixCard` | P0 §2.2 | 同上 | ✅ C++ `UPixelAffixCardWidget` + 配方 · 无 uasset |
 | `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ 线框 |
@@ -35,20 +35,20 @@
 |--------|-----------|-----|
 | `WBP_AffixCard` | `GetAffixCardView` → **Name, Desc, Rarity, Icon**（可选 AffixId / Stacks / bOwned） | — |
 | `WBP_AffixChoice` | 听 `OnAffixChoiceOffered`；关 `OnAffixChoiceClosed`。挂 `AC_AffixChoicePresenter`，**`bEnableNativeChoiceUI = false`** | `ConfirmAffixChoice(Index)` |
-| `WBP_HUD` 词条条 | 听 `OnAffixChanged`；`GetOwnedAffixes` → **Icon, AffixId** | — |
+| `WBP_HUD` 词条条 | 听 `OnAffixChanged`；`GetOwnedAffixes` → **Icon, AffixId**。壳是 `UPixelHUDWidget`，挂 `AC_HUDPresenter` | — |
 | `WBP_Shop` Affix 商品 | 展示同 `GetAffixCardView` | 购后走 Roguelike/流程（非 UI 公式） |
 
 **禁止：** UI 直接扒 DA 未列字段；UI 不 `RollChoices` / `RequestAffixChoice`。
 
 ### 2.2 局内战斗只读（正式 HUD）
 
-| 字段（预留） | 用途 |
-|--------------|------|
-| Health 比率 | `Bar_Health` |
-| Weapon Icon / Ammo | `Img_Weapon` / `Txt_Ammo` |
-| Scrap | `Txt_Coin` → 文案 **Scrap** |
+| 字段（预留） | 用途 | 现在 |
+|--------------|------|------|
+| `GetHealthRatio()` | `Bar_Health` | `SetHealthRatio`（Demo 默认 1）。≤0.25 红 + 2Hz，≤0 空条 |
+| 当前武器 Icon / 弹药或能量 | `Img_Weapon` / `Txt_Ammo` | `SetWeaponIcon` / `SetAmmo`（Demo 默认无图、`99`） |
+| Scrap 余额 | `Txt_Coin` → 文案 **Scrap** | `SetScrap`（Demo 默认 `Scrap 000`） |
 
-线框期用 Demo*；正式接口由弹芯 / 流程提供，UI 不写伤害。
+正式只读仍由弹芯提供。HUD 不调用这些预留函数，也不写伤害。配方：`Content/Blueprints/UI/README.md`。
 
 ### 2.3 商店 · 流程 / Roguelike（P1）
 
@@ -116,8 +116,8 @@
 |-----|--------|
 | `Entry` | `WBP_MainMenu` |
 | `Hub` | `WBP_Hub`（+ Upgrade 叠层） |
-| Run / `Run_Test` | `WBP_HUD`；弹窗 AffixChoice / Shop；结束 RunSummary |
-| `Lab_CombatP0` / `_Dev` | `WBP_DebugCombatHUD`；`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关） |
+| Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop；结束 RunSummary |
+| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F6` 刷 HUD 词条格 |
 
 ---
 
@@ -126,7 +126,7 @@
 | 角色 | UI 等待 |
 |------|---------|
 | 词条官 | Affix 契约 ✅；Meta CostCore ✅ |
-| 弹芯 | 正式 HUD 只读仍待；Debug 读面已由 `AC_CombatDebugRead` 转发 |
+| 弹芯 | 正式 HUD 壳已接 Demo 设置器；`GetHealthRatio` / 武器 Icon / Scrap 余额仍待。Debug 读面已由 `AC_CombatDebugRead` 转发，正式 HUD 不读它 |
 | 点阵 | 切片尺寸见各线框；色板替换临时色 |
 | 织局 / 廊道 | RunMap 需求；商店价表 |
 | 主管 | 仓库 → 蓝图壳合入 |
@@ -136,7 +136,7 @@
 ## 5. 仓库就绪后落地顺序（建议）
 
 1. `WBP_MainMenu` → `WBP_Hub` / Upgrade  
-2. `WBP_HUD` + `WBP_AffixChoice` / Card  
+2. `WBP_HUD` + `WBP_AffixChoice` / Card（C++ 父类已在，无 uasset）  
 3. `WBP_Shop` / Slot → `WBP_RunSummary`  
 4. `WBP_DebugCombatHUD`（可并行 _Dev）  
 

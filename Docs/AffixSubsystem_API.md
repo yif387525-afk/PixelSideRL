@@ -153,7 +153,7 @@ BeginRun(FRunStartContext Ctx):
 
 1. 听 `OnAffixChoiceOffered` → 对每条 `GetAffixCardView` → 填 `WBP_AffixCard` 的 Name/Desc/Rarity/Icon。  
 2. 确认键 → `ConfirmAffixChoice(Index)`。  
-3. HUD：`GetOwnedAffixes` 只取 Icon + AffixId。
+3. HUD：`GetOwnedAffixes` 只取 Icon + AffixId。正式壳是 `UPixelHUDWidget`（显示名 `WBP_HUD`），听 `OnAffixChanged`，最多 8 格。不 Roll、不写战斗。挂载见 `Content/Blueprints/UI/README.md`。
 
 ---
 

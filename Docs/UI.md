@@ -35,7 +35,7 @@ UI 文案禁止把局外货币写成 Scrap。
 
 | Widget | 用途 | 优先级 | 状态 |
 |--------|------|--------|------|
-| `WBP_HUD` | 血量、武器、弹药、Scrap、词条一排 | P0 | ✅ 线框 |
+| `WBP_HUD` | 血量、武器、弹药、Scrap、词条一排 | P0 | ✅ C++ 父类 + 配方，无 uasset。战斗数仍是 Demo 设置器 |
 | `WBP_AffixChoice` / `WBP_AffixCard` | 三选一 | P0 | ✅ C++ 父类 + 配方，无 uasset。关掉 native 文本占位 |
 | `WBP_Shop` / `WBP_ShopSlot` | 货架、刷新、离开 | P1 | ✅ 线框 |
 | `WBP_RunSummary` | 胜负、时长、击杀、构筑、Core | P1 | ✅ 线框 |
