@@ -202,6 +202,22 @@ Core = min(Core, SoftCapPerRun)
 
 ---
 
+
+---
+
+## 6.5 近端落地顺序（主管夜间裁定 · 2026-11-05）
+
+**手感本版签收：** `Docs/CombatFeel.md` 当前参数表（移动 / 三枪骨架 / 受击 / FireInterval÷FireRate 乘区）视为 **已签收**，后续改表须走变更记录，不得 silently 漂移。
+
+| 序号 | 里程碑 | Owner 建议 | 可玩定义（退出条件） |
+|------|--------|------------|----------------------|
+| **P0.5** | **Grunt 最小敌** | 弹芯 + 廊道刷点 | `DA_Enemy_Grunt`：水平慢弹、可被豆射手击杀、受击闪白/死亡；Lab 或 `Run_Test` 单房可刷 ≥1 只 |
+| **P0.6** | **三选一最小闭环** | 词条官 + 界面 + 织局验收 | 清房（或 Debug 键）→ 暂停 → `WBP_AffixChoice` 出 3 张（读 `DT_Affix_MVP`）→ 选 1 → 写入 `AC_AffixInventory` → Modifier 生效（至少 RapidFire 射速可感知）→ 恢复控制 |
+| **P0.7** | **第一战斗房** | 廊道 + 弹芯 | 1 个普通战斗房模板：刷 Grunt 编队 → 清房开门 → **必出** 一次三选一 → 不可回退 |
+| **P0.8** | **Hub → Run_Test 开局** | Meta/流程 + 界面 | `Hub` 按「开始」进 `Run_Test`（或正式 Run 图）；带入 Meta 开局上下文；死亡/通关可回 Hub 结算（Core 可先占位） |
+
+**禁止并行抢跑：** P0.6 不得阻塞在完整商店/永久树；P0.7 不得上精英/Boss；P0.8 不要求完整 2 层。
+
 ## 7. MVP 验收清单
 
 - [ ] 能从 Hub 进入 `Run_Test` 并开局
@@ -212,6 +228,15 @@ Core = min(Core, SoftCapPerRun)
 - [ ] 中位时长落在 **15–20 分钟**
 - [ ] 武器 / 敌人 / 词条均由 `DA_` / `DT_` 驱动，蓝图只读表
 - [ ] 不允许回退已清房；倒地即失败
+
+
+### 7.1 近端里程碑验收（先于完整 MVP）
+
+- [ ] **手感签收：** `CombatFeel.md` 本版已引用；Peashooter 走跳开火与受击 I-Frame 符合表内观感（弹芯自测 + 织局抽查）
+- [ ] **P0.5 Grunt：** 至少 1 只 Grunt 可追击/射击、可被击杀；死亡有反馈；数据在 `DA_Enemy_Grunt`
+- [ ] **P0.6 三选一最小闭环：** 单次三选一全链路可跑通；选中 RapidFire 后射速明显加快；Unique 不会二次出现（可用 Debug 连抽验证）
+- [ ] **P0.7 第一战斗房：** 一间普通房清房 → 必出三选一 → 开门；无回退
+- [ ] **P0.8 Hub/Run_Test 开局：** Hub 一键开局进入可玩图；失败或主动退出能回 Hub（结算 UI 可极简）
 
 ---
 
@@ -238,3 +263,12 @@ Core = min(Core, SoftCapPerRun)
 | 房间 | `Content/Data/Rooms/` + `Blueprints/Rooms/` |
 | 局内 Buff | `AC_AffixInventory` / `Blueprints/Roguelike/` |
 | 永久 | `Blueprints/Meta/` |
+
+---
+
+## 变更记录
+
+| 日期 | 作者 | 说明 |
+|------|------|------|
+| 2026-11-04 | 织局 | 首版：局内循环、难度曲线、敌人/三枪、结算 Core |
+| 2026-11-05 | 织局 | **签收** `CombatFeel.md` 本版；近端顺序锁定 **P0.5 Grunt → P0.6 三选一最小闭环 → P0.7 第一战斗房 → P0.8 Hub/Run_Test 开局**；补 §6.5 与 §7.1 验收 |
