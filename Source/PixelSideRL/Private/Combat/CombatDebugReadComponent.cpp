@@ -54,7 +54,15 @@ float UCombatDebugReadComponent::ReadFireRate(AActor* Actor)
 	{
 		Stats = Actor->FindComponentByClass<UStatModifiersComponent>();
 	}
-	return Stats ? Stats->GetStat(EStatId::FireRate) : PixelSideCombat::FireRateBase;
+	if (!Stats)
+	{
+		return PixelSideCombat::FireRateBase;
+	}
+	if (const UWeaponControllerComponent* Weapon = FindWeapon(Actor))
+	{
+		return Stats->GetStatForWeapon(EStatId::FireRate, Weapon->GetWeaponId());
+	}
+	return Stats->GetStat(EStatId::FireRate);
 }
 
 FPixelCombatDebugView UCombatDebugReadComponent::ReadActor(AActor* Actor)

@@ -186,6 +186,10 @@ inline void ApplyRow(UAffixDefinition* Dst, const PixelSideAffix::FAffixRow& Row
 		Out.Op = ToOp(Mod.Op);
 		Out.Value = Mod.Value;
 		Out.DurationSec = Mod.DurationSec;
+		if (!Mod.WeaponTag.empty())
+		{
+			Out.WeaponTag = IdName(Mod.WeaponTag);
+		}
 		Dst->Modifiers.Add(Out);
 	}
 	Dst->bRequiresWeaponTag = NAME_None;

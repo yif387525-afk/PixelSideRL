@@ -101,6 +101,10 @@
           "DurationSec": {
             "type": "number",
             "default": 0
+          },
+          "WeaponTag": {
+            "type": "string",
+            "description": "Empty or omitted: global. Otherwise only the weapon whose WeaponId equals this string (Peashooter). Not bRequiresWeaponTag."
           }
         }
       }

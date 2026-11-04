@@ -228,10 +228,11 @@ UStatModifiersComponent* UWeaponControllerComponent::FindStats() const
 
 float UWeaponControllerComponent::ResolveStat(EStatId StatId, float BaseValue) const
 {
-	// Sole combat read. Missing component: FireRate base 1, damage/knockback from the weapon DA.
+	// Sole combat read. WeaponId lets a tagged meta mod (PeaFamiliar) skip other guns.
+	// Missing component: FireRate base 1, damage/knockback from the weapon DA.
 	if (const UStatModifiersComponent* Stats = FindStats())
 	{
-		return Stats->GetStat(StatId);
+		return Stats->GetStatForWeapon(StatId, GetWeaponId());
 	}
 	if (StatId == EStatId::FireRate)
 	{

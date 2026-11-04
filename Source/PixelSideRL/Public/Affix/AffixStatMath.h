@@ -5,6 +5,11 @@
 //   Base → Meta permanent → Affix passive → temporary Duration buffs.
 // Inside one layer, per stat: (current + ΣAdd) * Π(1+Mul). Mul Value is +x%
 // (factor = 1+Value). The last Override in that layer replaces the result.
+// WeaponTag is applied per modifier before that math:
+//   empty WeaponTag → every query (global; same as a mod that never had a tag)
+//   other           → only GetStat(Stat, WeaponId) when WeaponId == WeaponTag
+// GetStat(Stat) is the no-weapon query (MaxHP, MoveSpeed). Tagged mods are skipped.
+// Match is the exact WeaponId string (Peashooter), not the data-asset name.
 //
 // Hand calc, peashooter bases, no meta:
 //   HollowPoint ×1  Damage   = 8 * (1+0.1) = 8.8
@@ -17,6 +22,7 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace PixelSideAffix
@@ -93,6 +99,19 @@ struct FMod
 	EOp Op = EOp::Add;
 	float Value = 0.f;
 	float DurationSec = 0.f;
+	/** Empty: global. Otherwise only the weapon query whose id equals this string. */
+	std::string WeaponTag;
+
+	FMod() = default;
+	/** Omitted tag stays empty, so existing four-field rows stay global. */
+	FMod(EStat InStat, EOp InOp, float InValue, float InDuration, std::string InTag = {})
+		: Stat(InStat)
+		, Op(InOp)
+		, Value(InValue)
+		, DurationSec(InDuration)
+		, WeaponTag(std::move(InTag))
+	{
+	}
 };
 
 struct FAffixRow
@@ -182,7 +201,8 @@ bool ParseRarity(std::string_view Text, ERarity& Out);
 bool ParseTrigger(std::string_view Text, ETrigger& Out);
 
 float DefaultBase(EStat Stat);
-float ApplyLayer(float Current, const std::vector<FMod>& Mods, EStat Stat);
+/** WeaponTag empty skips mods that name a weapon. Non-empty keeps globals plus that tag. */
+float ApplyLayer(float Current, const std::vector<FMod>& Mods, EStat Stat, std::string_view WeaponTag = {});
 std::string FormatDescription(std::string_view Description, float FirstModifierValue, int PreviewStacks);
 
 const std::vector<FAffixRow>& BuiltinP05Rows();
@@ -228,7 +248,10 @@ public:
 	bool DebugGrant(const std::string& AffixId, FChange* Out);
 	std::vector<std::string> NotifyTrigger(ETrigger Trigger);
 
-	float GetStat(EStat Stat) const;
+	/** No weapon. Global mods only; a non-empty WeaponTag does not apply. */
+	float GetStat(EStat Stat) const { return GetStat(Stat, std::string_view{}); }
+	/** Weapon id, e.g. "Peashooter". Empty view is the same as GetStat(Stat). */
+	float GetStat(EStat Stat, std::string_view WeaponTag) const;
 	int GetStacks(const std::string& AffixId) const;
 	bool HasTag(const std::string& Tag) const;
 	FCard GetCard(const std::string& AffixId, int PreviewStacks) const;

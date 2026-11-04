@@ -132,6 +132,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Affix|Stats")
 	virtual float GetStat(EStatId Stat) const PURE_VIRTUAL(UAffixSubsystem::GetStat, return 0.f;);
 
+	/**
+	 * Same fold as GetStat. WeaponId None is the no-weapon query (global mods only).
+	 * Modifier WeaponTag None applies on every query. Any other tag applies only when
+	 * it equals WeaponId. AC_WeaponController passes GetWeaponId().
+	 */
+	UFUNCTION(BlueprintPure, Category = "Affix|Stats")
+	virtual float GetStatForWeapon(EStatId Stat, FName WeaponId) const;
+
 	UFUNCTION(BlueprintPure, Category = "Affix|Stats")
 	virtual float GetStatBase(EStatId Stat) const PURE_VIRTUAL(UAffixSubsystem::GetStatBase, return 0.f;);
 

@@ -50,6 +50,11 @@ void UStatModifiersComponent::SetBaseStat(EStatId Stat, float Value)
 
 float UStatModifiersComponent::GetStat(EStatId Stat) const
 {
+	return GetStatForWeapon(Stat, NAME_None);
+}
+
+float UStatModifiersComponent::GetStatForWeapon(EStatId Stat, FName WeaponId) const
+{
 	UStatModifiersComponent* Self = const_cast<UStatModifiersComponent*>(this);
 	Self->EnsureAffixBound();
 	if (UAffixSubsystem* Affix = Self->BoundAffix)
@@ -61,7 +66,7 @@ float UStatModifiersComponent::GetStat(EStatId Stat) const
 				Affix->SetBaseStat(Stat, *Local);
 			}
 		}
-		return Affix->GetStat(Stat);
+		return Affix->GetStatForWeapon(Stat, WeaponId);
 	}
 	if (const float* Found = BaseStats.Find(Stat))
 	{

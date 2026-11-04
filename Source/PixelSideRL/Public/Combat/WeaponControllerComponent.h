@@ -13,7 +13,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPixelWeaponFired);
 
 /**
  * AC_WeaponController. Full-auto peashooter along facing ±X.
- * Cooldown = FireInterval / GetStat(FireRate) via ResolveStat. No AffixId branch, no Roll.
+ * Cooldown = FireInterval / GetStatForWeapon(FireRate, WeaponId) via ResolveStat.
+ * No AffixId branch, no Roll. WeaponId filters modifier WeaponTag; empty tags stay global.
  *
  * 转发约定：只绑 AC_StatModifiers 的 OnAffixChanged / OnStatsRebuilt，不绑 GameInstance
  * UAffixSubsystem 的同名委托。词条官把 Subsystem 事件转到组件委托；两路都听会双刷。

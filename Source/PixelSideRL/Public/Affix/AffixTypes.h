@@ -82,7 +82,11 @@ struct PIXELSIDERL_API FAffixModifier
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DurationSec = 0.f;
 
-	/** Empty: not weapon-scoped. The stat fold does not filter on this yet. */
+	/**
+	 * None: global (every weapon query and GetStat with no weapon).
+	 * Otherwise only GetStatForWeapon when WeaponId equals this tag.
+	 * PeaFamiliar uses Peashooter, matching UDA_Weapon::WeaponId.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName WeaponTag = NAME_None;
 };

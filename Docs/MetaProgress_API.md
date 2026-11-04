@@ -89,7 +89,9 @@ BeginRunFromMeta StartingScrap=<n> RunScrap=<n> ...
 
 `UnlockedAffixIds` 在读表成功时是十个 MVP Id。P0.6 实际加载的是其中 8 条（不含 Adrenaline / GlassCannon）；这十个把那 8 条都留在池里，不另开 Unlock 门。读表失败时列表留空，Affix 把空列表当成「当前已加载池」。
 
-`BeginRun` 只把修饰的 `Stat` / `Op` / `Value` / `DurationSec` 放进 Meta 层。`WeaponTag` 留在 `FAffixModifier` 上，折算层还不会按枪过滤。因此**若调试买了 PeaFamiliar，Damage Mul 会进所有武器的 Meta 伤害**，直到折算认识 `WeaponTag`。默认档 0 不注入，Lab 不开局买节点时手感不变。`MetaFlags` 和 `MetaCoreMult` 同样不被 Affix `BeginRun` 读取。
+`BeginRun` 把修饰的 `Stat` / `Op` / `Value` / `DurationSec` / `WeaponTag` 放进 Meta 层。空 `WeaponTag` 是全局：每个武器查询，以及不带武器的 `GetStat`，都计入，和没有这个字段时一样。非空 Tag 只在查询的 `WeaponId` 与它相等时计入；没匹配上的那一条不参加该层的 Add / Mul / Override。
+
+PeaFamiliar 的 Tag 是 `Peashooter`，等于 `UDA_Weapon_Peashooter::WeaponId`。购档后只有这把枪的伤害吃到该 Mul（+0.04 / +0.08 / +0.12）。Scatter、Pike 以及其他 `WeaponId` 不受这条 Mul。不带武器的 `GetStat(Damage)` 也不计入它。比较的是 `WeaponId` 字符串，不是 `DA_Weapon_*` 资产名，也不是商店合约 Id。默认档 0 不注入，Lab 不开局买节点时手感不变。`MetaFlags` 和 `MetaCoreMult` 同样不被 Affix `BeginRun` 读取。
 
 调试再注入走控制台 `PixelSide.Meta.BeginRun`。它会再调 `BeginRunFromMeta`，`BeginRun` 会清掉本局已拿的词条。不新绑键。
 
@@ -153,4 +155,6 @@ g++ -std=c++17 -Wall -Wextra -Werror -I Source/PixelSideRL/Public \
 /tmp/test_meta_progress .
 ```
 
-覆盖：五节点费用与冻名、新档全 0、Stash 15/30/50 写入 `SeedRunScrap`、Vitality 只取该档 MaxHP、PeaFamiliar 的 WeaponTag、SalvageSense 倍率、SidearmLuck 旗标、不超过 MaxPurchases、Core 不足不扣、UnlockAffix 的 Piercer/TwinShot 不改十词条池、Pierce 修饰被拒绝、结算预览不入账、`Content/Data/Meta` 下没有 `.uasset` 或 `DA_MetaNode_*` 文件。
+覆盖：五节点费用与冻名、新档全 0、Stash 15/30/50 写入 `SeedRunScrap`、Vitality 只取该档 MaxHP、PeaFamiliar 的 WeaponTag 写在开局修饰上、SalvageSense 倍率、SidearmLuck 旗标、不超过 MaxPurchases、Core 不足不扣、UnlockAffix 的 Piercer/TwinShot 不改十词条池、Pierce 修饰被拒绝、结算预览不入账、`Content/Data/Meta` 下没有 `.uasset` 或 `DA_MetaNode_*` 文件。
+
+按枪过滤不在这份宿主测里。`Scripts/test_affix_p05.cpp` 检查：空 Tag 仍全局；PeaFamiliar 的 Damage Mul 只进 `GetStat(Damage, "Peashooter")`；Scatter / 无武器查询不计；档 0 不注入。
