@@ -31,6 +31,7 @@
 #include "InputModifiers.h"
 #include "PaperFlipbook.h"
 #include "PaperFlipbookComponent.h"
+#include "UI/PixelAffixChoiceWidget.h"
 #include "UI/PixelDebugCombatHUD.h"
 
 APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitializer)
@@ -53,6 +54,10 @@ APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitial
 	Stats = CreateDefaultSubobject<UStatModifiersComponent>(TEXT("AC_StatModifiers"));
 	AffixInventory = CreateDefaultSubobject<UAffixInventoryComponent>(TEXT("AC_AffixInventory"));
 	AffixChoicePresenter = CreateDefaultSubobject<UAffixChoicePresenterComponent>(TEXT("AC_AffixChoicePresenter"));
+	// Formal three-card shell. Text stand-in stays off so Lab does not draw both.
+	// Clear AffixChoiceWidgetClass and set bEnableNativeChoiceUI to bring UAffixChoiceDebugWidget back.
+	AffixChoicePresenter->bEnableNativeChoiceUI = false;
+	AffixChoicePresenter->AffixChoiceWidgetClass = UPixelAffixChoiceWidget::StaticClass();
 	CombatDebugRead = CreateDefaultSubobject<UCombatDebugReadComponent>(TEXT("AC_CombatDebugRead"));
 #if UE_BUILD_SHIPPING
 	bEnableCombatDebugHUD = false;

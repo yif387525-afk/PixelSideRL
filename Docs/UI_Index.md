@@ -12,8 +12,8 @@
 | Widget | 线框文档 | 正式路径 | 状态 |
 |--------|----------|----------|------|
 | `WBP_HUD` | [UI_Wireframes_P0.md](./UI_Wireframes_P0.md) §1 | `Content/Blueprints/UI/` | ✅ 线框 |
-| `WBP_AffixChoice` | P0 §2 | 同上 | ✅ 线框 |
-| `WBP_AffixCard` | P0 §2.2 | 同上 | ✅ 线框 |
+| `WBP_AffixChoice` | P0 §2 | 同上 | ✅ C++ `UPixelAffixChoiceWidget` + 配方 · 无 uasset |
+| `WBP_AffixCard` | P0 §2.2 | 同上 | ✅ C++ `UPixelAffixCardWidget` + 配方 · 无 uasset |
 | `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ 线框 |
 | `WBP_ShopSlot` | P1 §1.2 | 同上 | ✅ 线框 |
 | `WBP_RunSummary` | P1 §2 | 同上 | ✅ 线框 |
@@ -34,7 +34,7 @@
 | 消费方 | 读 / 事件 | 写 |
 |--------|-----------|-----|
 | `WBP_AffixCard` | `GetAffixCardView` → **Name, Desc, Rarity, Icon**（可选 AffixId / Stacks / bOwned） | — |
-| `WBP_AffixChoice` | 听 `OnAffixChoiceOffered`；关 `OnAffixChoiceClosed` | `ConfirmAffixChoice(Index)` |
+| `WBP_AffixChoice` | 听 `OnAffixChoiceOffered`；关 `OnAffixChoiceClosed`。挂 `AC_AffixChoicePresenter`，**`bEnableNativeChoiceUI = false`** | `ConfirmAffixChoice(Index)` |
 | `WBP_HUD` 词条条 | 听 `OnAffixChanged`；`GetOwnedAffixes` → **Icon, AffixId** | — |
 | `WBP_Shop` Affix 商品 | 展示同 `GetAffixCardView` | 购后走 Roguelike/流程（非 UI 公式） |
 
@@ -117,7 +117,7 @@
 | `Entry` | `WBP_MainMenu` |
 | `Hub` | `WBP_Hub`（+ Upgrade 叠层） |
 | Run / `Run_Test` | `WBP_HUD`；弹窗 AffixChoice / Shop；结束 RunSummary |
-| `Lab_CombatP0` / `_Dev` | `WBP_DebugCombatHUD` |
+| `Lab_CombatP0` / `_Dev` | `WBP_DebugCombatHUD`；`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关） |
 
 ---
 

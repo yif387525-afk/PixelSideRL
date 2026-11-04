@@ -132,7 +132,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UAffixInventoryComponent> AffixInventory = nullptr;
 
-	/** Native three-choice stand-in. Turn off when WBP_AffixChoice owns the events. */
+	/** Choice mount. Native text UI is off; AffixChoiceWidgetClass is the WBP_AffixChoice parent. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UAffixChoicePresenterComponent> AffixChoicePresenter = nullptr;
 
