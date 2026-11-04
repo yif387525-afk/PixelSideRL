@@ -92,7 +92,9 @@ MVP：玩家可 **交互** 或 **直接走门跳过**；两种都立刻可离。
 | CarefulLoot | `GrantScrap 25` |
 | ForceLoot | `DamageSelf 15` → `GrantScrap 50`（HP 下限 1） |
 | 跳过 | 走门 / SkipHint；无奖励；不弹三选一 |
-| 运行时 | `UEventSubsystem::ResolveEventChoice`（`Docs/EventOps_API.md`）。无 `WBP_EventChoice`、无 uasset |
+| 运行时 | `UEventSubsystem::ResolveEventChoice`（`Docs/EventOps_API.md`）。本壳不调用它。无 uasset |
+
+UI 壳：`Docs/UI_Wireframes_Event.md`（`UPixelEventChoiceWidget`）。只显示本 DA 的标题、正文、两个按钮和 SkipHint；不执行效果，不 `SetGamePaused`。
 
 
 ---

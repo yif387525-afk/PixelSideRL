@@ -1,6 +1,6 @@
 # Content/Blueprints/UI
 
-Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`。线框见 Docs/UI_Wireframes_P0.md。
+Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`、`WBP_EventChoice`。线框见 Docs/UI_Wireframes_P0.md 与 Docs/UI_Wireframes_Event.md。
 
 `WBP_DebugCombatHUD` 不放这里。它只属于 `Content/_Dev/Combat/UI/`。正式 HUD 不要引用它。
 
@@ -14,6 +14,8 @@ Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WB
 | `WBP_HUD_AffixIcon` | `UPixelHUDAffixIconWidget` | `WBP_HUD_AffixIcon` | `Source/PixelSideRL/Public/UI/PixelHUDAffixIconWidget.h` |
 | `WBP_AffixChoice` | `UPixelAffixChoiceWidget` | `WBP_AffixChoice` | `Source/PixelSideRL/Public/UI/PixelAffixChoiceWidget.h` |
 | `WBP_AffixCard` | `UPixelAffixCardWidget` | `WBP_AffixCard` | `Source/PixelSideRL/Public/UI/PixelAffixCardWidget.h` |
+| `WBP_EventChoice` | `UPixelEventChoiceWidget` | `WBP_EventChoice` | `Source/PixelSideRL/Public/UI/PixelEventChoiceWidget.h` |
+| `WBP_EventChoiceButton` | `UPixelEventChoiceButton` | `WBP_EventChoiceButton` | `Source/PixelSideRL/Public/UI/PixelEventChoiceButton.h` |
 
 路径：`Content/Blueprints/UI/`。画布逻辑 640×360，安全区 8px。三张卡实例名必须是 `Card_0`、`Card_1`、`Card_2`。
 
@@ -133,6 +135,30 @@ Run / Lab：
 5. 图表留空。不要 `RequestAffixChoice`、`RollChoices`、`ApplyDamage`、`SetGamePaused`。
 6. 玩家组件上 `AffixChoiceWidgetClass` 改指这个 WBP。**开关保持 false。**
 
+## 事件选择 `WBP_EventChoice`
+
+画布逻辑 640×360。文案对齐 `Content/Data/Events/DA_Event_AbandonedCache.json`，不建 DataAsset uasset。线框：`Docs/UI_Wireframes_Event.md`。
+
+| 控件名 | 类型 | 数据 |
+|--------|------|------|
+| `Overlay_Root` | Overlay，全屏 | |
+| `Img_Dim` | Image，`#000000` 60% | |
+| `Txt_Title` | Text Block | `DisplayName`（废弃补给箱） |
+| `Txt_Body` | Text Block | `PromptBody` |
+| `Btn_Choice_1` `Btn_Choice_2` `Btn_Choice_3` | `WBP_EventChoiceButton` | `Choices[].Label`。MVP 只显示前两个，第三个折叠 |
+| `Btn_Skip` | Button | 跳过 |
+| `Txt_Skip` | Text Block，放在 `Btn_Skip` 里 | `SkipHint`：走开（无奖励） |
+
+按钮内部：`Btn_Select`、`Txt_Hotkey`（1 / 2 / 3）、`Txt_Label`。
+
+不 `GrantScrap`、不 `DamageSelf`、不 `HealSelf`、不 `ResolveEventChoice`、不 `SetGamePaused`、不 `RequestAffixChoice`。`bAffixOnResolve` 保持 false。
+
+打开时 `APixelSideCharacter::SetEventChoiceBlocksControl(true)`，只丢掉移动 / 跳跃 / 开火。世界不暂停，所以门体积不会被冻住（GDD「门仍可走」）。关闭时恢复，并广播 `OnEventClosed`。选中只广播 `OnEventChoiceSelected(ChoiceId)`；跳过和 Esc 只广播 `OnEventSkipped`（无奖励）。
+
+非 Shipping：`F10` 打开 AbandonedCache Demo。`F8` / `F9` 仍是直调 Resolve，不要占用。`F6` / `F7` 的映射不动。事件开着时这两个键先被忽略，关掉之后照旧。三选一还开着时 `F10` 不起作用。
+
+可选子蓝图：父类选显示名 `WBP_EventChoice` 或 `WBP_EventChoiceButton`。控件名逐字一致并勾 Is Variable。图表留空。不要提交 uasset。
+
 ## Lab 里 Play
 
 非 Shipping，`APixelSideGameMode`，`/Engine/Maps/Entry` 即可。正式 HUD 和三选一都会出来。
@@ -144,5 +170,7 @@ Run / Lab：
 5. 按 `1` 或点左边那张。遮罩消失，可以再走再开火。词条格多一格已拥有。
 6. 选中带射速的词条后，冷却应短于暂停前。
 7. 血和 Scrap 还没有战斗只读接口。对视口里的 `UPixelHUDWidget` 调 `SetHealthRatio` / `SetScrap`（默认满血、`Scrap 000`）。≤0.25 血条变红并闪，≤0 血条空。
+8. `F10`：事件遮罩。标题「废弃补给箱」，两个按钮「小心撬开」「硬拽出来」，跳过「走开（无奖励）」。正式 HUD 仍挂在底下（Z 10），不被拆掉。移动和开火停住，游戏时间不暂停。`F8` / `F9` 仍是不打开界面的直调 Resolve。
+9. 按 `1` 或点「小心撬开」。遮罩消失，Log 为 `OnEventChoiceSelected ChoiceId=CarefulLoot`。可以再走再开火。不加 Scrap，不扣血，不弹出三选一。再按 `F10` 后点跳过或 Esc：`OnEventSkipped`，无奖励。
 
 要临时看 #29 文本条：清掉 `AffixChoiceWidgetClass`，把 `bEnableNativeChoiceUI` 勾回去。不要两个同时开。不要关 `AC_HUDPresenter` 来换那条文本。

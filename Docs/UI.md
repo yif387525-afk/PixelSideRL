@@ -1,12 +1,13 @@
 # UI 规范与 Widget 清单（MVP）
 
 **索引：** [UI_Index.md](./UI_Index.md)（全部线框路径与依赖字段）  
-**范围：** HUD、三选一、商店、结算、据点。不写战斗逻辑。  
+**范围：** HUD、三选一、事件选择、商店、结算、据点。不写战斗逻辑。  
 **命名：** Widget `WBP_`；路径 `Content/Blueprints/UI/`，贴图 `Content/Art/UI/`。  
 **分辨率：** 逻辑 640×360，最近邻放大；UI 对齐整数像素。  
 
 **线框详稿：**  
 - P0：[UI_Wireframes_P0.md](./UI_Wireframes_P0.md) — HUD · AffixChoice  
+- Event：[UI_Wireframes_Event.md](./UI_Wireframes_Event.md) — EventChoice  
 - P1：[UI_Wireframes_P1.md](./UI_Wireframes_P1.md) — Shop · RunSummary  
 - Hub：[UI_Wireframes_Hub.md](./UI_Wireframes_Hub.md) — Hub · Hub_Upgrade  
 - MainMenu：[UI_Wireframes_MainMenu.md](./UI_Wireframes_MainMenu.md) — Entry  
@@ -27,6 +28,7 @@ UI 文案禁止把局外货币写成 Scrap。
 |------|------------|-----------|--------|
 | HUD | 生命/弹药/**Scrap**/武器/词条图标 | 无玩法写入 | 受击判定、弹道 |
 | 三选一 | 词条 DA（经 `GetAffixCardView`） | `ConfirmAffixChoice` | 词条数值公式 |
+| 事件 | `DA_Event_AbandonedCache` 展示字段（Lab 硬编码同文） | `OnEventChoiceSelected` / `OnEventSkipped` / `OnEventClosed` | Scrap、伤害、治疗、三选一 |
 | 商店 | 商品 + 价格 + Scrap | 购买/刷新/离开 | 掉落生成 |
 | 结算 | 统计 + 构筑 + **Core** | 确认 → Hub | Core 公式 / 存档 |
 | 据点 | 永久节点、**Core** | `Purchase(NodeId)` → Meta | 存档序列化 |
@@ -37,6 +39,7 @@ UI 文案禁止把局外货币写成 Scrap。
 |--------|------|--------|------|
 | `WBP_HUD` | 血量、武器、弹药、Scrap、词条一排 | P0 | ✅ C++ 父类 + 配方，无 uasset。战斗数仍是 Demo 设置器 |
 | `WBP_AffixChoice` / `WBP_AffixCard` | 三选一 | P0 | ✅ C++ 父类 + 配方，无 uasset。关掉 native 文本占位 |
+| `WBP_EventChoice` | 事件选项 + 跳过 | P0 | ✅ C++ 父类 + 配方，无 uasset。不执行效果，不暂停世界 |
 | `WBP_Shop` / `WBP_ShopSlot` | 货架、刷新、离开 | P1 | ✅ 线框 |
 | `WBP_RunSummary` | 胜负、时长、击杀、构筑、Core | P1 | ✅ 线框 |
 | `WBP_Hub` / `WBP_Hub_Upgrade` | 据点与永久成长 | P1 | ✅ 线框 |
@@ -47,8 +50,8 @@ UI 文案禁止把局外货币写成 Scrap。
 
 ## 交互约定
 
-1. 三选一 / 商店 / 结算打开时暂停或脱离局内；HUD 常驻（结算时隐藏）。  
-2. 商店可跳过；三选一不可 Esc 跳过（GDD）。  
+1. 三选一 / 商店 / 结算打开时暂停或脱离局内；HUD 常驻（结算时隐藏）。事件选择只停移动和开火，不 `SetGamePaused`，门不锁。  
+2. 商店可跳过；三选一不可 Esc 跳过（GDD）。事件可以跳过（SkipHint，无奖励）。  
 3. 选中 1px 亮边；稀有度临时色见 P0。  
 4. 安全区 8px；整数像素对齐。  
 5. 线框阶段：占位数据 + 高对比临时色；不接真战斗。  
