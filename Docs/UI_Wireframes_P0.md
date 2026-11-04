@@ -12,13 +12,14 @@
 ## 1. WBP_HUD
 
 **用途：** 局内常驻；不暂停时间。  
-**数据：** 本期用占位绑定（可调 Slider / 按钮模拟）；正式版只读 Combat / Roguelike 子系统。
+**数据：** 战斗只读（`GetHealthRatio()`、当前武器 Icon、Scrap 余额）仍预留。C++ 壳用 `SetHealthRatio` / `SetAmmo` / `SetWeaponIcon` / `SetScrap` 刷新，不写伤害。  
+**实现：** `UPixelHUDWidget`（显示名 `WBP_HUD`）+ 可选 `UPixelHUDAffixIconWidget`（`WBP_HUD_AffixIcon`）。无 uasset 时自己建同名控件。玩家 `AC_HUDPresenter` 加到视口。不引用调试战斗 HUD，正式壳没有 `_Dev` 演示按钮。配方：`Content/Blueprints/UI/README.md`。
 
 ### 1.1 布局（640×360）
 
 ```
 ┌──────────────────────────────────────────────────────────────┐  y=8
-│ [HP####....]  [WPN] ammo 99    币 000          [a][b][c][d]… │  顶栏 h≈28
+│ [HP####....]  [WPN] ammo 99   Scrap 000       [a][b][c][d]… │  顶栏 h≈28
 │                                                              │
 │                         （游戏画面）                           │
 │                                                              │
@@ -32,41 +33,41 @@
 | 血条 `Bar_Health` | 左上 (8,8) | 96×8 | 底槽 + 填充；低血闪烁 |
 | 武器图标 `Img_Weapon` | 左上 (112,8) | 16×16 | 当前武器占位方块 |
 | 弹药/能量 `Txt_Ammo` | 武器右侧 | 自适应 | `"99"` 或能量条二选一，本期数字 |
-| 局内货币 `Txt_Coin` | 顶栏偏右 | 自适应 | `"币 000"` |
+| 局内货币 `Txt_Coin` | 顶栏偏右 | 自适应 | `"Scrap 000"`（控件名仍是 `Txt_Coin`） |
 | 词条图标条 `HB_AffixIcons` | 右上 (632 右对齐,8) | 每格 12×12，间距 2，最多 8 | GDD：已选关键词条一排 |
 
 ### 1.2 控件列表
 
 | 控件名 | 类型 | 绑定（占位） | 正式接口（预留） |
 |--------|------|--------------|------------------|
-| `Bar_Health` | ProgressBar | `DemoHealth` 0–1 | `GetHealthRatio()` |
-| `Img_Weapon` | Image | 色块 / `T_UI_WeaponPlaceholder` | 当前武器 Icon |
-| `Txt_Ammo` | TextBlock | `DemoAmmo` int | 弹药或能量 |
-| `Txt_Coin` | TextBlock | `DemoCoin` int | 局内货币 |
-| `HB_AffixIcons` | HorizontalBox | 0–8 个 `Img_AffixSlot` | 听 `OnAffixChanged` → `GetOwnedAffixes()` 只取 **Icon + AffixId** |
-| `Img_AffixSlot_*` | Image | 空槽灰 / 有词条 | `GetOwnedAffixes` → Icon；空 → 占位 |
-| `Btn_DemoHurt`（仅 _Dev） | Button | −10% 血 | 删除于正式 |
-| `Btn_DemoHeal`（仅 _Dev） | Button | +10% 血 | 删除于正式 |
-| `Btn_DemoAddAffix`（仅 _Dev） | Button | 追加占位图标 | 删除于正式 |
+| `Bar_Health` | ProgressBar | `SetHealthRatio`（Demo 默认 1） | `GetHealthRatio()` |
+| `Img_Weapon` | Image | `SetWeaponIcon`；空则色块，不造贴图 | 当前武器 Icon |
+| `Txt_Ammo` | TextBlock | `SetAmmo`（Demo 默认 99） | 弹药或能量 |
+| `Txt_Coin` | TextBlock | `SetScrap`（文案 **Scrap**） | Scrap 余额 |
+| `HB_AffixIcons` | HorizontalBox | 8 个 `WBP_HUD_AffixIcon` | 听 `OnAffixChanged` → `GetOwnedAffixes()` 只取 **Icon + AffixId** |
+| `Img_Icon`（在词条格内） | Image | 空槽灰 / 有词条无 Icon 则浅色块 | `GetOwnedAffixes` → Icon；空 → 占位 |
+| `Btn_DemoHurt`（仅 _Dev） | Button | — | 正式壳不建 |
+| `Btn_DemoHeal`（仅 _Dev） | Button | — | 正式壳不建 |
+| `Btn_DemoAddAffix`（仅 _Dev） | Button | — | 正式壳不建。词条格只跟 `OnAffixChanged` |
 
 ### 1.3 状态
 
 | 状态 | 表现 | 触发（占位） |
 |------|------|--------------|
-| `Normal` | 血条绿/青填充，顶栏全显 | 默认 |
-| `LowHealth` | 血量 ≤25%：血条红 + 2Hz 闪烁填充 | `DemoHealth≤0.25` |
-| `Dead` | 血条空；可选全屏暗角（本期不做） | `DemoHealth≤0` |
-| `AffixFull` | 已 8 个图标时 `_Dev` 追加无效 | 图标数≥8 |
-| `Hidden` | 整 Widget Collapse（过场/主菜单） | 外部 SetVisibility |
+| `Normal` | 血条绿/青填充，顶栏全显 | 默认（`SetHealthRatio` > 0.25） |
+| `LowHealth` | 血量 ≤25%：血条红 + 2Hz 闪烁填充 | `SetHealthRatio` ≤ 0.25 |
+| `Dead` | 血条空；可选全屏暗角（本期不做） | `SetHealthRatio` ≤ 0 |
+| `AffixFull` | 已 8 个图标时不再加格 | `GetOwnedAffixes` ≥ 8 |
+| `Hidden` | 整 Widget Collapse（过场/主菜单） | 外部 `SetVisibility(Collapsed)` |
 
 ### 1.4 交互
 
 - 无玩法点击；鼠标穿透到世界（`Visibility` 对装饰设为 SelfHitTestInvisible）。  
-- `_Dev` 按钮仅调试层，正式包剥离。
+- `_Dev` 按钮仅调试层，正式包剥离。C++ 壳不建这些按钮。
 
 ### 1.5 子 Widget（可选拆分）
 
-- `WBP_HUD_AffixIcon`：单格 12×12（空 / 有图标 / 悬停提示预留）。
+- `WBP_HUD_AffixIcon`（`UPixelHUDAffixIconWidget`）：单格 12×12（空 / 有图标 / `AffixId` 留给以后的悬停，当前不挡点击）。
 
 ---
 
@@ -207,12 +208,12 @@
 
 | 项 | 状态 |
 |----|------|
-| `WBP_HUD` 控件列表 + 状态 | ✅ 本文 §1 |
+| `WBP_HUD` 控件列表 + 状态 | ✅ 本文 §1。C++ `UPixelHUDWidget` / `UPixelHUDAffixIconWidget`，无 uasset |
 | `WBP_AffixChoice` / `WBP_AffixCard` 控件列表 + 状态 | ✅ 本文 §2 |
 | 布局线框（ASCII） | ✅ |
 | 占位数据与输入表 | ✅ |
 | UE 内可点击壳 | ✅ C++ `UPixelAffixChoiceWidget` / `UPixelAffixCardWidget`。可选 WBP 子类见 `Content/Blueprints/UI/README.md`。不提交 uasset |
-| 真实战斗/词条 DA 绑定 | ❌ UI 不 Roll、不造 DA uasset。卡面只读 `GetAffixCardView` |
+| 真实战斗/词条 DA 绑定 | ❌ UI 不 Roll、不造 DA uasset。卡面只读 `GetAffixCardView`。HUD 词条只读 Icon + AffixId。血 / 武器 / Scrap 仍是 Demo 设置器，预留 `GetHealthRatio()` 等 |
 
 ---
 
@@ -220,4 +221,4 @@
 
 1. 点阵：UI 切片尺寸按本文锁定（血条 96×8、词条图标 12、卡面 120×168、卡图标 32）。  
 2. 词条官：确认 Affix 展示字段 `Name` / `Desc` / `Rarity` / `Icon`。  
-3. `WBP_AffixChoice` / `WBP_AffixCard` 的 C++ 父类已在。编辑器可选建同名子类，勿提交 uasset。`WBP_HUD` 仍是线框。玩家上关掉 `AC_AffixChoicePresenter.bEnableNativeChoiceUI`。
+3. `WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard` 的 C++ 父类已在。编辑器可选建同名子类，勿提交 uasset。玩家上 `AC_HUDPresenter` 挂 HUD；`AC_AffixChoicePresenter.bEnableNativeChoiceUI` 保持关闭。血 / 武器 / Scrap 等弹芯正式只读，再替换 Demo 设置器。

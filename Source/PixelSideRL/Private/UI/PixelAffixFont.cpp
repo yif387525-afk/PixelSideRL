@@ -6,6 +6,7 @@
 #include "Styling/CoreStyle.h"
 
 DEFINE_LOG_CATEGORY(LogPixelAffixUI);
+DEFINE_LOG_CATEGORY(LogPixelHUD);
 
 FSlateFontInfo PixelAffixMakeFont(int32 Size)
 {

@@ -22,8 +22,10 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | Space，手柄下键 | 跳（Coyote 0.08s，Jump Buffer 0.10s；松跳且上升时竖直速度 ×0.35，短按更矮） |
 | 鼠标左键，右扳机 | 豌豆枪连发，朝向 ±X |
 | H | 调试受击（非 Shipping） |
-| F6 | `DebugGrantAffix("RapidFire")`（非 Shipping）。行为见 `Docs/AffixSubsystem_API.md` §10 |
-| F7 | 开三选一并暂停（非 Shipping）。弹出 `UPixelAffixChoiceWidget`。`AC_AffixChoicePresenter.bEnableNativeChoiceUI` 为关，不叠文本占位。行为见同一节 |
+| F6 | `DebugGrantAffix("RapidFire")`（非 Shipping）。行为见 `Docs/AffixSubsystem_API.md` §10。正式 HUD 词条格会跟着亮 |
+| F7 | 开三选一并暂停（非 Shipping）。弹出 `UPixelAffixChoiceWidget`。`AC_AffixChoicePresenter.bEnableNativeChoiceUI` 为关，不叠文本占位。顶栏 HUD 仍在。行为见同一节 |
+
+正式局内 HUD（`UPixelHUDWidget`，显示名 `WBP_HUD`）由玩家 `AC_HUDPresenter` 放进视口，Play Entry / Lab 就能看见：安全区 8px 的顶栏（血条、武器块、弹药、`Scrap`、最多 8 个词条格）。默认满血、弹药 `99`、`Scrap 000`。血和 Scrap 还没有战斗只读接口，用 `SetHealthRatio` / `SetScrap`。它不读调试战斗 HUD。调试条仍在 (8, 40)。做法见 `Content/Blueprints/UI/README.md`。
 
 非 Shipping 且角色 `bEnableCombatDebugHUD` 为开（默认开）时，左上角 (8, 40) 有调试战斗 HUD：HP、无敌帧、武器、`FR`（`GetStat(FireRate)`）、冷却（剩余 / `GetResolvedFireCooldown()`）、最近一次伤害。父类 `UPixelDebugCombatHUD`，没有蓝图资产也会画。要换成自己的皮，按 `Content/_Dev/Combat/UI/README.md` 做 `WBP_DebugCombatHUD`。正式 `WBP_HUD` 不要引用它。Shipping 不创建。
 

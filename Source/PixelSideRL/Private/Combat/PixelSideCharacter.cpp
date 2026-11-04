@@ -33,6 +33,7 @@
 #include "PaperFlipbookComponent.h"
 #include "UI/PixelAffixChoiceWidget.h"
 #include "UI/PixelDebugCombatHUD.h"
+#include "UI/PixelHUDWidget.h"
 
 APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UPixelSideCharacterMovement>(ACharacter::CharacterMovementComponentName))
@@ -58,6 +59,8 @@ APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitial
 	// Clear AffixChoiceWidgetClass and set bEnableNativeChoiceUI to bring UAffixChoiceDebugWidget back.
 	AffixChoicePresenter->bEnableNativeChoiceUI = false;
 	AffixChoicePresenter->AffixChoiceWidgetClass = UPixelAffixChoiceWidget::StaticClass();
+	HUDPresenter = CreateDefaultSubobject<UPixelHUDPresenterComponent>(TEXT("AC_HUDPresenter"));
+	HUDPresenter->HUDWidgetClass = UPixelHUDWidget::StaticClass();
 	CombatDebugRead = CreateDefaultSubobject<UCombatDebugReadComponent>(TEXT("AC_CombatDebugRead"));
 #if UE_BUILD_SHIPPING
 	bEnableCombatDebugHUD = false;
@@ -176,6 +179,7 @@ void APixelSideCharacter::BeginPlay()
 	BeginAffixRun();
 	CacheStatBases();
 	UpdateCamera();
+	MountFormalHUD();
 	MountCombatDebugHUD();
 }
 
@@ -214,6 +218,7 @@ void APixelSideCharacter::PossessedBy(AController* NewController)
 	{
 		PC->SetViewTarget(this);
 	}
+	MountFormalHUD();
 	MountCombatDebugHUD();
 }
 
@@ -222,6 +227,7 @@ void APixelSideCharacter::PawnClientRestart()
 	EnsureCombatInput();
 	Super::PawnClientRestart();
 	AddMappingContext();
+	MountFormalHUD();
 	MountCombatDebugHUD();
 }
 
@@ -337,6 +343,14 @@ void APixelSideCharacter::EnsureCombatInput()
 	CombatMappingContext->MapKey(DebugGrantRapidFireAction, EKeys::F6);
 	CombatMappingContext->MapKey(DebugAffixChoiceAction, EKeys::F7);
 #endif
+}
+
+void APixelSideCharacter::MountFormalHUD()
+{
+	if (HUDPresenter)
+	{
+		HUDPresenter->EnsureMounted();
+	}
 }
 
 void APixelSideCharacter::MountCombatDebugHUD()
