@@ -2,7 +2,7 @@
 
 **状态：** contractVersion=3 正式表已验收；等待 Git/UE 仓库后执行。  
 **Owner：** 词条官  
-**真相源：** `Content/Data/Affixes/DT_Affix_MVP.json`、`Content/Data/Meta/DA_Economy.json`、`DT_MetaNodes_MVP.json`、`Content/Data/Shop/DA_ShopInventory.json`、`DA_ShopPriceCurve.json`
+**真相源：** `Content/Data/Affixes/DT_Affix_MVP.json`、`Content/Data/Meta/DA_Economy.json`、`DT_MetaNodes_MVP.json`、`Content/Data/Shop/DA_ShopInventory.json`、`DA_ShopPriceCurve.json`、`Content/Data/Events/DA_Event_AbandonedCache.json`
 
 ---
 
@@ -16,8 +16,9 @@
 | 稀有度权重 | `DA_AffixRarityBias` 或 `DT_AffixRarityBias` |
 | `Content/Data/Shop/DA_ShopInventory.json` | `DA_ShopInventory` |
 | `Content/Data/Shop/DA_ShopPriceCurve.json` | `DA_ShopPriceCurve` |
+| EventId `Z` | `DA_Event_Z` |
 
-路径：`Content/Data/Affixes/`、`Content/Data/Meta/`、`Content/Data/Shop/`。
+路径：`Content/Data/Affixes/`、`Content/Data/Meta/`、`Content/Data/Shop/`、`Content/Data/Events/`。
 
 ---
 
@@ -80,3 +81,13 @@
 校验：`python3 Scripts/validate_shop_da.py`。
 
 **不要**提交占位 `.uasset`。本表不新增 C++：`DA_Economy` / `DT_MetaNodes_MVP` 同样先以 JSON 为入口。`UAffixDefinition` 已存在，是因为 P0.6 子系统在读表。商店购买、`WBP_Shop`、刷怪留到 runtime PR。导入时再按 schema 建 `UShopInventoryDefinition` / `UShopPriceCurveDefinition`（`UPrimaryDataAsset`），资产名仍用上表冻名。
+
+## 8. Event 冻名（无 uasset）
+
+| JSON | UE 资产名 |
+|------|-----------|
+| EventId `Z` | `DA_Event_Z` |
+
+路径：`Content/Data/Events/DA_Event_<EventId>.json`。池：`DT_Event_MVP.json`（`daNamingRule = DA_Event_<EventId>`）。字段：`SCHEMA_EventDefinition.json`。
+
+`UEventSubsystem` 直接读这些 JSON，与 P0.6 词条读 `DT_Affix_P05.json` 一样，不依赖 uasset。不要提交占位 `DA_Event_*.uasset`。结算见 `Docs/EventOps_API.md`。商店资产名见上一节，本运行时不改商店表。

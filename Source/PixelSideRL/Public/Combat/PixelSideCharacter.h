@@ -101,6 +101,12 @@ protected:
 	void HandleDebugAffixChoice(const FInputActionValue& Value);
 
 	UFUNCTION()
+	void HandleDebugEventCarefulLoot(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void HandleDebugEventForceLoot(const FInputActionValue& Value);
+
+	UFUNCTION()
 	void HandleAffixChoiceOffered(const TArray<FAffixChoiceEntry>& Choices);
 
 	UFUNCTION()
@@ -209,6 +215,12 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputAction> DebugAffixChoiceAction = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UInputAction> DebugEventCarefulLootAction = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UInputAction> DebugEventForceLootAction = nullptr;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputMappingContext> CombatMappingContext = nullptr;

@@ -11,6 +11,7 @@
 #include "Affix/AffixChoicePresenterComponent.h"
 #include "Affix/AffixInventoryComponent.h"
 #include "Affix/AffixSubsystemDefault.h"
+#include "Event/EventSubsystem.h"
 #include "Combat/StatModifiersComponent.h"
 #include "Combat/WeaponControllerComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -254,6 +255,8 @@ void APixelSideCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	Enhanced->BindAction(DebugHurtAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugHurt);
 	Enhanced->BindAction(DebugGrantRapidFireAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugGrantRapidFire);
 	Enhanced->BindAction(DebugAffixChoiceAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugAffixChoice);
+	Enhanced->BindAction(DebugEventCarefulLootAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventCarefulLoot);
+	Enhanced->BindAction(DebugEventForceLootAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugEventForceLoot);
 #endif
 }
 
@@ -342,6 +345,12 @@ void APixelSideCharacter::EnsureCombatInput()
 	CombatMappingContext->MapKey(DebugHurtAction, EKeys::H);
 	CombatMappingContext->MapKey(DebugGrantRapidFireAction, EKeys::F6);
 	CombatMappingContext->MapKey(DebugAffixChoiceAction, EKeys::F7);
+	DebugEventCarefulLootAction = NewObject<UInputAction>(this, TEXT("IA_DebugEventCarefulLoot"));
+	DebugEventCarefulLootAction->ValueType = EInputActionValueType::Boolean;
+	DebugEventForceLootAction = NewObject<UInputAction>(this, TEXT("IA_DebugEventForceLoot"));
+	DebugEventForceLootAction->ValueType = EInputActionValueType::Boolean;
+	CombatMappingContext->MapKey(DebugEventCarefulLootAction, EKeys::F8);
+	CombatMappingContext->MapKey(DebugEventForceLootAction, EKeys::F9);
 #endif
 }
 
@@ -456,7 +465,12 @@ void APixelSideCharacter::BeginAffixRun()
 	}
 	if (!Affix->IsInRun())
 	{
-		Affix->BeginRun(FRunStartContext());
+		FRunStartContext Context;
+		Affix->BeginRun(Context);
+		if (UEventSubsystem* Events = UEventSubsystem::Get(this))
+		{
+			Events->ResetRunScrap(Context.StartingScrap);
+		}
 	}
 }
 
@@ -575,6 +589,34 @@ void APixelSideCharacter::HandleDebugAffixChoice(const FInputActionValue& Value)
 	if (UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
 	{
 		Affix->RequestAffixChoice(EAffixOfferSource::NormalRoom);
+	}
+#else
+	(void)Value;
+#endif
+}
+
+void APixelSideCharacter::HandleDebugEventCarefulLoot(const FInputActionValue& Value)
+{
+#if !UE_BUILD_SHIPPING
+	(void)Value;
+	if (UEventSubsystem* Events = UEventSubsystem::Get(this))
+	{
+		FEventResolveView View;
+		Events->ResolveEventChoice(FName(TEXT("AbandonedCache")), FName(TEXT("CarefulLoot")), View);
+	}
+#else
+	(void)Value;
+#endif
+}
+
+void APixelSideCharacter::HandleDebugEventForceLoot(const FInputActionValue& Value)
+{
+#if !UE_BUILD_SHIPPING
+	(void)Value;
+	if (UEventSubsystem* Events = UEventSubsystem::Get(this))
+	{
+		FEventResolveView View;
+		Events->ResolveEventChoice(FName(TEXT("AbandonedCache")), FName(TEXT("ForceLoot")), View);
 	}
 #else
 	(void)Value;

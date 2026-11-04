@@ -284,6 +284,7 @@ Core = min(Core, SoftCapPerRun)
 | 房间 | `Content/Data/Rooms/` + `Blueprints/Rooms/` |
 | 局内 Buff | `AC_AffixInventory` / `Blueprints/Roguelike/` |
 | 永久 | `Blueprints/Meta/` |
+| 事件 Op | `Content/Data/Events/DA_Event_*` + `UEventSubsystem::ResolveEventChoice` |
 
 ---
 
@@ -294,3 +295,4 @@ Core = min(Core, SoftCapPerRun)
 | 2026-11-04 | 织局 | 首版：局内循环、难度曲线、敌人/三枪、结算 Core |
 | 2026-11-05 | 织局 | **签收** `CombatFeel.md` 本版；近端顺序锁定 **P0.5 Grunt → P0.6 三选一最小闭环 → P0.7 第一战斗房 → P0.8 Hub/Run_Test 开局**；补 §6.5 与 §7.1 验收 |
 | 2026-11-05 | 织局 | §2.8 Event：`DA_Event_AbandonedCache` 挂 `Room_Event_01`；CarefulLoot/+25 Scrap · ForceLoot/−15HP+50 Scrap；跳过无奖 |
+| 2026-11-05 | 词条官 | 事件 Op 运行时：`ResolveEventChoice` 按序执行四 Op；局内字段 `RunScrap`；DamageSelf 下限 1，不改 Core / 手感 |
