@@ -18,9 +18,9 @@
 | `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ C++ `UPixelShopWidget` + 配方 · 无 uasset。3 格读 `DA_ShopInventory` / `DA_ShopPriceCurve`。Lab `F11` 仍直接开 Demo（128→98）。`OpenShop` 扣 RunScrap。流程开/关：`AC_ShopPresenter`（不改） |
 | `WBP_ShopSlot` | P1 §1.2 | 同上 | ✅ C++ `UPixelShopSlotWidget` + 配方 · 无 uasset |
 | `WBP_RunSummary` | P1 §2 | 同上 | ✅ C++ `UPixelRunSummaryWidget` + 配方 · 无 uasset。只展示 `FRunSummaryView`。不写 Core。无 Lab 键 |
-| `WBP_Hub` | [UI_Wireframes_Hub.md](./UI_Wireframes_Hub.md) §1 | 同上 | ✅ 线框 |
-| `WBP_Hub_Upgrade` | Hub §2 | 同上 | ✅ 线框 |
-| `WBP_Hub_NodeRow` | Hub §2.2 | 同上 | ✅ 线框 |
+| `WBP_Hub` | [UI_Wireframes_Hub.md](./UI_Wireframes_Hub.md) §1 | 同上 | ✅ C++ `UPixelHubWidget` + 配方 · 无 uasset。无新 Lab 键 |
+| `WBP_Hub_Upgrade` | Hub §2 | 同上 | ✅ C++ `UPixelHubUpgradeWidget` + 配方 · 无 uasset |
+| `WBP_Hub_NodeRow` | Hub §2.2 | 同上 | ✅ C++ `UPixelHubNodeRowWidget` + 配方 · 无 uasset |
 | `WBP_MainMenu` | [UI_Wireframes_MainMenu.md](./UI_Wireframes_MainMenu.md) | 同上 · Entry | ✅ 线框 |
 | `WBP_DebugCombatHUD` | [UI_Wireframes_DebugCombatHUD.md](./UI_Wireframes_DebugCombatHUD.md) | `Content/_Dev/Combat/UI/` | ✅ C++ 父类 `UPixelDebugCombatHUD` + 配方 · 不进正式包 · 无 uasset |
 | `WBP_RunMap` | — | — | ⏸ 等廊道 |
@@ -103,11 +103,21 @@ C++ 壳 `UPixelRunSummaryWidget`。`Present(View, bPause=true)` / `OpenWin` / `O
 
 | API / 字段 | 用途 |
 |------------|------|
-| `GetCore` | Hub / Upgrade 顶栏 |
-| `CanPurchase` / `Purchase` | 节点升级 |
-| 节点：DisplayName, Description, CostCore, OwnedRank, MaxPurchases | `WBP_Hub_NodeRow` |
+| `GetCore` | Hub / Upgrade 顶栏。文案 `Core N`，色 `#7EC8FF` |
+| `GetNodeViews` | 只读行：DisplayName、Description、NextCostCore、OwnedRank、MaxPurchases、bMaxed、bLocked、bCanPurchase |
+| `CanPurchase` / `Purchase` | 节点升级。不调用 `Save` / `AddCore` |
 
-**注意：** 节点效果里的「开局 Scrap」是局内注入，费用货币仍是 **Core**。
+C++ 壳 `UPixelHubWidget` / `UPixelHubUpgradeWidget` / `UPixelHubNodeRowWidget`。事件 `OnStartRun` / `OnOpenUpgrades` / `OnBackToMenu`。`OnStartRun` 不调用 `BeginRunFromMeta`。
+
+两条钱包。
+
+**Demo：** `OpenHubDemo` 或没有 `UMetaProgressSubsystem` 的 `OpenHub`。本地 **DemoCore 120**，节点是线框 §2.3（`meta_vitality` 等）。不调用 `GetCore` / `Purchase` / `AddCore` / `Save`，不写存档。Hub 顶栏与升级页是同一个本地数。
+
+**Meta：** `OpenHub` 且子系统在。顶栏 `GetCore()`。升级读 `GetNodeViews()`，点升级 `Purchase(NodeId)`，然后再 `GetCore()`。满级显示「已满级」并收起升级钮。Core 不够时费用红字、钮 Disabled。前置未满足时 `Border_Locked`。
+
+**注意：** 节点效果里的「开局 Scrap」是局内注入，费用货币仍是 **Core**。顶栏禁止把局外钱包写成 Scrap。
+
+无 Lab 键。非 Shipping 控制台：`PixelSide.Hub.Demo`（本地 120）或 `PixelSide.Hub.Open`（走 Meta）。**不占、不改 F6–F11，不加 F12。** 视口 Z = 85（HUD 10，调试条 50，商店 80，结算 90，三选一 100）。`上次结算` 默认折叠；`SetLastRunSummary` 之后才显示，点开只 `Present` 已有的 `WBP_RunSummary`，不写 Core。Esc 只在升级页回到 Hub。
 
 ### 2.6 主菜单
 
@@ -148,9 +158,9 @@ C++ 壳 `UPixelRunSummaryWidget`。`Present(View, bPause=true)` / `OpenWin` / `O
 | Map | Widget |
 |-----|--------|
 | `Entry` | `WBP_MainMenu` |
-| `Hub` | `WBP_Hub`（+ Upgrade 叠层） |
+| `Hub` | `WBP_Hub`（+ Upgrade 叠层）。C++ 壳，无 uasset。控制台 `PixelSide.Hub.Demo` / `PixelSide.Hub.Open` |
 | Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop / EventChoice；结束时由流程 `Present` `WBP_RunSummary` |
-| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F6` 刷 HUD 词条格。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界；确认选项才 Resolve，Skip 不 Resolve）。`F11` 仍直接弹 `UPixelShopWidget` Demo（DemoScrap 128，不写 RunScrap），不经过 Presenter。房间流程另调玩家 `AC_ShopPresenter` 开/关（Z 80）。结算没有键：`PixelSide.RunSummary.Demo Win` 或 `Fail`。不加 F12 |
+| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F6` 刷 HUD 词条格。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界；确认选项才 Resolve，Skip 不 Resolve）。`F11` 仍直接弹 `UPixelShopWidget` Demo（DemoScrap 128，不写 RunScrap），不经过 Presenter。房间流程另调玩家 `AC_ShopPresenter` 开/关（Z 80）。结算没有键：`PixelSide.RunSummary.Demo Win` 或 `Fail`。据点没有键：`PixelSide.Hub.Demo` 或 `PixelSide.Hub.Open`。不加 F12 |
 
 ---
 
@@ -168,9 +178,9 @@ C++ 壳 `UPixelRunSummaryWidget`。`Present(View, bPause=true)` / `OpenWin` / `O
 
 ## 5. 仓库就绪后落地顺序（建议）
 
-1. `WBP_MainMenu` → `WBP_Hub` / Upgrade  
+1. `WBP_MainMenu` → `WBP_Hub` / Upgrade（C++ 壳已落地，无 uasset）  
 2. `WBP_HUD` + `WBP_AffixChoice` / Card（C++ 父类已在，无 uasset）  
-3. `WBP_Shop` / Slot（C++ 壳已读 #35 表）→ `WBP_RunSummary`（C++ 壳已落地，无 uasset）→ 下一步 `WBP_Hub`  
+3. `WBP_Shop` / Slot（C++ 壳已读 #35 表）→ `WBP_RunSummary`（C++ 壳已落地，无 uasset）→ `WBP_Hub`（C++ 壳已落地，无 uasset）  
 4. `WBP_DebugCombatHUD`（可并行 _Dev）  
 
 完成后本索引保持为单页入口；细节仍以各 Wireframes 文件为准。

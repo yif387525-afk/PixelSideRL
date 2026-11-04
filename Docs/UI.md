@@ -42,7 +42,7 @@ UI 文案禁止把局外货币写成 Scrap。
 | `WBP_EventChoice` | 事件选项 + 跳过 | P0 | ✅ C++ 父类 + 配方，无 uasset。确认选项调用 `ResolveEventChoice`，Skip 不调用，不 `SetGamePaused`。Lab `F10` |
 | `WBP_Shop` / `WBP_ShopSlot` | 货架、刷新、离开 | P1 | ✅ C++ 父类 + 配方，3 格读 `DA_Shop*`，无 uasset。Demo（`OpenShopDemo` / F11）仍是本地 128→98。Run（`OpenShop`）读 `GetRunScrap`，买/刷成功 `AddRunScrap`。流程开/关仍走 `AC_ShopPresenter`，该组件不改 |
 | `WBP_RunSummary` | 胜负、时长、击杀、构筑、Core | P1 | ✅ C++ 父类 + 配方，无 uasset。只展示传入的 `CoreGained`。不写 Core、不算公式、不写存档。无 Lab 键 |
-| `WBP_Hub` / `WBP_Hub_Upgrade` | 据点与永久成长 | P1 | ✅ 线框 |
+| `WBP_Hub` / `WBP_Hub_Upgrade` | 据点与永久成长 | P1 | ✅ C++ 父类 + 配方，无 uasset。无新 Lab 键。Demo 本地 Core 120；有 Meta 则 `Purchase` |
 | `WBP_MainMenu` | Entry 开始/设置占位/退出 | P1 | ✅ 线框 |
 | `WBP_RunMap` | 节点类型预览 | 后置 | ⏸ 等廊道 |
 | `WBP_Pause` | 暂停 | P2 | 待做 |
@@ -50,7 +50,7 @@ UI 文案禁止把局外货币写成 Scrap。
 
 ## 交互约定
 
-1. 三选一 / 商店 / 结算打开时暂停或脱离局内。事件选择只停移动和开火，不 `SetGamePaused`，门不锁。结算壳没有子系统暂停 API，`Present` / `OpenWin` / `OpenFail` 默认 `SetGamePaused`（与商店 `OpenShopDemo` 相同）；世界已经暂停时不抢所有权，确认后也不解开。本壳不改 `WBP_HUD`、不 Hide HUD。深底盖住画面。流程以后再藏 HUD。  
+1. 三选一 / 商店 / 结算打开时暂停或脱离局内。事件选择只停移动和开火，不 `SetGamePaused`，门不锁。结算壳没有子系统暂停 API，`Present` / `OpenWin` / `OpenFail` 默认 `SetGamePaused`（与商店 `OpenShopDemo` 相同）；世界已经暂停时不抢所有权，确认后也不解开。据点 `OpenHub` / `OpenHubDemo` 同样默认暂停，不新绑 Lab 键，不 Hide HUD。本壳不改 `WBP_HUD`。深底盖住画面。流程以后再藏 HUD。  
 2. 商店可跳过；三选一不可 Esc 跳过（GDD）。事件可以跳过（SkipHint，无奖励）。  
 3. 选中 1px 亮边；稀有度临时色见 P0。  
 4. 安全区 8px；整数像素对齐。  
@@ -71,6 +71,7 @@ UI 文案禁止把局外货币写成 Scrap。
 - [x] P0 / P1 验收通过  
 - [x] 货币：Scrap=局内，Core=局外  
 - [x] Hub 线框
+- [x] Hub C++ 壳（无 uasset，无新 Lab 键）
 - [x] MainMenu 线框（设置占位）
 - [ ] RunMap（等廊道）
 - [x] UI_Index 总索引（仓库前待命）

@@ -162,6 +162,12 @@ void TestTables(const PixelSideMeta::FProgress& Progress)
 	Expect(Progress.NamingRuleText() == kNamingRule, "naming rule");
 	Expect(Progress.PoolPolicy() == kMvpAffixPoolPolicy, "pool policy");
 	Expect(Progress.Nodes().size() == 5, "five nodes");
+	const std::vector<FNodeView> Views = Progress.NodeViews();
+	Expect(Views.size() == 5, "node views");
+	Expect(Views[0].NodeId == "Vitality" && Views[0].DisplayName == "体质", "vitality view name");
+	Expect(Views[0].OwnedRank == 0 && Views[0].MaxPurchases == 3 && Views[0].NextCostCore == 25, "vitality next");
+	Expect(!Views[0].bMaxed && !Views[0].bLocked && !Views[0].bCanPurchase, "vitality needs core");
+	Expect(Views[4].NodeId == "SidearmLuck" && Views[4].MaxPurchases == 1 && Views[4].NextCostCore == 45 && !Views[4].bLocked, "sidearm view");
 	Expect(Progress.GetCore() == 0, "new core");
 	Expect(Progress.AffixPool().size() == kMvpAffixIds.size(), "ten affixes");
 
@@ -248,14 +254,27 @@ void TestPurchase(PixelSideMeta::FProgress& Progress)
 	Start = Progress.BuildRunStartContext();
 	Expect(Start.StartingScrap == 50, "stash scrap is the rank value, not a sum");
 	Expect(!Progress.Purchase("Stash", &Reason) && Reason == "max" && Progress.GetCore() == 0, "no fourth stash");
+	{
+		const std::vector<FNodeView> Maxed = Progress.NodeViews();
+		Expect(Maxed[1].NodeId == "Stash" && Maxed[1].bMaxed && Maxed[1].OwnedRank == 3 && Maxed[1].NextCostCore == 0 && !Maxed[1].bCanPurchase, "stash view maxed");
+	}
 
 	Progress.ResetSlot();
 	Expect(Progress.GetCore() == 0 && Progress.GetPurchasedRank("Stash") == 0, "reset slot");
 	Expect(Progress.BuildRunStartContext().StartingScrap == 0, "no stash is 0 scrap");
 
 	Progress.AddCore(25 + 50 + 30, "vita pea");
+	{
+		const std::vector<FNodeView> Ready = Progress.NodeViews();
+		Expect(Ready[0].bCanPurchase && Ready[0].NextCostCore == 25 && Ready[0].OwnedRank == 0, "vitality view affordable");
+	}
 	Expect(Progress.Purchase("Vitality", &Reason) && Progress.Purchase("Vitality", &Reason), "vitality 2");
 	Expect(Progress.Purchase("PeaFamiliar", &Reason), "pea 1");
+	{
+		const std::vector<FNodeView> After = Progress.NodeViews();
+		Expect(After[0].OwnedRank == 2 && After[0].NextCostCore == 90 && !After[0].bMaxed && !After[0].bCanPurchase, "vitality view rank 2");
+		Expect(After[2].NodeId == "PeaFamiliar" && After[2].OwnedRank == 1 && After[2].NextCostCore == 60, "pea view rank 1");
+	}
 	Start = Progress.BuildRunStartContext();
 	Expect(Start.StartingScrap == 0, "vitality does not grant scrap");
 	Expect(Start.PermanentModifiers.size() == 2, "two modifiers");
@@ -362,6 +381,17 @@ void TestMutations(const std::string& Nodes, const std::string& Economy, const s
 	Gated.AddCore(1000, "lab");
 	std::string Reason;
 	Expect(!Gated.CanPurchase("Stash", &Reason) && Reason == "prereq:Vitality", "stash waits");
+	{
+		bool bLocked = false;
+		for (const FNodeView& View : Gated.NodeViews())
+		{
+			if (View.NodeId == "Stash")
+			{
+				bLocked = View.bLocked && !View.bCanPurchase && !View.bMaxed;
+			}
+		}
+		Expect(bLocked, "stash view locked");
+	}
 	Expect(Gated.Purchase("Vitality", &Reason), "buy vitality");
 	Expect(Gated.Purchase("Stash", &Reason), "stash after prereq");
 	Expect(Gated.BuildRunStartContext().StartingScrap == 15, "gated stash still pays scrap");

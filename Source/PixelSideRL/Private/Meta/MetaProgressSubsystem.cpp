@@ -226,6 +226,30 @@ TMap<FName, int32> UMetaProgressSubsystem::GetPurchasedNodes() const
 	return Out;
 }
 
+TArray<FMetaNodeView> UMetaProgressSubsystem::GetNodeViews() const
+{
+	TArray<FMetaNodeView> Out;
+	if (!State)
+	{
+		return Out;
+	}
+	for (const PixelSideMeta::FNodeView& Row : State->Progress.NodeViews())
+	{
+		FMetaNodeView View;
+		View.NodeId = IdName(Row.NodeId);
+		View.DisplayName = FText::FromString(FromUtf8(Row.DisplayName));
+		View.Description = FText::FromString(FromUtf8(Row.Description));
+		View.OwnedRank = Row.OwnedRank;
+		View.MaxPurchases = Row.MaxPurchases;
+		View.NextCostCore = Row.NextCostCore;
+		View.bMaxed = Row.bMaxed;
+		View.bLocked = Row.bLocked;
+		View.bCanPurchase = Row.bCanPurchase;
+		Out.Add(View);
+	}
+	return Out;
+}
+
 bool UMetaProgressSubsystem::CanPurchase(FName NodeId) const
 {
 	if (!State || NodeId.IsNone())

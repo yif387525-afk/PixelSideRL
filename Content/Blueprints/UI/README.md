@@ -1,6 +1,6 @@
 # Content/Blueprints/UI
 
-Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`、`WBP_EventChoice`。P1：`WBP_Shop`、`WBP_ShopSlot`、`WBP_RunSummary`。线框见 Docs/UI_Wireframes_P0.md、Docs/UI_Wireframes_Event.md 与 Docs/UI_Wireframes_P1.md。
+Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`、`WBP_EventChoice`。P1：`WBP_Shop`、`WBP_ShopSlot`、`WBP_RunSummary`、`WBP_Hub`、`WBP_Hub_Upgrade`、`WBP_Hub_NodeRow`。线框见 Docs/UI_Wireframes_P0.md、Docs/UI_Wireframes_Event.md、Docs/UI_Wireframes_P1.md 与 Docs/UI_Wireframes_Hub.md。
 
 `WBP_DebugCombatHUD` 不放这里。它只属于 `Content/_Dev/Combat/UI/`。正式 HUD 不要引用它。
 
@@ -19,6 +19,9 @@ Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WB
 | `WBP_Shop` | `UPixelShopWidget` | `WBP_Shop` | `Source/PixelSideRL/Public/UI/PixelShopWidget.h` |
 | `WBP_ShopSlot` | `UPixelShopSlotWidget` | `WBP_ShopSlot` | `Source/PixelSideRL/Public/UI/PixelShopSlotWidget.h` |
 | `WBP_RunSummary` | `UPixelRunSummaryWidget` | `WBP_RunSummary` | `Source/PixelSideRL/Public/UI/PixelRunSummaryWidget.h` |
+| `WBP_Hub` | `UPixelHubWidget` | `WBP_Hub` | `Source/PixelSideRL/Public/UI/PixelHubWidget.h` |
+| `WBP_Hub_Upgrade` | `UPixelHubUpgradeWidget` | `WBP_Hub_Upgrade` | `Source/PixelSideRL/Public/UI/PixelHubUpgradeWidget.h` |
+| `WBP_Hub_NodeRow` | `UPixelHubNodeRowWidget` | `WBP_Hub_NodeRow` | `Source/PixelSideRL/Public/UI/PixelHubNodeRowWidget.h` |
 
 路径：`Content/Blueprints/UI/`。画布逻辑 640×360，安全区 8px。三张卡实例名必须是 `Card_0`、`Card_1`、`Card_2`。
 
@@ -210,6 +213,58 @@ PixelSide.RunSummary.Demo Fail
 
 可选子蓝图：父类选显示名 `WBP_RunSummary`。控件名逐字一致并勾 Is Variable。图表留空。不要 `AddCore`、`PreviewCoreGain`、`SetScrap`、`AddRunScrap`。不要提交 uasset。
 
+## `WBP_Hub`
+
+据点全屏。逻辑画布 640×360，安全区 8px。线框：`Docs/UI_Wireframes_Hub.md`。
+
+顶栏标题「据点」。`Txt_Core` 写成 `Core N`，颜色 `#7EC8FF`。局外钱包不要写成 Scrap。节点效果里的「开局 Scrap」「击杀 Scrap」是局内注入说明，费用行仍是 `下一阶 N Core`。
+
+| 控件名 | 类型 | 数据 |
+|--------|------|------|
+| `Overlay_Root` | Overlay，全屏 | |
+| `Img_Dim` | Image | 深底 |
+| `Txt_Title` | Text Block | `据点` |
+| `Txt_Core` | Text Block，`#7EC8FF` | `Core N` |
+| `Txt_Mark` | Text Block，可选 | `PixelSideRL` |
+| `Btn_StartRun` | Button | `开始新一局` → `OnStartRun`。短锁后只广播一次，不调用 `BeginRunFromMeta` |
+| `Btn_Upgrades` | Button | `永久成长` → `OnOpenUpgrades`，打开升级叠层 |
+| `Btn_LastSummary` | Button，默认折叠 | `上次结算`。`SetLastRunSummary` 之后才显示。点开只 `Present` 已有的 `WBP_RunSummary`，不写 Core |
+| `Btn_MainMenu` | Button | `返回标题` → `OnBackToMenu`。不切关卡 |
+| `Panel_Upgrade` | `WBP_Hub_Upgrade` | 叠在 Hub 上。Esc / `关闭` 回到 Hub |
+
+`NoSave`（Core 为 0，或 Demo）时按钮仍可点。`Starting` 只锁很短一阵，避免双开局。
+
+### `WBP_Hub_Upgrade` / `WBP_Hub_NodeRow`
+
+| 控件名 | 类型 | 数据 |
+|--------|------|------|
+| `Txt_Title` | Text Block | `永久成长` |
+| `Txt_Core` | Text Block，`#7EC8FF` | 与 Hub 同一钱包 |
+| `Btn_Close` | Button | `关闭` |
+| `VBox_Nodes` | Vertical Box | 行。MVP 五条一屏，不另做滚动条 |
+| `Txt_Hint` | Text Block | `↑ ↓ 选择 · Enter 升级 · Esc 关闭` |
+
+行：`Txt_Name`、`Txt_Level`（`Lv Owned/Max`）、`Txt_Desc`、`Txt_Cost`、`Btn_Buy`（`升级`）、`Border_Locked`（前置未满足才显示）。满级收起升级钮，费用写成「已满级」。买不起时费用 `#FF3B3B`，钮 Disabled。买得起时钮可点。点下去先锁约 0.1s，再购买，再刷新。
+
+两条钱包，不要混。
+
+**Demo：** `OpenHubDemo`，以及 `OpenHub` 时没有 `UMetaProgressSubsystem`。本地 **DemoCore 120**。五个节点是线框 §2.3：`meta_vitality` 20/40/70、`meta_stockpile` 15/35/60、`meta_pea_familiar` 25/50/90、`meta_scrap_sense` 20/45/80、`meta_second_gun` 40。不调用 `GetCore` / `Purchase` / `AddCore` / `Save` / `Load`，不写存档文件。
+
+**Meta：** `OpenHub` 且子系统在。顶栏 `GetCore()`。列表 `GetNodeViews()`。点升级在 `CanPurchase` 为真时 `Purchase(NodeId)`，然后重新 `GetCore()`。不调用 `Save`。
+
+没有据点暂停 API。`OpenHub` / `OpenHubDemo` 在世界还没暂停时 `SetGamePaused(true)`。世界已经暂停时不抢所有权，关闭时也不解开。三选一还开着时拒绝打开。视口 Z = 85。HUD 10，调试条 50，商店 80，结算 90，三选一 100。不改 `WBP_HUD`，不打开商店，不改 `AC_ShopPresenter`。
+
+无 Lab 键。不要改 F6–F11，也不要加 F12。Play 之后：
+
+```
+PixelSide.Hub.Demo
+PixelSide.Hub.Open
+```
+
+`OpenForPlayer(PC, bDemo, nullptr)` 同样能打开。`bDemo` 为 true 走 Demo。
+
+可选子蓝图：父类选显示名 `WBP_Hub`、`WBP_Hub_Upgrade` 或 `WBP_Hub_NodeRow`。控件名逐字一致并勾 Is Variable。图表留空。不要 `AddCore`、`Save`、`BeginRunFromMeta`。不要提交 uasset。
+
 ## 挂载 HUD
 
 `AC_HUDPresenter`（`UPixelHUDPresenterComponent`）只负责把正式 HUD 放进本地玩家视口。它不暂停、不改输入模式，也不动 `AC_AffixChoicePresenter`。
@@ -309,5 +364,6 @@ Run / Lab：
 11. 点回复或把焦点移过去按 Enter。该格变 Sold，`Scrap 98`。
 12. `离开` 或 Esc。遮罩消失，人能走能开火。再按 `F11` 会把 Demo 货架和 128 重置。买券只发 `OnRequestAffixChoiceFromVoucher`，不自己开三选一，也不 `AddRunScrap`。
 13. 结算没有键。F6–F11 不要改，也不要按 F12（没有这个映射）。控制台 `PixelSide.RunSummary.Demo Win`：胜利，`16:20`，击杀 86，`获得 Core +42`，`Scrap 结余 40`。`PixelSide.RunSummary.Demo Fail`：失败小字出现，Core 是 `+8`。Enter / Space / Esc / `回据点` 都只打 `OnContinueToHub`，不写 Core。关掉之后 F6–F11 仍是原来的键。
+14. 据点没有键。控制台 `PixelSide.Hub.Demo`：标题「据点」，`Core 120`（`#7EC8FF`）。点「永久成长」看到五条 `meta_*`。买一档后 Core 减少，满级写「已满级」，不够时费用变红且钮不可点。Esc 回到据点。不写存档。`PixelSide.Hub.Open` 在有 Meta 时改走 `GetCore` / `Purchase`。关掉之后 F6–F11 仍是原来的键。
 
 要临时看 #29 文本条：清掉 `AffixChoiceWidgetClass`，把 `bEnableNativeChoiceUI` 勾回去。不要两个同时开。不要关 `AC_HUDPresenter` 来换那条文本。

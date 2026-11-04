@@ -8,6 +8,45 @@
 class FMetaProgressState;
 
 /**
+ * One Hub row. Display fields plus the next Core price.
+ * GetNodeViews does not spend Core and does not write a save file.
+ */
+USTRUCT(BlueprintType)
+struct PIXELSIDERL_API FMetaNodeView
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	FName NodeId;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	FText DisplayName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	FText Description;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	int32 OwnedRank = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	int32 MaxPurchases = 0;
+
+	/** CostCoreByRank[OwnedRank]. 0 when that rank does not exist. */
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	int32 NextCostCore = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	bool bMaxed = false;
+
+	/** Prerequisite rank is still 0. MVP rows are not locked. */
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	bool bLocked = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta")
+	bool bCanPurchase = false;
+};
+
+/**
  * Out-of-run Core and the five meta nodes.
  * In-run Scrap stays on UEventSubsystem. This type does not buy shop goods and does not write a save file.
  * See Docs/MetaProgress_API.md.
@@ -39,6 +78,13 @@ public:
 	/** Every loaded node, including ranks that are still 0. */
 	UFUNCTION(BlueprintPure, Category = "Meta")
 	TMap<FName, int32> GetPurchasedNodes() const;
+
+	/**
+	 * Read-only Hub rows in table order: name, description, next Core cost, rank.
+	 * Does not call Purchase, AddCore, or Save.
+	 */
+	UFUNCTION(BlueprintPure, Category = "Meta")
+	TArray<FMetaNodeView> GetNodeViews() const;
 
 	UFUNCTION(BlueprintPure, Category = "Meta")
 	bool CanPurchase(FName NodeId) const;
