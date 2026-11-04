@@ -84,8 +84,24 @@ P0 **不要求** 伤害飘字 UI；若界面有余力可另做 `WBP_DebugDmgNumb
 
 ---
 
+## 7. 仓库落地
+
+只读门面与调试 Widget 已进 C++，**没有**提交 `WBP_*.uasset`。
+
+| 项 | 位置 |
+|----|------|
+| `BI_CombatDebugRead` | `UCombatDebugRead`，`UCombatDebugReadComponent`（`AC_CombatDebugRead`）转发玩家上的 `UDamageableComponent` / `UWeaponControllerComponent` |
+| HUD 父类 | `UPixelDebugCombatHUD`。非 Shipping 且 `bEnableCombatDebugHUD` 时由 `APixelSideCharacter` 创建。类空则自建线框控件 |
+| 编辑器子蓝图 | `Content/_Dev/Combat/UI/README.md`：父类、路径、控件名、挂到 `Lab_CombatP0` |
+| 正式 HUD | 不引用本 Widget。Shipping 不创建 |
+
+CD 行分母用 `GetResolvedFireCooldown`（`FireInterval / GetStat(FireRate)`）。FireRate 默认为 1 时与 DA `FireInterval` 相同；没有间隔时用 `1/FireRateBase`。界面仍然禁止 `ApplyDamage` / `Fire` / 改 DA。
+
+---
+
 ## 变更记录
 
 | 日期 | 作者 | 说明 |
 |------|------|------|
 | 2026-11-04 | 弹芯 | 首版：调试 HUD 只读字段与布局 |
+| 2026-11-04 | 界面 | C++ 父类 `UPixelDebugCombatHUD` + 只读 `BI_CombatDebugRead`；WBP 仅配方，无 uasset |

@@ -21,7 +21,7 @@
 | `WBP_Hub_Upgrade` | Hub §2 | 同上 | ✅ 线框 |
 | `WBP_Hub_NodeRow` | Hub §2.2 | 同上 | ✅ 线框 |
 | `WBP_MainMenu` | [UI_Wireframes_MainMenu.md](./UI_Wireframes_MainMenu.md) | 同上 · Entry | ✅ 线框 |
-| `WBP_DebugCombatHUD` | [UI_Wireframes_DebugCombatHUD.md](./UI_Wireframes_DebugCombatHUD.md) | `Content/_Dev/Combat/UI/` | ✅ 线框 · 不进正式包 |
+| `WBP_DebugCombatHUD` | [UI_Wireframes_DebugCombatHUD.md](./UI_Wireframes_DebugCombatHUD.md) | `Content/_Dev/Combat/UI/` | ✅ C++ 父类 `UPixelDebugCombatHUD` + 配方 · 不进正式包 · 无 uasset |
 | `WBP_RunMap` | — | — | ⏸ 等廊道 |
 | `WBP_Pause` | — | — | P2 未做 |
 
@@ -105,6 +105,8 @@
 | FireCooldownRemaining, FireInterval（或 1/FireRateBase） | CD |
 | LastDamageTaken, LastDamageTime | DMG |
 
+实现：`UCombatDebugRead`（显示名 `BI_CombatDebugRead`）由 `UCombatDebugReadComponent` 转到 `UDamageableComponent` / `UWeaponControllerComponent`，挂在 `APixelSideCharacter`（`GetDamageable` / `GetWeaponController`）。HUD 父类 `UPixelDebugCombatHUD`，0.05s 只读刷新。CD 分母用 `GetResolvedFireCooldown`（`FireInterval / GetStat(FireRate)`，缺省 `1/FireRateBase`）。配方：`Content/_Dev/Combat/UI/README.md`。不调用 `ApplyDamage` / `Fire`。正式 `WBP_HUD` 不引用。
+
 ---
 
 ## 3. 地图挂载
@@ -123,7 +125,7 @@
 | 角色 | UI 等待 |
 |------|---------|
 | 词条官 | Affix 契约 ✅；Meta CostCore ✅ |
-| 弹芯 | 正式 HUD 只读；`BI_CombatDebugRead` 挂载 |
+| 弹芯 | 正式 HUD 只读仍待；Debug 读面已由 `AC_CombatDebugRead` 转发 |
 | 点阵 | 切片尺寸见各线框；色板替换临时色 |
 | 织局 / 廊道 | RunMap 需求；商店价表 |
 | 主管 | 仓库 → 蓝图壳合入 |

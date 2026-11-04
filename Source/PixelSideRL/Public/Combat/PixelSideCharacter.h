@@ -16,6 +16,8 @@ class USceneComponent;
 class UWeaponControllerComponent;
 class UDamageableComponent;
 class UStatModifiersComponent;
+class UCombatDebugReadComponent;
+class UPixelDebugCombatHUD;
 
 /**
  * Side-view player. Parent BP_PlayerSideScroller to this class.
@@ -30,6 +32,7 @@ public:
 	APixelSideCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void PawnClientRestart() override;
@@ -52,12 +55,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = "PixelSide")
 	UStatModifiersComponent* GetStatModifiers() const { return Stats; }
 
+	/** Dev overlay switch. Shipping builds force this off. Formal WBP_HUD must not reference the debug widget. */
+	UFUNCTION(BlueprintPure, Category = "PixelSide|Debug")
+	bool IsCombatDebugHUDEnabled() const { return bEnableCombatDebugHUD; }
+
 protected:
 	virtual bool CanJumpInternal_Implementation() const override;
 	virtual void OnJumped_Implementation() override;
 
 	void EnsureCombatInput();
 	void AddMappingContext();
+	void MountCombatDebugHUD();
 	void CacheStatBases();
 	void RefreshFromStats();
 
@@ -103,6 +111,21 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UStatModifiersComponent> Stats = nullptr;
+
+	/** Read-only BI_CombatDebugRead facade. No tick, no damage, no fire. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide|Debug")
+	TObjectPtr<UCombatDebugReadComponent> CombatDebugRead = nullptr;
+
+	/** Non-shipping Lab overlay. Off in shipping. Not referenced by WBP_HUD. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Debug")
+	bool bEnableCombatDebugHUD = true;
+
+	/** Child of UPixelDebugCombatHUD. Null uses the C++ widget, so no uasset is required. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Debug", meta = (EditCondition = "bEnableCombatDebugHUD"))
+	TSubclassOf<UPixelDebugCombatHUD> CombatDebugHUDClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPixelDebugCombatHUD> CombatDebugHUD = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UStaticMeshComponent> PlaceholderMesh = nullptr;

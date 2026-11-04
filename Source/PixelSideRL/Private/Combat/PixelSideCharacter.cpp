@@ -1,6 +1,7 @@
 #include "Combat/PixelSideCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Combat/CombatDebugReadComponent.h"
 #include "Combat/DamageableComponent.h"
 #include "Combat/PixelSideCharacterMovement.h"
 #include "Combat/PixelSideCombatLog.h"
@@ -24,6 +25,7 @@
 #include "InputModifiers.h"
 #include "PaperFlipbook.h"
 #include "PaperFlipbookComponent.h"
+#include "UI/PixelDebugCombatHUD.h"
 
 APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UPixelSideCharacterMovement>(ACharacter::CharacterMovementComponentName))
@@ -43,6 +45,10 @@ APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitial
 	WeaponController = CreateDefaultSubobject<UWeaponControllerComponent>(TEXT("AC_WeaponController"));
 	Damageable = CreateDefaultSubobject<UDamageableComponent>(TEXT("AC_Damageable"));
 	Stats = CreateDefaultSubobject<UStatModifiersComponent>(TEXT("AC_StatModifiers"));
+	CombatDebugRead = CreateDefaultSubobject<UCombatDebugReadComponent>(TEXT("AC_CombatDebugRead"));
+#if UE_BUILD_SHIPPING
+	bEnableCombatDebugHUD = false;
+#endif
 
 	Damageable->Team = ETeamId::Player;
 	Damageable->MaxHealth = PixelSideCombat::PlayerMaxHealth;
@@ -112,6 +118,17 @@ void APixelSideCharacter::BeginPlay()
 
 	CacheStatBases();
 	UpdateCamera();
+	MountCombatDebugHUD();
+}
+
+void APixelSideCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (CombatDebugHUD)
+	{
+		CombatDebugHUD->RemoveFromParent();
+		CombatDebugHUD = nullptr;
+	}
+	Super::EndPlay(EndPlayReason);
 }
 
 void APixelSideCharacter::Tick(float DeltaSeconds)
@@ -130,6 +147,7 @@ void APixelSideCharacter::PossessedBy(AController* NewController)
 	{
 		PC->SetViewTarget(this);
 	}
+	MountCombatDebugHUD();
 }
 
 void APixelSideCharacter::PawnClientRestart()
@@ -137,6 +155,7 @@ void APixelSideCharacter::PawnClientRestart()
 	EnsureCombatInput();
 	Super::PawnClientRestart();
 	AddMappingContext();
+	MountCombatDebugHUD();
 }
 
 void APixelSideCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -242,6 +261,24 @@ void APixelSideCharacter::EnsureCombatInput()
 	CombatMappingContext->MapKey(FireAction, EKeys::Gamepad_RightTrigger);
 #if !UE_BUILD_SHIPPING
 	CombatMappingContext->MapKey(DebugHurtAction, EKeys::H);
+#endif
+}
+
+void APixelSideCharacter::MountCombatDebugHUD()
+{
+#if UE_BUILD_SHIPPING
+	return;
+#else
+	if (!bEnableCombatDebugHUD || CombatDebugHUD)
+	{
+		return;
+	}
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+	{
+		return;
+	}
+	CombatDebugHUD = UPixelDebugCombatHUD::MountForPlayer(PC, this, CombatDebugHUDClass);
 #endif
 }
 
