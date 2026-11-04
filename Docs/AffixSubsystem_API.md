@@ -121,6 +121,8 @@ BeginRun(FRunStartContext Ctx):
   5. RebuildStats() → OnStatsRebuilt / OnAffixChanged(Reset)
 ```
 
+`UMetaProgressSubsystem::BeginRunFromMeta` 传入的上下文还带 `MetaFlags`、`MetaCoreMult`，以及修饰上的 `WeaponTag`。`BeginRun` 仍只折算 `Stat` / `Op` / `Value` / `DurationSec`。空的 `UnlockedAffixIds` 仍表示当前已加载池；Meta 成功读表时会填上 MVP 十词条（P0.6 的 8 条都在这十个里）。
+
 ---
 
 ## 6. BP 暴露一览（给蓝图）

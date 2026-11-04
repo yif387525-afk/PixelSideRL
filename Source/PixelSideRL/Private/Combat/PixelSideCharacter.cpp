@@ -12,6 +12,7 @@
 #include "Affix/AffixInventoryComponent.h"
 #include "Affix/AffixSubsystemDefault.h"
 #include "Event/EventSubsystem.h"
+#include "Meta/MetaProgressSubsystem.h"
 #include "Combat/StatModifiersComponent.h"
 #include "Combat/WeaponControllerComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -491,14 +492,20 @@ void APixelSideCharacter::BeginAffixRun()
 		Affix->OnAffixChoiceClosed.AddDynamic(this, &APixelSideCharacter::HandleAffixChoiceClosed);
 		bAffixChoiceBound = true;
 	}
-	if (!Affix->IsInRun())
+	if (Affix->IsInRun())
 	{
-		FRunStartContext Context;
-		Affix->BeginRun(Context);
-		if (UEventSubsystem* Events = UEventSubsystem::Get(this))
-		{
-			Events->ResetRunScrap(Context.StartingScrap);
-		}
+		return;
+	}
+	if (UMetaProgressSubsystem* Meta = UMetaProgressSubsystem::Get(this))
+	{
+		Meta->BeginRunFromMeta();
+		return;
+	}
+	FRunStartContext Context;
+	Affix->BeginRun(Context);
+	if (UEventSubsystem* Events = UEventSubsystem::Get(this))
+	{
+		Events->ResetRunScrap(Context.StartingScrap);
 	}
 }
 
