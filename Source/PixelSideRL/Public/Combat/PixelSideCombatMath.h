@@ -107,22 +107,11 @@ constexpr float GruntProjectileSpeed = 280.f;
 constexpr float GruntProjectileLife = 3.5f;
 constexpr float DebugTurretFirstShotDelay = 0.60f;
 
-// Greybox spawned when a map has no damage dummy (see APixelSideGameMode).
-constexpr float LabFloorCenterX = 400.f;
-constexpr float LabFloorScaleX = 24.f;
-constexpr float LabFloorScaleY = 0.16f;
-constexpr float LabFloorScaleZ = 0.5f;
-constexpr float LabFloorCenterZ = -25.f;
+// Entry PlayerStart when the procedural lab is not built (shipping, or the
+// level already has a damage dummy). The 5-zone sandbox lives in
+// PixelSideLabSandboxLayout.h and is spawned by APixelSideGameMode.
 constexpr float LabPlayerSpawnX = 0.f;
 constexpr float LabPlayerSpawnZ = 120.f;
-constexpr float LabDummyX = 420.f;
-constexpr float LabDummyZ = 80.f;
-constexpr float LabTurretX = -260.f;
-constexpr float LabTurretZ = 18.f;
-constexpr float LabWallScaleX = 0.5f;
-constexpr float LabWallScaleY = 0.16f;
-constexpr float LabWallScaleZ = 2.4f;
-constexpr float LabWallCenterZ = 95.f;
 
 inline float ComputeFireCooldown(float FireInterval, float FireRateMultiplier)
 {
