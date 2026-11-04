@@ -124,7 +124,7 @@ C++ 壳 `UPixelShopWidget` / `UPixelShopSlotWidget`。格数按 `Room_Shop_01` �
 | `WBP_EventChoice` | Demo 视图：`DisplayName`、`PromptBody`、`Choices[].Label`、`SkipHint`。Lab 文案对齐 `DA_Event_AbandonedCache.json`，不建 DA uasset | `OnEventChoiceSelected(ChoiceId)`、`OnEventSkipped()`、`OnEventClosed()` |
 
 **打开：** 忽略移动 / 跳跃 / 开火（`SetEventChoiceBlocksControl`）。**不** `SetGamePaused`。`bAllowDoorSkip` 保持 true，门体积照走（GDD §2.8「门仍可走」）。  
-**禁止：** UI 不 `GrantScrap` / `DamageSelf` / `HealSelf`，也不调用 `ResolveEventChoice`；不因结算打开 `WBP_AffixChoice`（`bAffixOnResolve=false`）。
+**确认：** 选项调用一次 `ResolveEventChoice`。壳不自己 `GrantScrap` / `DamageSelf` / `HealSelf`，不 `SetGamePaused`。Skip / Esc 不调用 Resolve。不因结算打开 `WBP_AffixChoice`（`bAffixOnResolve=false`）。
 
 ---
 
@@ -135,7 +135,7 @@ C++ 壳 `UPixelShopWidget` / `UPixelShopSlotWidget`。格数按 `Room_Shop_01` �
 | `Entry` | `WBP_MainMenu` |
 | `Hub` | `WBP_Hub`（+ Upgrade 叠层） |
 | Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop / EventChoice；结束 RunSummary |
-| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F6` 刷 HUD 词条格。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界，不 Resolve）。`F11` 弹 `UPixelShopWidget`（DemoScrap 128，不写 RunScrap） |
+| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F6` 刷 HUD 词条格。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界；确认选项才 Resolve，Skip 不 Resolve）。`F11` 弹 `UPixelShopWidget`（DemoScrap 128，不写 RunScrap） |
 
 ---
 

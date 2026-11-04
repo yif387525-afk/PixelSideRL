@@ -7,7 +7,7 @@
 **配方：** [Content/Blueprints/UI/README.md](../Content/Blueprints/UI/README.md)  
 **文案源：** `Content/Data/Events/DA_Event_AbandonedCache.json`（锁表）。GDD §2.8。房间 `Room_Event_01`。
 
-本界面只展示并回报选择。**不**执行 `GrantScrap` / `DamageSelf` / `HealSelf` / `None`。效果由房间 / 流程以后按 Op 白名单结算（`DamageSelf` 后 CurrentHP 下限 1）。**不**打开 `WBP_AffixChoice`（`bAffixOnResolve=false`）。
+确认选项（按钮 / `1`·`2`·`3` / 焦点在选项上按 Enter）调用一次 `UEventSubsystem::ResolveEventChoice(EventId, ChoiceId)`，再广播 `OnEventChoiceSelected`，关 UI，然后 `OnEventClosed`。壳不自己加减 Scrap / HP，也不 `SetGamePaused`。效果由子系统按 DA 执行（`DamageSelf` 后 CurrentHP 下限 1）。Skip / Esc（以及焦点在 Skip 上的 Enter）不调用 Resolve，只广播 `OnEventSkipped`，然后 `OnEventClosed`。未知 EventId / ChoiceId 或子系统缺失时打日志，不崩，UI 仍关闭，不二次应用效果。**不**打开 `WBP_AffixChoice`（`bAffixOnResolve=false`）。
 
 ---
 
@@ -70,7 +70,7 @@
 | `bCombatAllowed` | false |
 | `bAffixOnResolve` | false |
 
-效果（UI **不执行**，留给房间 / 流程）：
+效果由 `UEventSubsystem::ResolveEventChoice` 按 DA 执行。壳不自己加减 Scrap / HP：
 
 | ChoiceId | Op 顺序 |
 |----------|---------|
@@ -92,7 +92,7 @@ GDD §2.8：**打开期间可暂停移动开火；门仍可走。**
 | 门 | `bAllowDoorSkip` 留在视图上。世界时钟照走，门体积不会被整局暂停冻住。本壳不锁出口。真 `Room_Event_01` 接入时出门不依赖「先解暂停」。Lab 没有门，优先把移动 / 开火输入关掉。 |
 | 跳过 | `Btn_Skip` 文案就是 SkipHint。Esc 或焦点在跳过上按 Enter，同样 `OnEventSkipped`。 |
 
-三选一仍走自己的 `ApplyChoicePause`（会 `SetGamePaused`）。事件打开时忽略 `F6` / `F7`，避免再冻住世界。事件关上之后 `F6` / `F7` 与以前相同。`F10` 在三选一还开着时不起作用。`F8` / `F9` 留给 Event Op 直调 Resolve，本壳不用。
+三选一仍走自己的 `ApplyChoicePause`（会 `SetGamePaused`）。事件壳自己不 `SetGamePaused`。事件打开时忽略 `F6` / `F7`，避免再冻住世界。事件关上之后 `F6` / `F7` 与以前相同。`F10` 在三选一还开着时不起作用。`F8` / `F9` 仍是不打开界面的直调 Resolve。`F11` 仍是商店。本 PR 不改 F6–F11。
 
 ---
 
@@ -100,31 +100,33 @@ GDD §2.8：**打开期间可暂停移动开火；门仍可走。**
 
 | 输入 | 行为 |
 |------|------|
-| `1` / `2` / `3` | 确认对应选项（没有该槽则忽略） |
+| `1` / `2` / `3` | 确认对应选项（没有该槽则忽略），并调用一次 Resolve |
 | ↑ / ↓ · W / S | 焦点在选项和跳过之间移动 |
-| Enter / Space | 确认焦点；焦点在跳过上则跳过 |
-| 点击选项 | `OnEventChoiceSelected(ChoiceId)` |
-| 点击 `Btn_Skip` / Esc | `OnEventSkipped` |
+| Enter / Space | 确认焦点并 Resolve；焦点在跳过上则跳过，不 Resolve |
+| 点击选项 | `ResolveEventChoice` 一次，然后 `OnEventChoiceSelected(ChoiceId)` |
+| 点击 `Btn_Skip` / Esc | `OnEventSkipped`。不调用 Resolve |
 | A / D | 不由本界面占用。Lab 里角色会丢掉移动，因为控制被关掉 |
 
 | 事件 | 何时 | 载荷 |
 |------|------|------|
-| `OnEventChoiceSelected` | 点选或热键确认 | `ChoiceId`（`CarefulLoot` / `ForceLoot`） |
-| `OnEventSkipped` | 跳过 | 无。无奖励 |
+| `OnEventChoiceSelected` | 点选或热键确认。Resolve 已经调用过一次 | `ChoiceId`（`CarefulLoot` / `ForceLoot`） |
+| `OnEventSkipped` | 跳过。不调用 Resolve | 无。无奖励 |
 | `OnEventClosed` | 上面二者之后，界面已收起、移动开火已恢复 | 无 |
 
-UI 不写 Scrap、不扣血、不治疗、不 `RequestAffixChoice`。
+壳不写 Scrap、不扣血、不治疗、不 `SetGamePaused`、不 `RequestAffixChoice`。监听 `OnEventChoiceSelected` 的一方不要再调 `ResolveEventChoice`，否则效果会加两次。角色上现有的监听只打日志。
 
 ---
 
 ## 6. Lab
 
-非 Shipping，`APixelSideCharacter`，`F10`。`F8` / `F9` 不是这个界面。
+非 Shipping，`APixelSideCharacter`，`F10` 开壳。`F8` / `F9` 仍是直调 Resolve。`F11` 仍是商店。键映射不改。
 
 1. 走动、开火正常；没有遮罩。`F6` 仍是 RapidFire，`F7` 仍是三选一。
-2. `F10`：标题「废弃补给箱」，正文为上表，两个按钮「小心撬开」「硬拽出来」，跳过「走开（无奖励）」。移动和开火停住。游戏时间不暂停。
-3. 按 `1` 或点「小心撬开」：遮罩消失，Output Log 有 `OnEventChoiceSelected ChoiceId=CarefulLoot`，屏幕短提示同一行。可以再走再开火。没有加 Scrap，没有扣血，没有弹出三选一。
-4. 再按 `F10`，点跳过或 Esc：`OnEventSkipped`，无奖励，然后 `OnEventClosed`。
+2. `F10`：标题「废弃补给箱」，正文为上表，两个按钮「小心撬开」「硬拽出来」，跳过「走开（无奖励）」。移动和开火停住。游戏时间不暂停（本壳不 `SetGamePaused`）。
+3. 按 `1` 或点「小心撬开」：遮罩消失。Output Log 仍有 `OnEventChoiceSelected ChoiceId=CarefulLoot`，屏幕短提示 `OnEventChoiceSelected CarefulLoot`。同时 `ResolveEventChoice(AbandonedCache, CarefulLoot)`，Scrap 增加与 `F8` 相同（+25）。可以再走再开火。不弹出三选一。
+4. 再按 `F10`，点「硬拽出来」或按 `2`：`ResolveEventChoice(AbandonedCache, ForceLoot)`，与 `F9` 相同（先 −15 HP，下限 1，再 +50 Scrap）。Log 仍有 `OnEventChoiceSelected ChoiceId=ForceLoot`，然后 `OnEventClosed`。
+5. 再按 `F10`，点跳过或 Esc（焦点在跳过上按 Enter 同样）：只有 `OnEventSkipped`，然后 `OnEventClosed`。不调用 Resolve。钱包和 HP 不变。
+6. `F8` / `F9` 行为不变：不打开界面，直接 Resolve。`F6`–`F11` 的键不变。`F11` 仍开商店。
 
 ---
 
@@ -133,3 +135,4 @@ UI 不写 Scrap、不扣血、不治疗、不 `RequestAffixChoice`。
 | 日期 | 说明 |
 |------|------|
 | 2026-11-05 | C++ 壳：AbandonedCache Demo，`F10`，只关移动/开火，不 `SetGamePaused`，不调用 Resolve |
+| 2026-11-05 | 确认选项调用一次 `ResolveEventChoice`。Skip / Esc 不调用。不 `SetGamePaused`。F6–F11 不动 |

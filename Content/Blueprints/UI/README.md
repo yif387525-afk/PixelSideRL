@@ -205,11 +205,11 @@ Run / Lab：
 
 按钮内部：`Btn_Select`、`Txt_Hotkey`（1 / 2 / 3）、`Txt_Label`。
 
-不 `GrantScrap`、不 `DamageSelf`、不 `HealSelf`、不 `ResolveEventChoice`、不 `SetGamePaused`、不 `RequestAffixChoice`。`bAffixOnResolve` 保持 false。
+壳不自己 `GrantScrap`、不 `DamageSelf`、不 `HealSelf`、不 `SetGamePaused`、不 `RequestAffixChoice`。确认选项调用一次 `ResolveEventChoice`。Skip / Esc 不调用。`bAffixOnResolve` 保持 false。
 
-打开时 `APixelSideCharacter::SetEventChoiceBlocksControl(true)`，只丢掉移动 / 跳跃 / 开火。世界不暂停，所以门体积不会被冻住（GDD「门仍可走」）。关闭时恢复，并广播 `OnEventClosed`。选中只广播 `OnEventChoiceSelected(ChoiceId)`；跳过和 Esc 只广播 `OnEventSkipped`（无奖励）。
+打开时 `APixelSideCharacter::SetEventChoiceBlocksControl(true)`，只丢掉移动 / 跳跃 / 开火。世界不暂停，所以门体积不会被冻住（GDD「门仍可走」）。关闭时恢复，并广播 `OnEventClosed`。选中先 Resolve，再广播 `OnEventChoiceSelected(ChoiceId)`；跳过和 Esc 只广播 `OnEventSkipped`（无奖励，不 Resolve）。
 
-非 Shipping：`F10` 打开 AbandonedCache Demo。`F8` / `F9` 仍是直调 Resolve，不要占用。`F6` / `F7` 的映射不动。事件开着时这两个键先被忽略，关掉之后照旧。三选一还开着时 `F10` 不起作用。
+非 Shipping：`F10` 打开 AbandonedCache Demo。`F8` / `F9` 仍是直调 Resolve，不要占用。`F6` / `F7` 的映射不动。`F11` 仍是商店。事件开着时 `F6` / `F7` 先被忽略，关掉之后照旧。三选一还开着时 `F10` 不起作用。
 
 可选子蓝图：父类选显示名 `WBP_EventChoice` 或 `WBP_EventChoiceButton`。控件名逐字一致并勾 Is Variable。图表留空。不要提交 uasset。
 
@@ -225,7 +225,7 @@ Run / Lab：
 6. 选中带射速的词条后，冷却应短于暂停前。
 7. 血和 Scrap 还没有战斗只读接口。对视口里的 `UPixelHUDWidget` 调 `SetHealthRatio` / `SetScrap`（默认满血、`Scrap 000`）。≤0.25 血条变红并闪，≤0 血条空。
 8. `F10`：事件遮罩。标题「废弃补给箱」，两个按钮「小心撬开」「硬拽出来」，跳过「走开（无奖励）」。正式 HUD 仍挂在底下（Z 10），不被拆掉。移动和开火停住，游戏时间不暂停。`F8` / `F9` 仍是不打开界面的直调 Resolve。
-9. 按 `1` 或点「小心撬开」。遮罩消失，Log 为 `OnEventChoiceSelected ChoiceId=CarefulLoot`。可以再走再开火。不加 Scrap，不扣血，不弹出三选一。再按 `F10` 后点跳过或 Esc：`OnEventSkipped`，无奖励。
+9. 按 `1` 或点「小心撬开」。遮罩消失，Log 仍有 `OnEventChoiceSelected ChoiceId=CarefulLoot`。同时 Resolve，Scrap +25，与 `F8` 相同。可以再走再开火。不弹出三选一。再按 `F10` 选「硬拽出来」：与 `F9` 相同，先 −15 HP 再 +50 Scrap。再按 `F10` 后点跳过或 Esc：只有 `OnEventSkipped`，钱包和 HP 不变。
 10. `F11` 开商店。遮罩下仍能看见 HUD。三格：豆射手 45、回复 30、三选一券 60。右上 `Scrap 128`。`F6`–`F10` 不改。
 11. 点回复或把焦点移过去按 Enter。该格变 Sold，`Scrap 98`。
 12. `离开` 或 Esc。遮罩消失，人能走能开火。再按 `F11` 会把 Demo 货架和 128 重置。买券只发 `OnRequestAffixChoiceFromVoucher`，不自己开三选一，也不 `AddRunScrap`。

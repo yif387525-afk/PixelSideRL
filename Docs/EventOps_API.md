@@ -46,7 +46,7 @@ OnEventChoiceResolved(FEventResolveView)
 
 失败（未知 EventId / ChoiceId）不改钱包和 HP。
 
-界面以后直接调 `ResolveEventChoice`，或听 `OnEventChoiceResolved`。跳过走门，不调用 Resolve。
+`UPixelEventChoiceWidget` 在确认选项时调用一次 `ResolveEventChoice`，然后仍广播 `OnEventChoiceSelected`。Skip / Esc 不调用 Resolve。失败（未知 EventId / ChoiceId、子系统缺失）不改钱包和 HP，UI 仍可关，不二次应用。壳不 `SetGamePaused`。
 
 ---
 
@@ -76,6 +76,8 @@ HP 写在玩家 `AC_Damageable::ApplyEventHealth`。战斗扣血仍只走 `Apply
 | `PixelSide.ResolveEvent [EventId] [ChoiceId]` | 同上，默认 AbandonedCache / CarefulLoot |
 
 Output Log 类别 `LogPixelSideEvent`。每步一行 `HP a -> b` 和 `Scrap a -> b`，最后一行是 pawn 上的 HP 与 `RunScrap`。ForceLoot 在低血量时 HP 停在 1，且 `alive=1`。不改手感表。
+
+`F10` 打开 `WBP_EventChoice`。确认「小心撬开」走与 F8 相同的 Resolve；「硬拽出来」走与 F9 相同的 Resolve。Skip / Esc 不调用。`F11` 是商店，不在本运行时。F6–F11 的键映射不改。
 
 ---
 

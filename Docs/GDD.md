@@ -124,7 +124,7 @@ UI：`WBP_AffixChoice`；暂停战斗；选 1 加入 `AC_AffixInventory`。算�
 | `ForceLoot` | 硬拽出来 | `DamageSelf 15` → `GrantScrap 50`（DamageSelf 后 CurrentHP 下限 **1**，事件不可直接致死） |
 
 **Op 白名单（MVP）：** `GrantScrap` / `DamageSelf` / `HealSelf` / `None`。不发词条、不改 Core。  
-**UI：** `WBP_EventChoice`（或等价）；打开期间可暂停移动开火；门仍可走。C++ 壳见 `Docs/UI_Wireframes_Event.md`：Lab 用 `F10` 打开，只关移动/开火输入，不 `SetGamePaused`，不调用 Resolve。`F8` / `F9` 留给 Event Op 直调。扩池只追加 `DT_Event_MVP` 行，不改已锁数值。
+**UI：** `WBP_EventChoice`（或等价）；打开期间可暂停移动开火；门仍可走。C++ 壳见 `Docs/UI_Wireframes_Event.md`：Lab 用 `F10` 打开，只关移动/开火输入，不 `SetGamePaused`。确认选项调用一次 `ResolveEventChoice`（壳不自己加减 Scrap / HP）；Skip / Esc 不调用。`F8` / `F9` 仍是直调 Resolve。`F11` 仍是商店。扩池只追加 `DT_Event_MVP` 行，不改已锁数值。
 
 ---
 
@@ -296,3 +296,4 @@ Core = min(Core, SoftCapPerRun)
 | 2026-11-05 | 织局 | **签收** `CombatFeel.md` 本版；近端顺序锁定 **P0.5 Grunt → P0.6 三选一最小闭环 → P0.7 第一战斗房 → P0.8 Hub/Run_Test 开局**；补 §6.5 与 §7.1 验收 |
 | 2026-11-05 | 织局 | §2.8 Event：`DA_Event_AbandonedCache` 挂 `Room_Event_01`；CarefulLoot/+25 Scrap · ForceLoot/−15HP+50 Scrap；跳过无奖 |
 | 2026-11-05 | 词条官 | 事件 Op 运行时：`ResolveEventChoice` 按序执行四 Op；局内字段 `RunScrap`；DamageSelf 下限 1，不改 Core / 手感 |
+| 2026-11-05 | 界面 | 事件壳确认选项调用一次 `ResolveEventChoice`。Skip / Esc 不调用。不 `SetGamePaused`。F6–F11 不动 |
