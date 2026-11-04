@@ -40,7 +40,7 @@ UI 文案禁止把局外货币写成 Scrap。
 | `WBP_HUD` | 血量、武器、弹药、Scrap、词条一排 | P0 | ✅ C++ 父类 + 配方，无 uasset。战斗数仍是 Demo 设置器 |
 | `WBP_AffixChoice` / `WBP_AffixCard` | 三选一 | P0 | ✅ C++ 父类 + 配方，无 uasset。关掉 native 文本占位 |
 | `WBP_EventChoice` | 事件选项 + 跳过 | P0 | ✅ C++ 父类 + 配方，无 uasset。确认选项调用 `ResolveEventChoice`，Skip 不调用，不 `SetGamePaused`。Lab `F10` |
-| `WBP_Shop` / `WBP_ShopSlot` | 货架、刷新、离开 | P1 | ✅ C++ 父类 + 配方，3 格读 `DA_Shop*`，无 uasset。扣款仍是 DemoScrap。Lab `F11` |
+| `WBP_Shop` / `WBP_ShopSlot` | 货架、刷新、离开 | P1 | ✅ C++ 父类 + 配方，3 格读 `DA_Shop*`，无 uasset。扣款仍是 DemoScrap。Lab `F11` 不动。流程开/关走 `AC_ShopPresenter` |
 | `WBP_RunSummary` | 胜负、时长、击杀、构筑、Core | P1 | ✅ C++ 父类 + 配方，无 uasset。只展示传入的 `CoreGained`。不写 Core、不算公式、不写存档。无 Lab 键 |
 | `WBP_Hub` / `WBP_Hub_Upgrade` | 据点与永久成长 | P1 | ✅ 线框 |
 | `WBP_MainMenu` | Entry 开始/设置占位/退出 | P1 | ✅ 线框 |

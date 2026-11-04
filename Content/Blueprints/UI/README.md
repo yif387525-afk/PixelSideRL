@@ -116,7 +116,26 @@ Scrap 不够：格子灰显（表字段 `insufficientScrap = GreyOut`），不�
 
 券：`OnBuyItem` → 关店（`OnShopClosed`，并解开这次 Demo 暂停）→ `OnRequestAffixChoiceFromVoucher`。监听方再开三选一。
 
-没有商店暂停 API。`OpenShopDemo` / `OpenShop(..., bDemoPause=true)` 才 `SetGamePaused`。流程自己暂停时传 false。视口 Z = 80（HUD 10，三选一 100）。这不是第二个 Presenter。
+没有商店暂停 API。`OpenShopDemo` / `OpenShop(..., bDemoPause=true)` 才 `SetGamePaused`。流程自己暂停时传 false。视口 Z = 80（HUD 10，三选一 100）。壳自己不是 `AC_AffixChoicePresenter`。
+
+### 从流程开店（`AC_ShopPresenter`）
+
+`APixelSideCharacter` 构造时创建 `AC_ShopPresenter`（`UPixelShopPresenterComponent`）。它不在 `BeginPlay` 自动打开，也不新绑键。`F6`–`F11` 不动。`F11` 仍直接对 Lab 那只调试控件调 `OpenShopDemo`，不经过本组件。
+
+`Room_Shop_01` 由流程对玩家调用：
+
+```cpp
+UPixelShopPresenterComponent* Presenter = Player->GetShopPresenter();
+Presenter->OpenShopDemo(/*Layer=*/1);
+// 或 Presenter->OpenShop(Offers, Scrap, /*bDemoPause=*/true);
+Presenter->CloseShop();
+```
+
+`OpenShop` / `OpenShopDemo` / `CloseShop` 转发到 `UPixelShopWidget` 的同名函数。控件自己 `AddToViewport(80)`，Presenter 不再挂一次、也不另选 Z。传入的 `Scrap` 只种进壳内 DemoScrap，不读、不写 `RunScrap`，不调用 `AddRunScrap`。买和刷新仍是壳里的 `TryBuy` / `TryReroll`，本组件不改这两处。
+
+关掉：流程 `CloseShop()`，或玩家 Esc / `离开`。`OnBuyItem` 等仍绑在返回的控件上。本组件不订阅、不扣款。
+
+`ShopWidgetClass` 留空则用 `UPixelShopWidget`。不要提交 uasset，不要为这个入口新建 umap。
 
 ### `WBP_ShopSlot`（128×100）
 
@@ -278,7 +297,7 @@ Run / Lab：
 7. 血和 Scrap 还没有战斗只读接口。对视口里的 `UPixelHUDWidget` 调 `SetHealthRatio` / `SetScrap`（默认满血、`Scrap 000`）。≤0.25 血条变红并闪，≤0 血条空。
 8. `F10`：事件遮罩。标题「废弃补给箱」，两个按钮「小心撬开」「硬拽出来」，跳过「走开（无奖励）」。正式 HUD 仍挂在底下（Z 10），不被拆掉。移动和开火停住，游戏时间不暂停。`F8` / `F9` 仍是不打开界面的直调 Resolve。
 9. 按 `1` 或点「小心撬开」。遮罩消失，Log 仍有 `OnEventChoiceSelected ChoiceId=CarefulLoot`。同时 Resolve，Scrap +25，与 `F8` 相同。可以再走再开火。不弹出三选一。再按 `F10` 选「硬拽出来」：与 `F9` 相同，先 −15 HP 再 +50 Scrap。再按 `F10` 后点跳过或 Esc：只有 `OnEventSkipped`，钱包和 HP 不变。
-10. `F11` 开商店。遮罩下仍能看见 HUD。三格：豆射手 45、回复 30、三选一券 60。右上 `Scrap 128`。`F6`–`F10` 不改。
+10. `F11` 开商店。遮罩下仍能看见 HUD。三格：豆射手 45、回复 30、三选一券 60。右上 `Scrap 128`。`F6`–`F10` 不改。这一键不经过 `AC_ShopPresenter`。房间流程用上一节的 `OpenShop` / `OpenShopDemo` / `CloseShop`。
 11. 点回复或把焦点移过去按 Enter。该格变 Sold，`Scrap 98`。
 12. `离开` 或 Esc。遮罩消失，人能走能开火。再按 `F11` 会把 Demo 货架和 128 重置。买券只发 `OnRequestAffixChoiceFromVoucher`，不自己开三选一，也不 `AddRunScrap`。
 13. 结算没有键。F6–F11 不要改，也不要按 F12（没有这个映射）。控制台 `PixelSide.RunSummary.Demo Win`：胜利，`16:20`，击杀 86，`获得 Core +42`，`Scrap 结余 40`。`PixelSide.RunSummary.Demo Fail`：失败小字出现，Core 是 `+8`。Enter / Space / Esc / `回据点` 都只打 `OnContinueToHub`，不写 Core。关掉之后 F6–F11 仍是原来的键。

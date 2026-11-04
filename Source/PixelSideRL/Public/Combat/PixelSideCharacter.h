@@ -5,6 +5,7 @@
 #include "InputActionValue.h"
 #include "Affix/AffixChoicePresenterComponent.h"
 #include "UI/PixelHUDPresenterComponent.h"
+#include "UI/PixelShopPresenterComponent.h"
 #include "Affix/AffixInventoryComponent.h"
 #include "Affix/AffixSubsystem.h"
 #include "Combat/Damageable.h"
@@ -59,6 +60,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "PixelSide")
 	UStatModifiersComponent* GetStatModifiers() const { return Stats; }
+
+	/** Room_Shop_01 open/close. Does not bind a key and does not spend RunScrap. */
+	UFUNCTION(BlueprintPure, Category = "PixelSide|UI")
+	UPixelShopPresenterComponent* GetShopPresenter() const { return ShopPresenter; }
 
 	/**
 	 * Ignore move, jump, and fire while WBP_EventChoice is open.
@@ -178,6 +183,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UPixelHUDPresenterComponent> HUDPresenter = nullptr;
 
+	/** Room_Shop_01 open/close. No key. F11 stays on the Lab demo widget. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide|UI")
+	TObjectPtr<UPixelShopPresenterComponent> ShopPresenter = nullptr;
+
 	/** Read-only BI_CombatDebugRead facade. No tick, no damage, no fire. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide|Debug")
 	TObjectPtr<UCombatDebugReadComponent> CombatDebugRead = nullptr;
@@ -193,7 +202,7 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UPixelDebugCombatHUD> CombatDebugHUD = nullptr;
 
-	/** Null uses UPixelShopWidget. Shipping never opens it. Not a HUD or event presenter. */
+	/** Null uses UPixelShopWidget. Shipping never opens it. Lab F11 only. Not AC_ShopPresenter. */
 	UPROPERTY(EditAnywhere, Category = "PixelSide|Debug")
 	TSubclassOf<UPixelShopWidget> DebugShopWidgetClass;
 

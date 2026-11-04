@@ -32,6 +32,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShopRequestAffixChoiceFromVoucher);
  * call UGameplayStatics::SetGamePaused. That is the Lab / open path. Pass bDemoPause false
  * when the room already owns pause. Close does not unpause a pending affix choice.
  * This is not a second AC_AffixChoicePresenter.
+ * Room flow opens and closes through UPixelShopPresenterComponent (AC_ShopPresenter).
+ * That component only calls OpenShop, OpenShopDemo, and CloseShop. It does not
+ * change TryBuy / TryReroll and does not call AddRunScrap. Lab F11 does not use it.
  *
  * OpenShopDemo reads Content/Data/Shop/DA_ShopInventory.json and DA_ShopPriceCurve.json
  * (CSV if JSON is missing). It does not write those files and does not load weapon uassets.

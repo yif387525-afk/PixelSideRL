@@ -37,6 +37,7 @@
 #include "UI/PixelDebugCombatHUD.h"
 #include "UI/PixelEventChoiceWidget.h"
 #include "UI/PixelHUDWidget.h"
+#include "UI/PixelShopPresenterComponent.h"
 #include "UI/PixelShopWidget.h"
 
 APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitializer)
@@ -65,6 +66,7 @@ APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitial
 	AffixChoicePresenter->AffixChoiceWidgetClass = UPixelAffixChoiceWidget::StaticClass();
 	HUDPresenter = CreateDefaultSubobject<UPixelHUDPresenterComponent>(TEXT("AC_HUDPresenter"));
 	HUDPresenter->HUDWidgetClass = UPixelHUDWidget::StaticClass();
+	ShopPresenter = CreateDefaultSubobject<UPixelShopPresenterComponent>(TEXT("AC_ShopPresenter"));
 	CombatDebugRead = CreateDefaultSubobject<UCombatDebugReadComponent>(TEXT("AC_CombatDebugRead"));
 #if UE_BUILD_SHIPPING
 	bEnableCombatDebugHUD = false;
