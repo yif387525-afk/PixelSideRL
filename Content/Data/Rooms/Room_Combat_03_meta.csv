@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Combat_03,Combat,Mid,1920,360,6,WavesCleared,true,Exit.Right,Asymmetric dual platforms 28/56; Groundx3+Airx2; optional W3
