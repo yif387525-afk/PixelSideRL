@@ -13,6 +13,8 @@
 
 `Room_Boss_01` 已有骨架几何 + 刷怪 + 出口（`Room_Boss_01.md` / `Room_Boss_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Boss_01_{meta,spawns,geometry}.csv`。尚无 umap / uasset。双阶段宽 2560，仅经前厅进入，Boss 死亡后进结算，无三选一。
 
+`Room_Elite_01` 已有骨架几何 + 刷怪 + 出口（`Room_Elite_01.md` / `Room_Elite_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Elite_01_{meta,spawns,geometry}.csv`。尚无 umap / uasset。中央竞技场宽 1920，两侧台 TopY=28，无坑。
+
 ## 建图顺序
 
 `Combat_01/02` → `Boss_01` 骨架（含 `BossAnte_01`）→ `Elite_01` → 其余 Combat → Event/Shop
@@ -29,7 +31,8 @@
 | Room_BossAnte_01_Spawns.md | BossAnte 可选引导点（相对入口） | P0（与 Boss 同批） |
 | Room_Boss_01.md | Boss · 骨架定稿候选 | P0 |
 | Room_Boss_01_Spawns.md | Boss_01 刷怪点（相对入口） | P0 |
-| Room_Elite_01.md | Elite | P1 |
+| Room_Elite_01.md | Elite · 骨架定稿候选 | P1 |
+| Room_Elite_01_Spawns.md | Elite_01 刷怪点（相对入口） | P1 |
 | Room_Combat_03.md | Combat Mid · 双高台定稿候选 | P2 |
 | Room_Combat_03_Spawns.md | Combat_03 刷怪点（相对入口） | P2 |
 | Room_Combat_04.md | Combat Mid | P2 |

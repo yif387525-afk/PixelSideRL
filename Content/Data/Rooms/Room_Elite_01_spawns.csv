@@ -1,0 +1,6 @@
+spawn_id,spawn_tag,wave_group,x,y,facing,optional,enemy_id_placeholder,notes
+SP_G1,Ground,1,480,0,Left,false,Enemy.Grunt.Early,W1 left
+SP_G2,Ground,1,720,0,Left,false,Enemy.Grunt.Early,W1 mid-left
+SP_G3,Ground,1,1200,0,Left,false,Enemy.Grunt.Early,W1 mid-right
+SP_G4,Ground,1,1520,0,Left,false,Enemy.Grunt.Early,W1 right
+SP_E1,Elite,2,1100,0,Left,false,Enemy.Elite.Mid,unique elite mid-rear

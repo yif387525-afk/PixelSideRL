@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Elite_01,Elite,Mid,1920,360,8,WavesCleared,true,Exit.Right,"Central arena; W1 Groundx4 then W2 Elitex1; no multi-elite"

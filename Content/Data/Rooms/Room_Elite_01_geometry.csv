@@ -1,0 +1,13 @@
+id,kind,x0,x1,x_center,width,top_y,height,facing,rule,notes
+G_main,Floor,0,1920,,,0,,,,"central arena floor; no pit"
+WALL_L,Wall,-40,0,,,280,,,,"left bound"
+WALL_R,Wall,1920,1960,,,280,,,,"right bound"
+P_L,Platform,360,560,,,28,,,,"left kite / angle"
+P_R,Platform,1360,1600,,,28,,,,"right kite / angle"
+CV_A,Cover,,,280,24,0,44,,PawnIgnore_ProjectileBlock,"entry peek"
+CV_B,Cover,,,880,24,0,40,,PawnIgnore_ProjectileBlock,"center peek"
+CV_C,Cover,,,1480,24,0,44,,PawnIgnore_ProjectileBlock,"far peek"
+PlayerStart,Anchor,48,0,,,,,,,"spawn feet"
+Exit_Left,Exit,-40,0,,,,,Exit.Left,,"entry/back"
+Exit_Right,Exit,1840,0,,,,,Exit.Right,RequireClear,"forward after clear+affix"
+AffixAnchor,Anchor,960,0,,,,,,,"affix UI reference"
