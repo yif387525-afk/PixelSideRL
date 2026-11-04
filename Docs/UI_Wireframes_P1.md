@@ -251,6 +251,6 @@ FRunSummaryView
 | `WBP_Shop` + `WBP_ShopSlot` 控件 / 状态 / 输入 | ✅ 线框。C++ 壳改为 3 格，读 `DA_Shop*`，不足 GreyOut |
 | `WBP_RunSummary` 控件 / 胜负两态 / struct | ✅ |
 | Demo 货架与 Win/Fail 占位数据 | ✅ 线框 4 格仍留本文。壳的货架以 #35 表为准。结算 Win/Fail 数值由 `OpenWin` / `OpenFail` 填入 |
-| `WBP_Shop` C++ 壳 | ✅ `UPixelShopWidget`。无 uasset。DemoScrap 本地扣；日后 `AddRunScrap(-Price)` |
+| `WBP_Shop` C++ 壳 | ✅ `UPixelShopWidget`。无 uasset。Demo：`OpenShopDemo` 本地 128→98。Run：`OpenShop` 读 `GetRunScrap`，买/刷成功 `AddRunScrap` |
 | `WBP_RunSummary` C++ 壳 | ✅ `UPixelRunSummaryWidget`。无 uasset。只展示 `CoreGained`。不写 Core、不算公式、不写存档。无 Lab 键 |
-| 真 RunScrap 扣款 | ❌ 本壳不调用 `AddRunScrap` |
+| 真 RunScrap 扣款 | ✅ 只在壳的 `OpenShop` 路径。`AC_ShopPresenter` 仍只转发开/关，自己不扣。F11 仍是 Demo |

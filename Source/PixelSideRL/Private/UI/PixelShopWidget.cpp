@@ -1,6 +1,7 @@
 #include "UI/PixelShopWidget.h"
 
 #include "Affix/AffixSubsystemDefault.h"
+#include "Event/EventSubsystem.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
@@ -28,6 +29,9 @@
 #include "UI/PixelShopSlotWidget.h"
 #include "Containers/Ticker.h"
 #include "Widgets/SWidget.h"
+
+#include <cmath>
+#include <limits>
 
 DEFINE_LOG_CATEGORY_STATIC(LogPixelShopUI, Log, All);
 
@@ -609,6 +613,23 @@ namespace
 		Button->SetStyle(Style);
 	}
 
+	/** int32 debit for AddRunScrap. Same half-away llround as GrantScrap. Does not write the price curve. */
+	bool TryRunDebit(double Price, int32& OutDebit)
+	{
+		if (!std::isfinite(Price) || Price < 0.0
+			|| Price > static_cast<double>(std::numeric_limits<int32>::max()))
+		{
+			return false;
+		}
+		const long long Rounded = std::llround(Price);
+		if (Rounded < 0 || Rounded > static_cast<long long>(std::numeric_limits<int32>::max()))
+		{
+			return false;
+		}
+		OutDebit = static_cast<int32>(Rounded);
+		return true;
+	}
+
 	FText FormatScrapAmount(double Value)
 	{
 		const double Cents = FMath::RoundToDouble(Value * 100.0) / 100.0;
@@ -638,7 +659,21 @@ UPixelShopWidget::UPixelShopWidget(const FObjectInitializer& ObjectInitializer)
 
 void UPixelShopWidget::OpenShop(const TArray<FPixelShopSlotOffer>& InOffers, double Scrap, bool bDemoPause)
 {
-	ApplyOpen(InOffers, Scrap, bDemoPause, false);
+	if (IsDesignTime())
+	{
+		return;
+	}
+	UEventSubsystem* Events = UEventSubsystem::Get(this);
+	if (!Events)
+	{
+		UE_LOG(LogPixelShopUI, Warning, TEXT("Shop run wallet did not open: UEventSubsystem is missing."));
+		return;
+	}
+	const int32 RunScrap = Events->GetRunScrap();
+	UE_LOG(LogPixelShopUI, Log,
+		TEXT("Shop OpenShop reads GetRunScrap=%d. Passed Scrap %.2f is not the wallet."),
+		RunScrap, Scrap);
+	ApplyOpen(InOffers, static_cast<double>(RunScrap), bDemoPause, false, true);
 }
 
 void UPixelShopWidget::OpenShopDemo(int32 Layer)
@@ -665,7 +700,7 @@ void UPixelShopWidget::OpenShopDemo(int32 Layer)
 			Built.IsValidIndex(2) ? *Built[2].ItemId.ToString() : TEXT("?"),
 			Built.IsValidIndex(2) ? Built[2].Price : -1.0);
 	}
-	ApplyOpen(Built, ShopDemoScrap, true, true);
+	ApplyOpen(Built, ShopDemoScrap, true, true, false);
 }
 
 void UPixelShopWidget::CloseShop()
@@ -686,7 +721,14 @@ void UPixelShopWidget::CloseShop()
 	EndDemoPause();
 	if (bWasOpen)
 	{
-		UE_LOG(LogPixelShopUI, Log, TEXT("Shop closed. demoScrap=%.2f"), DemoScrap);
+		if (bRunWallet)
+		{
+			UE_LOG(LogPixelShopUI, Log, TEXT("Shop closed. runScrap=%d"), RunScrapShown);
+		}
+		else
+		{
+			UE_LOG(LogPixelShopUI, Log, TEXT("Shop closed. demoScrap=%.2f"), DemoScrap);
+		}
 		OnShopClosed.Broadcast();
 	}
 }
@@ -799,7 +841,7 @@ FReply UPixelShopWidget::NativeOnPreviewKeyDown(const FGeometry& InGeometry, con
 	return FReply::Handled();
 }
 
-void UPixelShopWidget::ApplyOpen(const TArray<FPixelShopSlotOffer>& InOffers, double InScrap, bool bInDemoPause, bool bInDemoShelf)
+void UPixelShopWidget::ApplyOpen(const TArray<FPixelShopSlotOffer>& InOffers, double InScrap, bool bInDemoPause, bool bInDemoShelf, bool bInRunWallet)
 {
 	if (IsDesignTime())
 	{
@@ -812,6 +854,7 @@ void UPixelShopWidget::ApplyOpen(const TArray<FPixelShopSlotOffer>& InOffers, do
 	}
 	EnsureLayout();
 	BindInteractions();
+	bRunWallet = bInRunWallet;
 	bDemoShelf = bInDemoShelf;
 	LoadOffers(InOffers, InScrap);
 	EndNudge();
@@ -829,15 +872,33 @@ void UPixelShopWidget::ApplyOpen(const TArray<FPixelShopSlotOffer>& InOffers, do
 	{
 		BeginDemoPause();
 	}
-	UE_LOG(LogPixelShopUI, Log, TEXT("Shop open. slots=3 scrap=%.2f demoShelf=%s ownsPause=%s"),
-		DemoScrap,
-		bDemoShelf ? TEXT("true") : TEXT("false"),
-		bOwnsPause ? TEXT("true") : TEXT("false"));
+	if (bRunWallet)
+	{
+		UE_LOG(LogPixelShopUI, Log, TEXT("Shop open. slots=3 scrap=%d demoShelf=%s ownsPause=%s wallet=run"),
+			RunScrapShown,
+			bDemoShelf ? TEXT("true") : TEXT("false"),
+			bOwnsPause ? TEXT("true") : TEXT("false"));
+	}
+	else
+	{
+		UE_LOG(LogPixelShopUI, Log, TEXT("Shop open. slots=3 scrap=%.2f demoShelf=%s ownsPause=%s"),
+			DemoScrap,
+			bDemoShelf ? TEXT("true") : TEXT("false"),
+			bOwnsPause ? TEXT("true") : TEXT("false"));
+	}
 }
 
 void UPixelShopWidget::LoadOffers(const TArray<FPixelShopSlotOffer>& InOffers, double InScrap)
 {
-	DemoScrap = FMath::Max(0.0, InScrap);
+	if (bRunWallet)
+	{
+		const double Clamped = FMath::Clamp(InScrap, 0.0, static_cast<double>(std::numeric_limits<int32>::max()));
+		RunScrapShown = static_cast<int32>(Clamped);
+	}
+	else
+	{
+		DemoScrap = FMath::Max(0.0, InScrap);
+	}
 	if (InOffers.Num() != ShopSlotCount)
 	{
 		UE_LOG(LogPixelShopUI, Warning, TEXT("Shop expected 3 offers, got %d."), InOffers.Num());
@@ -863,6 +924,7 @@ void UPixelShopWidget::ShowDesignShelf()
 	WeaponPool = Pool;
 	ShownWeapon = 0;
 	PriceLayer = 1;
+	bRunWallet = false;
 	bDemoShelf = true;
 	LoadOffers(Built, ShopDemoScrap);
 	bOpen = false;
@@ -1103,9 +1165,10 @@ void UPixelShopWidget::RefreshAll()
 	}
 	if (Txt_Scrap)
 	{
+		const double Shown = bRunWallet ? static_cast<double>(RunScrapShown) : DemoScrap;
 		Txt_Scrap->SetText(FText::Format(
 			NSLOCTEXT("PixelShop", "Scrap", "Scrap {0}"),
-			FormatScrapAmount(DemoScrap)));
+			FormatScrapAmount(Shown)));
 	}
 	if (Txt_Hint)
 	{
@@ -1169,6 +1232,11 @@ void UPixelShopWidget::RefreshFocus()
 
 void UPixelShopWidget::TryBuy(int32 Index)
 {
+	if (bRunWallet)
+	{
+		TryBuyFromRun(Index);
+		return;
+	}
 	if (!bOpen || bInputLocked || Index < 0 || Index >= ShopSlotCount || !Offers.IsValidIndex(Index))
 	{
 		return;
@@ -1194,7 +1262,7 @@ void UPixelShopWidget::TryBuy(int32 Index)
 	}
 	RefreshAll();
 	OnBuyItem.Broadcast(Index, Bought.ItemId);
-	UE_LOG(LogPixelShopUI, Log, TEXT("Shop demo buy slot=%d id=%s scrap=%.2f. Local DemoScrap only; later flow calls AddRunScrap(-Price)."),
+	UE_LOG(LogPixelShopUI, Log, TEXT("Shop demo buy slot=%d id=%s scrap=%.2f. Local DemoScrap only. Does not call AddRunScrap."),
 		Index, *Bought.ItemId.ToString(), DemoScrap);
 	ArmInputLock();
 	if (Bought.OnPurchase == EPixelShopOnPurchase::OpenAffixChoiceImmediate)
@@ -1206,6 +1274,11 @@ void UPixelShopWidget::TryBuy(int32 Index)
 
 void UPixelShopWidget::TryReroll()
 {
+	if (bRunWallet)
+	{
+		TryRerollFromRun();
+		return;
+	}
 	if (!bOpen || bInputLocked || !CanReroll())
 	{
 		return;
@@ -1241,6 +1314,103 @@ void UPixelShopWidget::MoveFocus(int32 Delta)
 	RefreshFocus();
 }
 
+void UPixelShopWidget::TryBuyFromRun(int32 Index)
+{
+	if (!bOpen || bInputLocked || Index < 0 || Index >= ShopSlotCount || !Offers.IsValidIndex(Index))
+	{
+		return;
+	}
+	if (bSlotSold[Index])
+	{
+		return;
+	}
+	int32 Debit = 0;
+	const bool bPriced = TryRunDebit(Offers[Index].Price, Debit);
+	if (!PullRunScrap() || !bPriced || RunScrapShown < Debit)
+	{
+		RefreshAll();
+		BeginNudge(Index);
+		UE_LOG(LogPixelShopUI, Log, TEXT("Shop buy greyed out. slot=%d price=%.2f debit=%d runScrap=%d"),
+			Index, Offers[Index].Price, bPriced ? Debit : -1, RunScrapShown);
+		return;
+	}
+	UEventSubsystem* Events = UEventSubsystem::Get(this);
+	if (!Events)
+	{
+		BeginNudge(Index);
+		UE_LOG(LogPixelShopUI, Warning, TEXT("Shop run buy skipped. slot=%d UEventSubsystem is missing."), Index);
+		return;
+	}
+	bInputLocked = true;
+	const FPixelShopSlotOffer Bought = Offers[Index];
+	Events->AddRunScrap(-Debit);
+	RunScrapShown = Events->GetRunScrap();
+	bSlotSold[Index] = true;
+	if (Index == FocusedIndex)
+	{
+		MoveFocus(1);
+	}
+	RefreshAll();
+	OnBuyItem.Broadcast(Index, Bought.ItemId);
+	UE_LOG(LogPixelShopUI, Log,
+		TEXT("Shop run buy slot=%d id=%s debit=%d runScrap=%d. AddRunScrap then GetRunScrap. No grant, no heal, no DA write."),
+		Index, *Bought.ItemId.ToString(), Debit, RunScrapShown);
+	ArmInputLock();
+	if (Bought.OnPurchase == EPixelShopOnPurchase::OpenAffixChoiceImmediate)
+	{
+		CloseShop();
+		OnRequestAffixChoiceFromVoucher.Broadcast();
+	}
+}
+
+void UPixelShopWidget::TryRerollFromRun()
+{
+	if (!bOpen || bInputLocked)
+	{
+		return;
+	}
+	if (!PullRunScrap())
+	{
+		RefreshAll();
+		UE_LOG(LogPixelShopUI, Warning, TEXT("Shop run reroll skipped. UEventSubsystem is missing."));
+		return;
+	}
+	RefreshAll();
+	if (!CanReroll())
+	{
+		return;
+	}
+	int32 Debit = 0;
+	if (!TryRunDebit(ShopRerollCost, Debit))
+	{
+		return;
+	}
+	UEventSubsystem* Events = UEventSubsystem::Get(this);
+	if (!Events)
+	{
+		UE_LOG(LogPixelShopUI, Warning, TEXT("Shop run reroll skipped. UEventSubsystem is missing."));
+		return;
+	}
+	bInputLocked = true;
+	Events->AddRunScrap(-Debit);
+	RunScrapShown = Events->GetRunScrap();
+	RefreshAll();
+	OnReroll.Broadcast();
+	UE_LOG(LogPixelShopUI, Log, TEXT("Shop run reroll. debit=%d runScrap=%d. Price curve was not written."), Debit, RunScrapShown);
+	ArmInputLock();
+}
+
+bool UPixelShopWidget::PullRunScrap()
+{
+	UEventSubsystem* Events = UEventSubsystem::Get(this);
+	if (!Events)
+	{
+		return false;
+	}
+	RunScrapShown = Events->GetRunScrap();
+	return true;
+}
+
 bool UPixelShopWidget::CanReroll() const
 {
 	if (!CanAfford(ShopRerollCost))
@@ -1259,6 +1429,15 @@ bool UPixelShopWidget::CanReroll() const
 
 bool UPixelShopWidget::CanAfford(double Price) const
 {
+	if (bRunWallet)
+	{
+		int32 Debit = 0;
+		if (!TryRunDebit(Price, Debit))
+		{
+			return false;
+		}
+		return RunScrapShown >= Debit;
+	}
 	return Price >= 0.0 && DemoScrap + KINDA_SMALL_NUMBER >= Price;
 }
 

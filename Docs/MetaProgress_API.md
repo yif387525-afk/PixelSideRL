@@ -127,7 +127,7 @@ Core = min(Core, SoftCapPerRun)
 | 事件发 Scrap、商店扣款 | `AddRunScrap(Delta)`，扣款是 `AddRunScrap(-Price)` |
 | Hub 买永久节点 | `Purchase` 扣 **Core** |
 
-本子系统不读 `DA_ShopInventory`，也不卖回复 / 三选一券 / 武器合约。
+本子系统不读 `DA_ShopInventory`，也不卖回复 / 三选一券 / 武器合约。商店壳的 Run 路径（`OpenShop`）才调用 `AddRunScrap(-Price)`。Lab `F11` / `OpenShopDemo` 不调用。
 
 ---
 

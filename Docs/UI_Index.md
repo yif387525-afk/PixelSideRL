@@ -15,7 +15,7 @@
 | `WBP_AffixChoice` | P0 §2 | 同上 | ✅ C++ `UPixelAffixChoiceWidget` + 配方 · 无 uasset |
 | `WBP_AffixCard` | P0 §2.2 | 同上 | ✅ C++ `UPixelAffixCardWidget` + 配方 · 无 uasset |
 | `WBP_EventChoice` | [UI_Wireframes_Event.md](./UI_Wireframes_Event.md) | 同上 | ✅ C++ `UPixelEventChoiceWidget` + 配方 · 无 uasset。Lab `F10` |
-| `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ C++ `UPixelShopWidget` + 配方 · 无 uasset。3 格读 `DA_ShopInventory` / `DA_ShopPriceCurve`。Lab `F11` 仍直接开 Demo。流程开/关：`AC_ShopPresenter` |
+| `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ C++ `UPixelShopWidget` + 配方 · 无 uasset。3 格读 `DA_ShopInventory` / `DA_ShopPriceCurve`。Lab `F11` 仍直接开 Demo（128→98）。`OpenShop` 扣 RunScrap。流程开/关：`AC_ShopPresenter`（不改） |
 | `WBP_ShopSlot` | P1 §1.2 | 同上 | ✅ C++ `UPixelShopSlotWidget` + 配方 · 无 uasset |
 | `WBP_RunSummary` | P1 §2 | 同上 | ✅ C++ `UPixelRunSummaryWidget` + 配方 · 无 uasset。只展示 `FRunSummaryView`。不写 Core。无 Lab 键 |
 | `WBP_Hub` | [UI_Wireframes_Hub.md](./UI_Wireframes_Hub.md) §1 | 同上 | ✅ 线框 |
@@ -65,11 +65,17 @@ C++ 壳 `UPixelShopWidget` / `UPixelShopSlotWidget`。格数按 `Room_Shop_01` �
 
 `OpenShopDemo` 读 `DA_ShopInventory.json` 与 `DA_ShopPriceCurve.json`：`Slot_1` 武器合约池展示一把（默认豆射手，价 `Weapon_Peashooter`），`Slot_2` Heal 30 / 约 40% MaxHP，`Slot_3` AffixVoucher 60。Scrap 不足按表 **GreyOut**。可 Leave 跳过。
 
-本壳只改本地 DemoScrap（起始 128，刷新 25 不在价格曲线里）。不发武器、不回血、不写表、不 `RequestAffixChoice`，也不调用 `UEventSubsystem::AddRunScrap`。日后流程扣真钱包：`AddRunScrap(-Price)`。HUD `Txt_Coin` 不在这只壳里改。
+两条钱包。
 
-券：`OnBuyItem` 之后关店（`OnShopClosed`），再 `OnRequestAffixChoiceFromVoucher`。没有商店暂停 API；`OpenShopDemo` 才 `SetGamePaused`。Lab 键是 `F11`（`F6`–`F10` 不占；`F10` 是事件壳）。
+**Demo：** `OpenShopDemo` / Lab `F11`。本地 DemoScrap 起始 128，刷新 25 不在价格曲线里。买回复 → Sold / 98 → Leave。不调用 `GetRunScrap` / `AddRunScrap`。
 
-**房间流程开/关：** 玩家 `GetShopPresenter()`（`AC_ShopPresenter` / `UPixelShopPresenterComponent`）再调 `OpenShopDemo(Layer)` 或 `OpenShop(Offers, Scrap, bDemoPause)`，关掉用 `CloseShop()`。这两个 Open 就是壳上的同名函数，控件自己 `AddToViewport(80)`。`Scrap` 只种进壳内 DemoScrap。本组件不改 `TryBuy` / `TryReroll`，不调用 `AddRunScrap`。不新绑键。`F11` 仍直接开 Lab Demo，不经过 Presenter。无 uasset。见 `Content/Maps/Rooms/Room_Shop_01.md` §7 与 `Content/Blueprints/UI/README.md`。
+**Run：** `OpenShop`。标签是 `GetRunScrap()`。买成功 `AddRunScrap(-Price)`，刷新成功 `AddRunScrap(-RerollCost)`，然后再 `GetRunScrap()`。不够 GreyOut，不扣。`RunScrap` 是整数，扣款对价格做 `llround`，不改价格曲线文件。
+
+两条都不发武器、不回血、不写表、不 `RequestAffixChoice`。HUD `Txt_Coin` 不在这只壳里改。
+
+券：`OnBuyItem` 之后关店（`OnShopClosed`），再 `OnRequestAffixChoiceFromVoucher`。没有商店暂停 API；`OpenShopDemo` 与 `OpenShop(..., bDemoPause=true)` 才 `SetGamePaused`。Lab 键是 `F11`（`F6`–`F10` 不占；`F10` 是事件壳）。
+
+**房间流程开/关：** 仍是玩家 `GetShopPresenter()`（`AC_ShopPresenter`）的 `OpenShopDemo(Layer)` / `OpenShop(Offers, Scrap, bDemoPause)` / `CloseShop()`。不新绑键，不改 Presenter 开/关。`OpenShopDemo` 是 Demo。`OpenShop` 进壳后是 Run 钱包；`Scrap` 参数留在签名里，壳不拿它当余额。Presenter 自己不调用 `AddRunScrap`。`F11` 仍直接开 Lab Demo，不经过 Presenter。无 uasset。见 `Content/Maps/Rooms/Room_Shop_01.md` §7 与 `Content/Blueprints/UI/README.md`。
 
 ### 2.4 结算 · `FRunSummaryView`（P1）
 

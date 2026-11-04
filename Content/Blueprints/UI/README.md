@@ -110,7 +110,13 @@ Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WB
 
 Scrap 不够：格子灰显（表字段 `insufficientScrap = GreyOut`），不扣款。点了会抖 2px。Esc / `Btn_Leave` 直接关，不强制买。
 
-购买、刷新、离开只改本控件上的 **DemoScrap**（开店 128）和 Sold。不发武器、不回血、不写 JSON、不调用 `RequestAffixChoice`，也不调用 `UEventSubsystem::AddRunScrap`。日后房间流程扣真钱包用 `AddRunScrap(-Price)`。`RunScrap` 与 HUD 的 `Txt_Coin` 都不要在这只壳里改。
+两条钱包，不要混。
+
+**Demo：** `OpenShopDemo` / Lab `F11`。只改本控件上的 **DemoScrap**（开店 128）和 Sold。买回复（30）变成 Sold / `Scrap 98`，再 Leave。不调用 `GetRunScrap` / `AddRunScrap`。
+
+**Run：** `OpenShop`（`AC_ShopPresenter::OpenShop` 已转发的那个）。标签读 `GetRunScrap()`。传入的 `Scrap` 不是余额，也不写入 DemoScrap。买成功 `AddRunScrap(-Price)`，刷新成功 `AddRunScrap(-RerollCost)`，然后再 `GetRunScrap()` 刷新标签。`RunScrap` 是整数，扣款用价格的 `llround`（与 `GrantScrap` 相同）。价格曲线文件不改，格子上仍显示原来的小数。不够则 GreyOut，不扣。
+
+两条都不发武器、不回血、不写 JSON、不调用 `RequestAffixChoice`。HUD 的 `Txt_Coin` 不在这只壳里改。
 
 刷新价 **25** 来自线框，不在价格曲线里。Demo 刷新只把未售出的武器格换成池中下一把，价格仍查曲线。
 
@@ -131,9 +137,11 @@ Presenter->OpenShopDemo(/*Layer=*/1);
 Presenter->CloseShop();
 ```
 
-`OpenShop` / `OpenShopDemo` / `CloseShop` 转发到 `UPixelShopWidget` 的同名函数。控件自己 `AddToViewport(80)`，Presenter 不再挂一次、也不另选 Z。传入的 `Scrap` 只种进壳内 DemoScrap，不读、不写 `RunScrap`，不调用 `AddRunScrap`。买和刷新仍是壳里的 `TryBuy` / `TryReroll`，本组件不改这两处。
+`OpenShop` / `OpenShopDemo` / `CloseShop` 仍转发到 `UPixelShopWidget` 的同名函数。控件自己 `AddToViewport(80)`，Presenter 不再挂一次、也不另选 Z。本组件的开/关代码不改，它自己不调用 `AddRunScrap`。
 
-关掉：流程 `CloseShop()`，或玩家 Esc / `离开`。`OnBuyItem` 等仍绑在返回的控件上。本组件不订阅、不扣款。
+`OpenShopDemo` 仍是 Demo 钱包（128）。`OpenShop` 进壳之后走 Run 钱包：壳读 `GetRunScrap`，买/刷成功才 `AddRunScrap`。函数签名仍是 `(Offers, Scrap, bDemoPause)`，`Scrap` 参数留着给这次转发，壳不用它当余额。买和刷新仍是壳里的 `TryBuy` / `TryReroll`。
+
+关掉：流程 `CloseShop()`，或玩家 Esc / `离开`。`OnBuyItem` 等仍绑在返回的控件上。本组件不订阅。
 
 `ShopWidgetClass` 留空则用 `UPixelShopWidget`。不要提交 uasset，不要为这个入口新建 umap。
 

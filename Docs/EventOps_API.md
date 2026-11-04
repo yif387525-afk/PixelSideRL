@@ -61,7 +61,7 @@ OnEventChoiceResolved(FEventResolveView)
 - 不是 `FMetaSaveData.Core`，不写 `Saved/SaveGames`。
 - 不是 `UAffixSubsystem` 里的 `StartingScrap`（那只是开局注入快照，不能加减）。
 - 开局由玩家 `BeginAffixRun` 调用 `UMetaProgressSubsystem::BeginRunFromMeta`：先 `UAffixSubsystem::BeginRun(Ctx)`，再 `ResetRunScrap(Ctx.StartingScrap)`。StartingScrap 来自 Meta Stash 已购档，未购为 0。没有 Meta 子系统时仍用空上下文并 `ResetRunScrap(0)`。别的流程自己 `BeginRun` 时也要调一次 `ResetRunScrap`，否则钱包仍从 0 起。
-- 商店扣款仍走 `AddRunScrap(-Price)`，不要再造第二份整数，也不要写成 Core。Meta 除了这一次开局重置，不改 RunScrap。
+- 商店 Run 路径（`UPixelShopWidget::OpenShop`）扣款走 `AddRunScrap(-Price)`，刷新走 `AddRunScrap(-RerollCost)`，扣完再 `GetRunScrap` 刷新标签。不要再造第二份整数，也不要写成 Core。Lab `F11` / `OpenShopDemo` 只改本地 DemoScrap，不调用这两个函数。Meta 除了这一次开局重置，不改 RunScrap。`AC_ShopPresenter` 只转发开/关，自己不扣。
 
 HP 写在玩家 `AC_Damageable::ApplyEventHealth`。战斗扣血仍只走 `ApplyDamage`。
 
