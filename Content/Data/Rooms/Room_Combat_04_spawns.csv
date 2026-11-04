@@ -1,0 +1,6 @@
+spawn_id,spawn_tag,wave_group,x,y,facing,optional,enemy_id_placeholder,notes
+SP_G1,Ground,1,520,0,Left,false,Enemy.Grunt.Early,W1 near
+SP_G2,Ground,1,680,0,Left,false,Enemy.Grunt.Early,W1 pit edge left
+SP_G3,Ground,2,1000,0,Left,false,Enemy.Grunt.Early,W2 pit edge right
+SP_G4,Ground,2,1320,0,Left,false,Enemy.Grunt.Early,W2 far
+SP_A1,Air,2,840,72,Left,true,Enemy.Flyer.Early,optional over bridge

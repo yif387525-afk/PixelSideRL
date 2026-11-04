@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Combat_04,Combat,Mid,1760,360,6,WavesCleared,true,Exit.Right,"Pit 720-960 + bridge TopY=28 SoftRecover; Groundx4; optional Air W2"
