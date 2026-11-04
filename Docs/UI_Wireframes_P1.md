@@ -16,6 +16,8 @@
 **通货：** Scrap（唯一）。  
 **货架：** MVP **4 格**（可扩到 6；布局按 2×2，扩成 2×3）。
 
+C++ 壳不按上面的 2×2 做。`Room_Shop_01` 与 `DA_ShopInventory` 是 **3** 格：武器合约 / 回复 / 三选一券。Lab 键是 **F11**（`F10` 是事件壳）。见 `Content/Blueprints/UI/README.md`。
+
 ### 1.1 布局（640×360）
 
 ```
@@ -244,8 +246,9 @@ FRunSummaryView
 
 | 项 | 状态 |
 |----|------|
-| `WBP_Shop` + `WBP_ShopSlot` 控件 / 状态 / 输入 | ✅ |
+| `WBP_Shop` + `WBP_ShopSlot` 控件 / 状态 / 输入 | ✅ 线框。C++ 壳改为 3 格，读 `DA_Shop*`，不足 GreyOut |
 | `WBP_RunSummary` 控件 / 胜负两态 / struct | ✅ |
-| Demo 货架与 Win/Fail 占位数据 | ✅ |
-| UE 蓝图壳 | ⏳ 仓库就绪后 |
-| 真数据绑定 | ❌ 本期不做 |
+| Demo 货架与 Win/Fail 占位数据 | ✅ 线框 4 格仍留本文。壳的货架以 #35 表为准 |
+| `WBP_Shop` C++ 壳 | ✅ `UPixelShopWidget`。无 uasset。DemoScrap 本地扣；日后 `AddRunScrap(-Price)` |
+| `WBP_RunSummary` C++ 壳 | ⏳ 未做 |
+| 真 RunScrap 扣款 | ❌ 本壳不调用 `AddRunScrap` |

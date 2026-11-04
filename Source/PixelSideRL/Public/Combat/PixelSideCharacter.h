@@ -22,6 +22,7 @@ class UStatModifiersComponent;
 class UCombatDebugReadComponent;
 class UPixelDebugCombatHUD;
 class UPixelEventChoiceWidget;
+class UPixelShopWidget;
 
 /**
  * Side-view player. Parent BP_PlayerSideScroller to this class.
@@ -119,6 +120,10 @@ protected:
 	UFUNCTION()
 	void HandleDebugEventForceLoot(const FInputActionValue& Value);
 
+	/** Lab shop. F11. F6–F10 stay affix, event ops, and EventChoice. Does not spend RunScrap. */
+	UFUNCTION()
+	void HandleDebugOpenShop(const FInputActionValue& Value);
+
 	UFUNCTION()
 	void HandleDebugEventChoice(const FInputActionValue& Value);
 
@@ -188,6 +193,13 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UPixelDebugCombatHUD> CombatDebugHUD = nullptr;
 
+	/** Null uses UPixelShopWidget. Shipping never opens it. Not a HUD or event presenter. */
+	UPROPERTY(EditAnywhere, Category = "PixelSide|Debug")
+	TSubclassOf<UPixelShopWidget> DebugShopWidgetClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPixelShopWidget> DebugShopWidget = nullptr;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UStaticMeshComponent> PlaceholderMesh = nullptr;
 
@@ -250,6 +262,9 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputAction> DebugEventForceLootAction = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UInputAction> DebugOpenShopAction = nullptr;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputMappingContext> CombatMappingContext = nullptr;

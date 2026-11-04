@@ -21,7 +21,8 @@ public class PixelSideRL : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"ImageWrapper"
+			"ImageWrapper",
+			"Json"
 		});
 	}
 }
