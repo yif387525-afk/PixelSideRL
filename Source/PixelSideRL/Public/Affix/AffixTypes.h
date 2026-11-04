@@ -81,6 +81,10 @@ struct PIXELSIDERL_API FAffixModifier
 	/** <= 0: permanent for the run (or meta). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DurationSec = 0.f;
+
+	/** Empty: not weapon-scoped. The stat fold does not filter on this yet. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName WeaponTag = NAME_None;
 };
 
 /**

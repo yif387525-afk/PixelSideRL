@@ -81,6 +81,14 @@ struct PIXELSIDERL_API FRunStartContext
 	/** <= 0 is treated as seed 1. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Affix")
 	int32 Seed = 1;
+
+	/** Filled by UMetaProgressSubsystem. Affix BeginRun does not read these. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Meta")
+	TArray<FName> MetaFlags;
+
+	/** Economy base plus SalvageSense. Affix BeginRun does not read this. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Meta")
+	float MetaCoreMult = 1.f;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAffixChanged, FAffixChangeEvent, Event);

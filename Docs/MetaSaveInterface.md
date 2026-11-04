@@ -72,6 +72,8 @@ BuildRunStartContext() -> FRunStartContext   # 含 StartingScrap、PermanentModi
 Save() / Load() / ResetSlot()
 ```
 
+实现见 `Docs/MetaProgress_API.md`。`UMetaProgressSubsystem` 读 `Content/Data/Meta/DA_Economy.json` 与 `DT_MetaNodes_MVP.json`（冻名 `DA_MetaNode_<NodeId>`，不提交 uasset）。开局走 `BeginRunFromMeta`：`BeginRun` 之后 `ResetRunScrap(StartingScrap)`。本轮存档只在内存，`Save` / `Load` 不写 `PixelSideRL_Meta.sav`。
+
 ### 结算发放（系统侧公式槽，参数来自 `DA_Economy`）
 
 ```
