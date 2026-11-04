@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Boss_01,Boss,Boss,2560,360,4,BossDefeated,false,Exit.Settle,"Dual-phase arena; entry only from BossAnte; optional adds<=3; no affix"

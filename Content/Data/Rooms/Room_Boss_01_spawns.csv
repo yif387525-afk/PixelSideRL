@@ -1,0 +1,5 @@
+spawn_id,spawn_tag,wave_group,x,y,facing,optional,enemy_id_placeholder,notes
+SP_Boss,Boss,0,1280,0,Left,false,Enemy.Boss.MVP,unique boss body
+SP_A1,Add,1,640,0,Right,true,Enemy.Grunt.Early,optional P1 left add
+SP_A2,Add,1,1920,0,Left,true,Enemy.Grunt.Early,optional P1 right add
+SP_A3,Add,2,1280,72,Left,true,Enemy.Flyer.Early,optional P2 air add
