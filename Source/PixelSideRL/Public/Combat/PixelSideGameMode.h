@@ -8,6 +8,8 @@
  * Default mode for the combat slice. When bSpawnLabSandbox is set and the map
  * has no damage dummy, spawns the Lab_CombatP0 5-zone greybox (platforms, covers,
  * dummies, one grunt, one debug turret, a directional light) and soft-recovers pit falls.
+ * bDriveRoomCombat01 (or the PixelSide.DriveRoomCombat01 cvar) skips that sandbox
+ * and runs the P0.7 Room_Combat_01 director instead.
  */
 UCLASS(Blueprintable)
 class PIXELSIDERL_API APixelSideGameMode : public AGameModeBase
@@ -21,8 +23,14 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	bool ShouldDriveRoomCombat01() const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Lab")
 	bool bSpawnLabSandbox = true;
+
+	/** P0.7. Skips the Lab sandbox and drives Room_Combat_01 from CSV. Default off. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Room")
+	bool bDriveRoomCombat01 = false;
 
 	/** Debug only. Locked default is island jump; BRIDGE is not a resident slab. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Lab")
@@ -31,6 +39,7 @@ public:
 protected:
 	bool HasDamageDummy() const;
 	void SpawnLabSandbox();
+	void SpawnRoomCombat01();
 	void SpawnBlock(const FVector& Location, const FVector& Scale, const FLinearColor& Color, const TCHAR* LayoutId, bool bLetPawnsPass = false) const;
 	void SpawnLabBox(const FVector& Center, float SizeX, float SizeZ, const FLinearColor& Color, const TCHAR* LayoutId, bool bLetPawnsPass = false) const;
 	void RecoverLabPitFall();

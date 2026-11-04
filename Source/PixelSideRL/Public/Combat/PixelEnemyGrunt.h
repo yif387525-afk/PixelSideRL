@@ -37,6 +37,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "PixelSide|Grunt")
 	float GetFacingSign() const { return FacingSign; }
 
+	/** Spawn facing from the room CSV. Left is -1 (toward the entrance). Aggro still turns the body when it chases. */
+	UFUNCTION(BlueprintCallable, Category = "PixelSide|Grunt")
+	void SetInitialFacingSign(float Sign);
+
 	UFUNCTION(BlueprintPure, Category = "Damageable")
 	UDamageableComponent* GetDamageable() const { return Damageable; }
 

@@ -10,6 +10,11 @@
 #include "Combat/PixelSideLabSandboxLayout.h"
 #include "Combat/PixelSideMeshUtil.h"
 #include "Combat/PixelSidePalette.h"
+#include "Rooms/PixelRoomDirector.h"
+#include "Rooms/PixelSideRoomFlow.h"
+#include "HAL/IConsoleManager.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -20,6 +25,40 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+
+#if !UE_BUILD_SHIPPING
+static int32 GPixelSideDriveRoomCombat01 = 0;
+static FAutoConsoleVariableRef CVarPixelSideDriveRoomCombat01(
+	TEXT("PixelSide.DriveRoomCombat01"),
+	GPixelSideDriveRoomCombat01,
+	TEXT("Set to 1 before Play to drive Room_Combat_01 from CSV instead of the Lab sandbox."),
+	ECVF_Default);
+#endif
+
+namespace
+{
+FVector ResolveRoomCombat01PlayerStart()
+{
+	float X = PixelSideRoom::RoomCombat01PlayerStartX;
+	float Y = PixelSideRoom::RoomCombat01PlayerStartY;
+	const FString Path = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("Data/Rooms/Room_Combat_01_geometry.csv"));
+	FString Text;
+	if (FFileHelper::LoadFileToString(Text, *Path))
+	{
+		std::vector<PixelSideRoom::FGeometryRow> Rows;
+		std::string Error;
+		if (PixelSideRoom::LoadGeometryCsv(std::string(TCHAR_TO_UTF8(*Text)), Rows, Error))
+		{
+			PixelSideRoom::FindAnchor(Rows, "PlayerStart", X, Y);
+		}
+		else
+		{
+			UE_LOG(LogPixelSideCombat, Warning, TEXT("Room_Combat_01 geometry: %s"), *FString(UTF8_TO_TCHAR(Error.c_str())));
+		}
+	}
+	return FVector(X, 0.f, PixelSideCombat::CapsuleHalfHeight + static_cast<float>(PixelSideLabLayout::SpawnClearance) + Y);
+}
+}
 
 APixelSideGameMode::APixelSideGameMode()
 {
@@ -43,13 +82,17 @@ void APixelSideGameMode::InitGame(const FString& MapName, const FString& Options
 
 	// Entry ships a PlayerStart (often the BADsize one). Place the pawn for this run.
 	// The 5-zone lab uses design feet on G_A; otherwise keep the legacy air spawn.
-	const bool bBuildLab = bSpawnLabSandbox && !HasDamageDummy();
-	const FVector LabSpawn = bBuildLab
-		? FVector(
-			static_cast<float>(PixelSideLabLayout::PlayerSpawnFeetX),
-			static_cast<float>(PixelSideLabLayout::SlabCenterY),
-			PixelSideCombat::CapsuleHalfHeight + static_cast<float>(PixelSideLabLayout::SpawnClearance))
-		: FVector(PixelSideCombat::LabPlayerSpawnX, 0.f, PixelSideCombat::LabPlayerSpawnZ);
+	// P0.7 Room_Combat_01 uses the CSV PlayerStart and skips the lab.
+	const bool bRoom = ShouldDriveRoomCombat01();
+	const bool bBuildLab = !bRoom && bSpawnLabSandbox && !HasDamageDummy();
+	const FVector LabSpawn = bRoom
+		? ResolveRoomCombat01PlayerStart()
+		: (bBuildLab
+			? FVector(
+				static_cast<float>(PixelSideLabLayout::PlayerSpawnFeetX),
+				static_cast<float>(PixelSideLabLayout::SlabCenterY),
+				PixelSideCombat::CapsuleHalfHeight + static_cast<float>(PixelSideLabLayout::SpawnClearance))
+			: FVector(PixelSideCombat::LabPlayerSpawnX, 0.f, PixelSideCombat::LabPlayerSpawnZ));
 
 	TArray<AActor*> Starts;
 	UGameplayStatics::GetAllActorsOfClass(World, APlayerStart::StaticClass(), Starts);
@@ -70,10 +113,47 @@ void APixelSideGameMode::InitGame(const FString& MapName, const FString& Options
 void APixelSideGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	if (ShouldDriveRoomCombat01())
+	{
+		UE_LOG(LogPixelSideCombat, Log, TEXT("P0.7 Room_Combat_01 drive is on. Lab sandbox stays out of this play."));
+		SpawnRoomCombat01();
+		return;
+	}
 	if (bSpawnLabSandbox && !HasDamageDummy())
 	{
 		SpawnLabSandbox();
 	}
+}
+
+bool APixelSideGameMode::ShouldDriveRoomCombat01() const
+{
+	if (bDriveRoomCombat01)
+	{
+		return true;
+	}
+#if !UE_BUILD_SHIPPING
+	return GPixelSideDriveRoomCombat01 != 0;
+#else
+	return false;
+#endif
+}
+
+void APixelSideGameMode::SpawnRoomCombat01()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	TArray<AActor*> Found;
+	UGameplayStatics::GetAllActorsOfClass(World, APixelRoomDirector::StaticClass(), Found);
+	if (Found.Num() > 0)
+	{
+		return;
+	}
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	World->SpawnActor<APixelRoomDirector>(APixelRoomDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
 }
 
 void APixelSideGameMode::Tick(float DeltaSeconds)
