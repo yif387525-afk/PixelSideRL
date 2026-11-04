@@ -6,6 +6,9 @@
 #include "Engine/DataAsset.h"
 #include "AffixTypes.generated.h"
 
+class UDA_Weapon;
+class UTexture2D;
+
 UENUM(BlueprintType)
 enum class EAffixRarity : uint8
 {
@@ -78,4 +81,59 @@ struct PIXELSIDERL_API FAffixModifier
 	/** <= 0: permanent for the run (or meta). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DurationSec = 0.f;
+};
+
+/**
+ * DA_Affix_* row. Field names match SCHEMA_AffixDefinition.json (contractVersion 3).
+ * Stub only — no uassets. 词条官 owns the real data.
+ */
+UCLASS(BlueprintType)
+class PIXELSIDERL_API UAffixDefinition : public UPrimaryDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	FName AffixId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	FText DisplayName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	EAffixRarity Rarity = EAffixRarity::Common;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	TSoftObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	EAffixStackRule StackRule = EAffixStackRule::Unique;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix", meta = (ClampMin = "1"))
+	int32 MaxStacks = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix", meta = (ClampMin = "0.0"))
+	float Weight = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	TArray<FName> Tags;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	TArray<FName> ExclusiveTags;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	TArray<EAffixTrigger> Triggers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	TArray<FAffixModifier> Modifiers;
+
+	/** Soft reference to a weapon data asset. Unset if this affix grants none. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	TSoftObjectPtr<UDA_Weapon> GrantWeapon;
+
+	/** Contract name (not a bool). None if the affix is not limited to a weapon tag. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
+	FName bRequiresWeaponTag;
 };
