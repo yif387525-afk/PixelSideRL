@@ -15,6 +15,8 @@
 
 `Room_Elite_01` 已有骨架几何 + 刷怪 + 出口（`Room_Elite_01.md` / `Room_Elite_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Elite_01_{meta,spawns,geometry}.csv`。尚无 umap / uasset。中央竞技场宽 1920，两侧台 TopY=28，无坑。
 
+`Room_Combat_04` 已有正式几何 + 刷怪 + 出口（`Room_Combat_04.md` / `Room_Combat_04_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_04_{meta,spawns,geometry}.csv`。尚无 umap / uasset。坑 720–960 宽 240，常驻桥 TopY=28，落坑软回收。
+
 ## 建图顺序
 
 `Combat_01/02` → `Boss_01` 骨架（含 `BossAnte_01`）→ `Elite_01` → 其余 Combat → Event/Shop
@@ -35,7 +37,8 @@
 | Room_Elite_01_Spawns.md | Elite_01 刷怪点（相对入口） | P1 |
 | Room_Combat_03.md | Combat Mid · 双高台定稿候选 | P2 |
 | Room_Combat_03_Spawns.md | Combat_03 刷怪点（相对入口） | P2 |
-| Room_Combat_04.md | Combat Mid | P2 |
+| Room_Combat_04.md | Combat Mid · 坑+桥定稿候选 | P2 |
+| Room_Combat_04_Spawns.md | Combat_04 刷怪点（相对入口） | P2 |
 | Room_Combat_05.md | Combat Mid/Late | P2 |
 | Room_Combat_06.md | Combat Late | P2 |
 | Room_Event_01.md | Event 支路 | P3 |
