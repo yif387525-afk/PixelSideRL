@@ -121,6 +121,8 @@ HUD：商店打开期间 HUD 可保留 Scrap 数字同步；本期 Demo 与 `Txt
 **用途：** 胜利或失败后全屏结算；**一屏看懂**本局结果与 Core；确认 → Hub。  
 **不负责：** Core 公式计算（只展示系统给的数）。
 
+C++ 壳是 `UPixelRunSummaryWidget`（显示名 `WBP_RunSummary`）。无 uasset。`Present(FRunSummaryView)` 只把传入字段画出来，`OnContinueToHub` 只发事件。不调用 `AddCore` / `PreviewCoreGain`，不写存档，不改 HUD，不并商店钱包。没有 Lab 键（F6–F11 不动，不加 F12）。非 Shipping：`PixelSide.RunSummary.Demo Win` 或 `Fail`。暂停习惯与商店 Demo 相同，见 `Content/Blueprints/UI/README.md`。
+
 ### 2.1 布局（640×360）
 
 ```
@@ -185,7 +187,7 @@ HUD：商店打开期间 HUD 可保留 Scrap 数字同步；本期 Demo 与 `Txt
 | Build | 豌豆连射 |
 | Tip | 显示清空说明 |
 
-`_Dev`：`Btn_DemoWin` / `Btn_DemoFail` 切换两套数据（仅线框预览）。
+`_Dev`：`Btn_DemoWin` / `Btn_DemoFail` 切换两套数据。非 Shipping 的 C++ 回退壳带这两个按钮，文案 `样例·胜` / `样例·败`。没有对应的功能键。控制台 `PixelSide.RunSummary.Demo Win` 或 `Fail` 调用 `OpenWin` / `OpenFail`。F6–F11 不改，不加 F12。
 
 ### 2.3 状态
 
@@ -238,7 +240,7 @@ FRunSummaryView
 |----|------|
 | HUD 货币文案 | 由 `"币"` 改为 **`Scrap`**（与 GDD 对齐；改 P0 落地时一并替换） |
 | 购券 | Shop → 关闭或压栈 → `WBP_AffixChoice` → 选完回房间流（不回商店除非设计改） |
-| 暂停 | Shop / AffixChoice / RunSummary 均暂停或脱离局内；HUD 在 Summary 时 Hide |
+| 暂停 | Shop / AffixChoice / RunSummary 均暂停或脱离局内。结算壳默认 `SetGamePaused`（无子系统 API，同商店 Demo）。已暂停则不接管。本壳不 Hide HUD |
 
 ---
 
@@ -248,7 +250,7 @@ FRunSummaryView
 |----|------|
 | `WBP_Shop` + `WBP_ShopSlot` 控件 / 状态 / 输入 | ✅ 线框。C++ 壳改为 3 格，读 `DA_Shop*`，不足 GreyOut |
 | `WBP_RunSummary` 控件 / 胜负两态 / struct | ✅ |
-| Demo 货架与 Win/Fail 占位数据 | ✅ 线框 4 格仍留本文。壳的货架以 #35 表为准 |
+| Demo 货架与 Win/Fail 占位数据 | ✅ 线框 4 格仍留本文。壳的货架以 #35 表为准。结算 Win/Fail 数值由 `OpenWin` / `OpenFail` 填入 |
 | `WBP_Shop` C++ 壳 | ✅ `UPixelShopWidget`。无 uasset。DemoScrap 本地扣；日后 `AddRunScrap(-Price)` |
-| `WBP_RunSummary` C++ 壳 | ⏳ 未做 |
+| `WBP_RunSummary` C++ 壳 | ✅ `UPixelRunSummaryWidget`。无 uasset。只展示 `CoreGained`。不写 Core、不算公式、不写存档。无 Lab 键 |
 | 真 RunScrap 扣款 | ❌ 本壳不调用 `AddRunScrap` |

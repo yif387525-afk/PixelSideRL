@@ -17,7 +17,7 @@
 | `WBP_EventChoice` | [UI_Wireframes_Event.md](./UI_Wireframes_Event.md) | 同上 | ✅ C++ `UPixelEventChoiceWidget` + 配方 · 无 uasset。Lab `F10` |
 | `WBP_Shop` | [UI_Wireframes_P1.md](./UI_Wireframes_P1.md) §1 | 同上 | ✅ C++ `UPixelShopWidget` + 配方 · 无 uasset。3 格读 `DA_ShopInventory` / `DA_ShopPriceCurve`。Lab `F11` |
 | `WBP_ShopSlot` | P1 §1.2 | 同上 | ✅ C++ `UPixelShopSlotWidget` + 配方 · 无 uasset |
-| `WBP_RunSummary` | P1 §2 | 同上 | ✅ 线框 |
+| `WBP_RunSummary` | P1 §2 | 同上 | ✅ C++ `UPixelRunSummaryWidget` + 配方 · 无 uasset。只展示 `FRunSummaryView`。不写 Core。无 Lab 键 |
 | `WBP_Hub` | [UI_Wireframes_Hub.md](./UI_Wireframes_Hub.md) §1 | 同上 | ✅ 线框 |
 | `WBP_Hub_Upgrade` | Hub §2 | 同上 | ✅ 线框 |
 | `WBP_Hub_NodeRow` | Hub §2.2 | 同上 | ✅ 线框 |
@@ -78,11 +78,18 @@ C++ 壳 `UPixelShopWidget` / `UPixelShopSlotWidget`。格数按 `Room_Shop_01` �
 | `KillCount` | 击杀 |
 | `FloorReached` / `FloorMax` | 层进度 |
 | `BossKills` | Boss |
-| `ScrapRemain` | 局内结余展示 |
-| `CoreGained` | **Core** 获得（强调） |
-| `AffixIds` | 构筑图标条 |
+| `ScrapRemain` | 局内结余展示（文案仍是 **Scrap**） |
+| `CoreGained` | **Core** 获得（强调）。只显示传入的数 |
+| `AffixIds` | 构筑图标条。没有短名时直接显示 Id |
+| `AffixShortNames` | 可选，与 `AffixIds` 平行。Demo 用线框短名。壳不调用 `GetAffixCardView` |
 
-事件：`OnContinueToHub`。
+事件：`OnContinueToHub`。确认是按钮、Enter、Space、Esc。Esc 与确认相同，避免卡在结算。UI 不切关卡。
+
+C++ 壳 `UPixelRunSummaryWidget`。`Present(View, bPause=true)` / `OpenWin` / `OpenFail`。Win / Fail 数值是线框 §2.2，不是 Core 公式。不调用 `AddCore`、`PreviewCoreGain`、`Save` / `Load`，不写存档，不改 `RunScrap`。
+
+没有结算暂停 API。打开默认 `SetGamePaused`，与商店 Demo 相同。已经暂停的世界不接管，确认时也不 `SetGamePaused(false)`。三选一还开着时拒绝打开。视口 Z = 90（HUD 10，调试条 50，商店 80，三选一 100）。不改 `WBP_HUD`。
+
+无 Lab 键。非 Shipping 控制台：`PixelSide.RunSummary.Demo Win` 或 `Fail`。**不占、不改 F6–F11，不加 F12。** F10 仍是事件，F11 仍是商店。
 
 ### 2.5 据点 · `UMetaProgressSubsystem`（[MetaSaveInterface.md](./MetaSaveInterface.md)）
 
@@ -134,8 +141,8 @@ C++ 壳 `UPixelShopWidget` / `UPixelShopSlotWidget`。格数按 `Room_Shop_01` �
 |-----|--------|
 | `Entry` | `WBP_MainMenu` |
 | `Hub` | `WBP_Hub`（+ Upgrade 叠层） |
-| Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop / EventChoice；结束 RunSummary |
-| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F6` 刷 HUD 词条格。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界；确认选项才 Resolve，Skip 不 Resolve）。`F11` 弹 `UPixelShopWidget`（DemoScrap 128，不写 RunScrap） |
+| Run / `Run_Test` | `WBP_HUD`（玩家 `AC_HUDPresenter.EnsureMounted`）；弹窗 AffixChoice / Shop / EventChoice；结束时由流程 `Present` `WBP_RunSummary` |
+| `Lab_CombatP0` / `_Dev` / Entry | 同上正式 `WBP_HUD`；另有 `WBP_DebugCombatHUD`（Z 50，y=40）。`F6` 刷 HUD 词条格。`F7` 弹 `UPixelAffixChoiceWidget`（native 文本占位关）。`F8` / `F9` 直调 `ResolveEventChoice`。`F10` 弹 `UPixelEventChoiceWidget`（AbandonedCache，不暂停世界；确认选项才 Resolve，Skip 不 Resolve）。`F11` 弹 `UPixelShopWidget`（DemoScrap 128，不写 RunScrap）。结算没有键：`PixelSide.RunSummary.Demo Win` 或 `Fail`。不加 F12 |
 
 ---
 
@@ -155,7 +162,7 @@ C++ 壳 `UPixelShopWidget` / `UPixelShopSlotWidget`。格数按 `Room_Shop_01` �
 
 1. `WBP_MainMenu` → `WBP_Hub` / Upgrade  
 2. `WBP_HUD` + `WBP_AffixChoice` / Card（C++ 父类已在，无 uasset）  
-3. `WBP_Shop` / Slot（C++ 壳已读 #35 表）→ `WBP_RunSummary`  
+3. `WBP_Shop` / Slot（C++ 壳已读 #35 表）→ `WBP_RunSummary`（C++ 壳已落地，无 uasset）→ 下一步 `WBP_Hub`  
 4. `WBP_DebugCombatHUD`（可并行 _Dev）  
 
 完成后本索引保持为单页入口；细节仍以各 Wireframes 文件为准。

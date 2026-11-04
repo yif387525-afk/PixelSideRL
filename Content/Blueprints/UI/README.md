@@ -1,6 +1,6 @@
 # Content/Blueprints/UI
 
-Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`、`WBP_EventChoice`。P1 商店壳：`WBP_Shop`、`WBP_ShopSlot`。线框见 Docs/UI_Wireframes_P0.md、Docs/UI_Wireframes_Event.md 与 Docs/UI_Wireframes_P1.md。
+Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WBP_AffixChoice`、`WBP_AffixCard`、`WBP_EventChoice`。P1：`WBP_Shop`、`WBP_ShopSlot`、`WBP_RunSummary`。线框见 Docs/UI_Wireframes_P0.md、Docs/UI_Wireframes_Event.md 与 Docs/UI_Wireframes_P1.md。
 
 `WBP_DebugCombatHUD` 不放这里。它只属于 `Content/_Dev/Combat/UI/`。正式 HUD 不要引用它。
 
@@ -18,6 +18,7 @@ Widget 落库目录。命名 `WBP_`。P0：`WBP_HUD`、`WBP_HUD_AffixIcon`、`WB
 | `WBP_EventChoiceButton` | `UPixelEventChoiceButton` | `WBP_EventChoiceButton` | `Source/PixelSideRL/Public/UI/PixelEventChoiceButton.h` |
 | `WBP_Shop` | `UPixelShopWidget` | `WBP_Shop` | `Source/PixelSideRL/Public/UI/PixelShopWidget.h` |
 | `WBP_ShopSlot` | `UPixelShopSlotWidget` | `WBP_ShopSlot` | `Source/PixelSideRL/Public/UI/PixelShopSlotWidget.h` |
+| `WBP_RunSummary` | `UPixelRunSummaryWidget` | `WBP_RunSummary` | `Source/PixelSideRL/Public/UI/PixelRunSummaryWidget.h` |
 
 路径：`Content/Blueprints/UI/`。画布逻辑 640×360，安全区 8px。三张卡实例名必须是 `Card_0`、`Card_1`、`Card_2`。
 
@@ -131,6 +132,57 @@ Scrap 不够：格子灰显（表字段 `insufficientScrap = GreyOut`），不�
 
 若调用方在行上放了 `AffixDef`，只读 `GetAffixCardView` 的 Name / Desc / Rarity / Icon。锁表三行没有 Def。Desc 放在购买按钮的 tooltip 上，因为槽位没有 `Txt_Desc`。
 
+## `WBP_RunSummary`
+
+全屏胜负结算。逻辑画布 640×360，安全区 8px。线框：`Docs/UI_Wireframes_P1.md` §2。
+
+只展示 `FRunSummaryView`。`CoreGained` 原样写成 `获得 Core +N`。`ScrapRemain` 写成 `Scrap 结余 N`（局内结余，不是 Core）。不调用 `AddCore`、`PreviewCoreGain`、`Save`、`Load`，不写存档，不改 `RunScrap`，不读战斗只读接口，不改 `WBP_HUD`。构筑短名用视图里的 `AffixShortNames`；空了才显示 `AffixIds`。不调用 `GetAffixCardView`。Demo 的 Id（`Demo_PeaVolley` 等）不是表里的词条，不会授予。
+
+没有单独的芯片 WBP。`WB_Build` 里的图标块和短名是运行时填的，无贴图（12×12 浅色块）。空列表显示 `（无词条）`。超过 8 个时后面加 `…`，悬停保留全名。第一次填入时清掉 `WB_Build` 里原有的子控件，之后复用这 8 个芯片。不要在图表里手工摆芯片，不要提交 uasset。
+
+| 控件名 | 类型 | 数据 |
+|--------|------|------|
+| `Overlay_Root` | Overlay，全屏 | |
+| `Img_Dim` | Image，`#000000` 94% | 挡住画面，点击不穿透。不 Hide HUD |
+| `Txt_Outcome` | Text Block，字号 22 | `胜利` `#2EE6A6` / `失败` `#FF3B3B` |
+| `Txt_Time` | Text Block | `16:20` 这种 `MM:SS` |
+| `Txt_Kills` | Text Block | `击杀 86` |
+| `WB_Build` | Wrap Box | 图标 + 短名，最多两行的量；空则 `（无词条）` |
+| `Txt_Floor` | Text Block | `层进度 2/2` |
+| `Txt_BossKills` | Text Block | `Boss 2` |
+| `Txt_ScrapLeft` | Text Block，`#FFD54A` | `Scrap 结余 40` |
+| `Txt_CoreTip` | Text Block，小字 | 仅失败：`局内 Scrap / 词条 / 临时枪已清空` |
+| `Txt_CoreGain` | Text Block，字号 28，白色 | `获得 Core +42`。视觉上大于标题 |
+| `Btn_Continue` | Button | `回据点` |
+| `Txt_Continue` | Text Block，放在按钮里 | 同上 |
+| `Txt_Hint` | Text Block | `Enter / Space / 点击回据点 · Esc 同确认` |
+
+`Btn_DemoWin` / `Btn_DemoFail` 只在非 Shipping 的回退壳上，文案 `样例·胜` / `样例·败`。Shipping 里若蓝图仍绑了这两个按钮，会被折叠。
+
+| 调用 | 结果 |
+|------|------|
+| `OpenWin()` | §2.2 胜：16:20，击杀 86，层 2/2，Boss 2，Scrap 结余 40，Core +42，三词条。无失败小字 |
+| `OpenFail()` | §2.2 败：09:05，击杀 31，层 1/2，Boss 0，Scrap 结余 12，Core +8，只有豌豆连射。显示清空小字 |
+| `Present(View)` | 用调用方给的数。`bPause` 默认 true |
+| 确认 | `OnContinueToHub` 一次。不打开 Hub 关卡 |
+
+Enter、Space、点击 `回据点`、Esc 都是确认。Esc 与确认相同，避免卡死。
+
+没有结算暂停 API。`Present` / `OpenWin` / `OpenFail` 在世界还没暂停时 `SetGamePaused(true)`，和 `OpenShopDemo` 一样。世界已经暂停（例如商店 Demo 或三选一）时不抢所有权，确认后也不 `SetGamePaused(false)`。三选一还开着时这只壳拒绝打开，免得把词条暂停解开。确认时先收起、解开**自己**的暂停，再广播。流程要自己暂停时传 `bPause=false`。
+
+视口 Z = 90。HUD 是 10，调试战斗条 50，商店 80，三选一 100。深底盖住 HUD，本壳不调用 `AC_HUDPresenter`。
+
+无 Lab 键。不要去改 F6–F11，也不要加 F12。Play 之后在控制台执行：
+
+```
+PixelSide.RunSummary.Demo Win
+PixelSide.RunSummary.Demo Fail
+```
+
+也可以对玩家控制器 `CreateWidget` 出 `UPixelRunSummaryWidget`，再调 `OpenWin` / `OpenFail` / `Present`。
+
+可选子蓝图：父类选显示名 `WBP_RunSummary`。控件名逐字一致并勾 Is Variable。图表留空。不要 `AddCore`、`PreviewCoreGain`、`SetScrap`、`AddRunScrap`。不要提交 uasset。
+
 ## 挂载 HUD
 
 `AC_HUDPresenter`（`UPixelHUDPresenterComponent`）只负责把正式 HUD 放进本地玩家视口。它不暂停、不改输入模式，也不动 `AC_AffixChoicePresenter`。
@@ -229,5 +281,6 @@ Run / Lab：
 10. `F11` 开商店。遮罩下仍能看见 HUD。三格：豆射手 45、回复 30、三选一券 60。右上 `Scrap 128`。`F6`–`F10` 不改。
 11. 点回复或把焦点移过去按 Enter。该格变 Sold，`Scrap 98`。
 12. `离开` 或 Esc。遮罩消失，人能走能开火。再按 `F11` 会把 Demo 货架和 128 重置。买券只发 `OnRequestAffixChoiceFromVoucher`，不自己开三选一，也不 `AddRunScrap`。
+13. 结算没有键。F6–F11 不要改，也不要按 F12（没有这个映射）。控制台 `PixelSide.RunSummary.Demo Win`：胜利，`16:20`，击杀 86，`获得 Core +42`，`Scrap 结余 40`。`PixelSide.RunSummary.Demo Fail`：失败小字出现，Core 是 `+8`。Enter / Space / Esc / `回据点` 都只打 `OnContinueToHub`，不写 Core。关掉之后 F6–F11 仍是原来的键。
 
 要临时看 #29 文本条：清掉 `AffixChoiceWidgetClass`，把 `bEnableNativeChoiceUI` 勾回去。不要两个同时开。不要关 `AC_HUDPresenter` 来换那条文本。
