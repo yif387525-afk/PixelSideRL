@@ -16,7 +16,7 @@
 **通货：** Scrap（唯一）。  
 **货架：** MVP **4 格**（可扩到 6；布局按 2×2，扩成 2×3）。
 
-C++ 壳不按上面的 2×2 做。`Room_Shop_01` 与 `DA_ShopInventory` 是 **3** 格：武器合约 / 回复 / 三选一券。Lab 键是 **F11**（`F10` 是事件壳）。见 `Content/Blueprints/UI/README.md`。
+C++ 壳不按上面的 2×2 做。`Room_Shop_01` 与 `DA_ShopInventory` 是 **3** 格：武器合约 / 回复 / 三选一券。Lab 键是 **F11**（`F10` 是事件壳），仍直接开 Demo。房间流程另调 `AC_ShopPresenter` 开/关，不改扣款。见 `Content/Blueprints/UI/README.md`。
 
 ### 1.1 布局（640×360）
 

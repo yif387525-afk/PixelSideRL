@@ -105,12 +105,33 @@ MVP：可购买任意槽或 **直接走门跳过**；门常开。
 
 ---
 
-## 7. 入库验收
+## 7. 流程开店
+
+玩家 `APixelSideCharacter` 上已有 `AC_ShopPresenter`（`UPixelShopPresenterComponent`）。进入本房时由流程调用，不新绑键，不建 umap，不提交 uasset。
+
+```cpp
+UPixelShopPresenterComponent* Presenter = Player->GetShopPresenter();
+Presenter->OpenShopDemo(/*Layer=*/1); // 读 DA_Shop*，壳内 Scrap 128
+// 或把数字传入壳（只种 DemoScrap，不读、不写 RunScrap）：
+// Presenter->OpenShop(Offers, Scrap, /*bDemoPause=*/true);
+Presenter->CloseShop(); // 与 Leave / Esc 相同
+```
+
+`OpenShop` / `OpenShopDemo` 就是 `UPixelShopWidget` 的同名函数。控件自己挂到视口，Z = 80（与现壳一致；HUD 10，三选一 100）。本组件不另选 Z。
+
+买和刷新仍只改壳内 DemoScrap（`TryBuy` / `TryReroll` 不动）。不调用 `AddRunScrap`。购买事件仍在返回的控件上听。`F11` 仍直接开 Lab Demo，不经过本组件。`F6`–`F10` 不动。
+
+门仍不锁。可以不买，直接走门；关店用 `CloseShop`、Esc 或 `离开`。
+
+---
+
+## 8. 入库验收
 
 - [ ] 无刷怪 / 无强制购买 / 门不锁  
 - [ ] 柜台与 3 商品位可读；可跳过离开  
 - [ ] 无三选一；CSV 齐；无 Lab 改动  
 - [ ] Branch-only；与 Event 二选一支路上场  
+- [x] 流程经 `AC_ShopPresenter` 开/关。不改 F11，不扣 RunScrap，无 uasset  
 
 ---
 
@@ -121,3 +142,4 @@ MVP：可购买任意槽或 **直接走门跳过**；门常开。
 | 2026-11-04 | 细表占位 |
 | 2026-11-05 | 正式规格：柜台/货位/出口/CSV；COMMENT 交审；商品 DA 归词条官 |
 | 2026-11-05 | 货架改指 `Content/Data/Shop/DA_Shop*`；几何未改 |
+| 2026-11-05 | 流程开店：`AC_ShopPresenter` 调 `OpenShop` / `OpenShopDemo` / `CloseShop`。不改扣款，不改 F11 |
