@@ -283,16 +283,19 @@ void UPixelDebugCombatHUD::BuildFallbackLayout()
 
 	Txt_IFrame = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_IFrame"));
 	Txt_Weapon = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Weapon"));
+	Txt_FireRate = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_FireRate"));
 	Txt_CD = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_CD"));
 	Txt_LastDmg = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_LastDmg"));
 	Txt_Alive = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Alive"));
 	PixelDebugHud::StyleText(Txt_IFrame, Font, PixelDebugHud::TextColor);
 	PixelDebugHud::StyleText(Txt_Weapon, Font, PixelDebugHud::TextColor);
+	PixelDebugHud::StyleText(Txt_FireRate, Font, PixelDebugHud::TextColor);
 	PixelDebugHud::StyleText(Txt_CD, Font, PixelDebugHud::TextColor);
 	PixelDebugHud::StyleText(Txt_LastDmg, Font, PixelDebugHud::TextColor);
 	PixelDebugHud::StyleText(Txt_Alive, Font, PixelDebugHud::RecentHitColor);
 	AddRow(Txt_IFrame);
 	AddRow(Txt_Weapon);
+	AddRow(Txt_FireRate);
 	AddRow(Txt_CD);
 	AddRow(Txt_LastDmg);
 	AddRow(Txt_Alive);
@@ -393,6 +396,8 @@ void UPixelDebugCombatHUD::RefreshFromSource()
 			Txt_Alive->SetVisibility(View.bAlive ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
 		}
 	}
+
+	PixelDebugHud::SetLine(Txt_FireRate, FString::Printf(TEXT("FR  %.3f"), View.FireRate), Idle);
 
 	if (!View.bHasWeapon)
 	{

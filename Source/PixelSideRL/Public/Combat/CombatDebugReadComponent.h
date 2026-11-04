@@ -23,6 +23,7 @@ struct PIXELSIDERL_API FPixelCombatDebugView
 	FString WeaponName;
 	float FireCooldownRemaining = 0.f;
 	float FireInterval = 0.f;
+	float FireRate = 1.f;
 	float ResolvedFireCooldown = 1.f;
 	float LastDamageTaken = 0.f;
 	float LastDamageTime = -1.f;
@@ -52,6 +53,7 @@ public:
 	virtual FText GetWeaponName_Implementation() override;
 	virtual float GetFireCooldownRemaining_Implementation() override;
 	virtual float GetFireInterval_Implementation() override;
+	virtual float GetFireRate_Implementation() override;
 	virtual float GetResolvedFireCooldown_Implementation() override;
 	virtual float GetLastDamageTaken_Implementation() override;
 	virtual float GetLastDamageTime_Implementation() override;
@@ -59,4 +61,5 @@ public:
 private:
 	static UDamageableComponent* FindDamageable(AActor* Actor);
 	static const UWeaponControllerComponent* FindWeapon(AActor* Actor);
+	static float ReadFireRate(AActor* Actor);
 };

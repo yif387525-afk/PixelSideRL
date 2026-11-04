@@ -149,6 +149,27 @@ inline float ComputeFireCooldown(float FireInterval, float FireRateMultiplier)
 	return FireInterval / Rate;
 }
 
+// Scale a cooldown that is already counting down when GetStat(FireRate) changes.
+// The same full interval twice (OnAffixChanged and OnStatsRebuilt for one rebuild) leaves Remaining as-is.
+inline float RescaleInFlightCooldown(float Remaining, float PreviousFull, float NewFull)
+{
+	if (!(Remaining > 0.f))
+	{
+		return 0.f;
+	}
+	if (!(PreviousFull > 0.0001f) || !(NewFull > 0.f))
+	{
+		return Remaining;
+	}
+	const float Delta = (PreviousFull > NewFull) ? (PreviousFull - NewFull) : (NewFull - PreviousFull);
+	if (Delta < 0.0001f)
+	{
+		return Remaining;
+	}
+	const float Scaled = Remaining * (NewFull / PreviousFull);
+	return (Scaled > 0.f) ? Scaled : 0.f;
+}
+
 // Jump cut applies only on the way up. Apex and falling arcs stay intact.
 inline float ApplyJumpCutRisingZ(float VerticalZ)
 {

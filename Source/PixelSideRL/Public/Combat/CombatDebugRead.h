@@ -49,6 +49,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat|Debug")
 	float GetFireInterval();
 
+	/** AC_StatModifiers::GetStat(FireRate). Base 1 with no affix; RapidFire Mul 0.12 → about 1.12. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat|Debug")
+	float GetFireRate();
+
 	/**
 	 * Seconds the cooldown remaining counts through: FireInterval / GetStat(FireRate).
 	 * When that is unavailable, 1/FireRateBase.

@@ -3,7 +3,7 @@
 **状态:** P0 核心已进 C++（2026-11-04）。`Lab_CombatP0.umap`、Flipbook、`BP_*` / `DA_*.uasset` 不进仓库，按 `Docs/Combat_P0_LabSetup.md` 在本地补。Jump = **5** 帧。  
 **依据:** `UE_PROJECT_SPEC.md` · `CombatFeel.md`（冲突以 CombatFeel 为准）  
 **负责人:** 弹芯  
-**范围外:** 散弹/矛枪、敌人 AI、词条管线、Boss、联网
+**范围外:** 散弹/矛枪、敌人 AI、词条 Inventory/Roll/三选一（P0.6 只接战斗侧 `GetStat` 挂钩）、Boss、联网
 
 ---
 
@@ -99,9 +99,9 @@ P0 **不强制**开 C++；若仅 BP 能验收，C++ 文件夹只留模块空壳�
 | 挂钩 | 挂载点 | P0 / 之后行为 |
 |------|--------|----------------|
 | `GetStat(EStatId)` | `AC_WeaponController`、移动、`AC_Damageable` | 开火/移速/伤害/击退只经此读取；P0 无 Affix 时 = Base（含武器 DA） |
-| `OnAffixChanged` | 玩家绑定 | 刷新缓存的 FireRate / Damage / MoveSpeed 等 |
-| `OnStatsRebuilt` | 可选 | 脏标记，避免每枪扫全表 |
+| `OnAffixChanged` / `OnStatsRebuilt` | 只绑 `AC_StatModifiers` | 枪不缓存 FireRate。两委托都听；同一次重建第二次不重复缩放进行中的冷却。不绑 Subsystem 同名委托 |
 | `OnAffixTrigger` | 可选，P1+ | OnKill / OnTakeDamage 表现钩子；Modifier 仍归词条官 |
+| `OnAffixChoiceClosed` | 不绑枪 | 只给界面关卡与流程解暂停。暂停时 Tick 停；恢复后仍 `GetStat(FireRate)` |
 
 **Stat 映射（战斗侧）**
 
@@ -209,6 +209,7 @@ sequenceDiagram
 | P0-9 | 弹→`ApplyDamage` 接好；轻 HitStop | P0-5, P0-8 | [x] 木桩扣血、闪白、击退、Victim HitStop |
 | P0-10 | 玩家 `AC_Damageable` + I-Frame；调试伤害源 | P0-4 | [x] I-Frame 闪烁；H 与 `APixelDebugHurtTurret` |
 | P0-11 | 文档回写：本清单勾选 + CombatFeel 变更一行 | 上列 | [x] 本文件 + `Combat_P0_LabSetup.md` |
+| P0.6-hook | 枪经 `GetStat(FireRate)` 感知 RapidFire；组件委托重算进行中冷却；HUD 的 FR / ResolvedCD | #29 `DebugGrantAffix` / F6 | [x] 代码路径。Play：F6 后 FR≈1.12 |
 
 **并行建议:** P0-4/5 与 P0-2/3 可并行；P0-6 可最先做。
 
@@ -247,3 +248,4 @@ sequenceDiagram
 | 2026-11-04 | 弹芯 | 与 API 统一：DA=FireInterval；冷却=FireInterval/GetStat(FireRate) |
 | 2026-11-04 | 弹芯 | P0 可玩切片进 C++（移动/豌豆/Damageable/I-Frame）。umap 与 5 帧 Jump Flipbook 见 `Combat_P0_LabSetup.md`。 |
 | 2026-11-04 | 弹芯 | P0.5 Lab Grunt（`APixelEnemyGrunt` / G1）：警戒追击、水平慢弹 0.8 s / 6。正式刷怪房仍不进 P0。 |
+| 2026-11-04 | 弹芯 | P0.6 战斗挂钩：枪只绑 `AC_StatModifiers` 委托并 live `GetStat(FireRate)`。授予仍走 #29 的 `DebugGrantAffix` / F6。 |

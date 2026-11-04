@@ -18,10 +18,13 @@
 #include "Components/StaticMeshComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/Engine.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/TargetPoint.h"
+#include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "HAL/IConsoleManager.h"
 #include "InputAction.h"
 #include "InputCoreTypes.h"
 #include "InputMappingContext.h"
@@ -103,20 +106,64 @@ APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitial
 	SideCamera->bUsePawnControlRotation = false;
 }
 
+#if !UE_BUILD_SHIPPING
+static void PixelSideDebugGrantAffixCmd(const TArray<FString>& Args)
+{
+	const FName AffixId(*(Args.Num() > 0 ? Args[0] : FString(TEXT("RapidFire"))));
+	int32 Granted = 0;
+	if (GEngine)
+	{
+		for (const FWorldContext& Context : GEngine->GetWorldContexts())
+		{
+			UWorld* World = Context.World();
+			if (!World || !World->IsGameWorld())
+			{
+				continue;
+			}
+			APlayerController* PC = World->GetFirstPlayerController();
+			APixelSideCharacter* Player = PC ? Cast<APixelSideCharacter>(PC->GetPawn()) : nullptr;
+			if (!Player)
+			{
+				continue;
+			}
+			if (UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(Player))
+			{
+				Affix->DebugGrantAffix(AffixId);
+				++Granted;
+			}
+		}
+	}
+	if (Granted == 0)
+	{
+		UE_LOG(LogPixelSideCombat, Warning, TEXT("PixelSide.DebugGrantAffix: no player with UAffixSubsystemDefault. Lab F6 grants RapidFire."));
+	}
+}
+
+static FAutoConsoleCommand GPixelSideDebugGrantAffix(
+	TEXT("PixelSide.DebugGrantAffix"),
+	TEXT("PixelSide.DebugGrantAffix <AffixId=RapidFire>. Calls UAffixSubsystemDefault::DebugGrantAffix. Lab F6 is the same grant for RapidFire."),
+	FConsoleCommandWithArgsDelegate::CreateStatic(&PixelSideDebugGrantAffixCmd));
+#endif
+
 void APixelSideCharacter::BeginPlay()
 {
+	// Before Super so a missing component is registered before AC_WeaponController::BeginPlay binds.
+	EnsureStatModifiers();
 	Super::BeginPlay();
 
 	PixelSideMesh::Tint(PlaceholderMesh, TEXT("/Engine/BasicShapes/Cube.Cube"), PixelSidePalette::PlayerCloth(), PixelSideMesh::EMeshCollision::NoCollision);
 
 	if (Stats && !bStatsBound)
 	{
+		// MoveSpeed / MaxHP only. Fire cooldown is the weapon's listener on the same component delegates.
+		// Do not also bind UAffixSubsystem; 词条官 forwards those onto AC_StatModifiers.
 		Stats->OnAffixChanged.AddDynamic(this, &APixelSideCharacter::HandleAffixChanged);
 		Stats->OnStatsRebuilt.AddDynamic(this, &APixelSideCharacter::HandleStatsRebuilt);
 		bStatsBound = true;
 	}
 	if (WeaponController)
 	{
+		WeaponController->BindStatRefresh();
 		WeaponController->OnWeaponFired.RemoveDynamic(this, &APixelSideCharacter::HandleWeaponFired);
 		WeaponController->OnWeaponFired.AddDynamic(this, &APixelSideCharacter::HandleWeaponFired);
 	}
@@ -321,6 +368,28 @@ void APixelSideCharacter::AddMappingContext()
 	}
 }
 
+void APixelSideCharacter::EnsureStatModifiers()
+{
+	if (!Stats)
+	{
+		Stats = FindComponentByClass<UStatModifiersComponent>();
+	}
+	if (Stats)
+	{
+		return;
+	}
+
+	Stats = NewObject<UStatModifiersComponent>(this, UStatModifiersComponent::StaticClass(), TEXT("AC_StatModifiers"));
+	if (!Stats)
+	{
+		UE_LOG(LogPixelSideCombat, Warning, TEXT("Player %s has no AC_StatModifiers and one could not be created."), *GetName());
+		return;
+	}
+	AddInstanceComponent(Stats);
+	Stats->RegisterComponent();
+	UE_LOG(LogPixelSideCombat, Log, TEXT("Created AC_StatModifiers on %s. Weapon BeginPlay pushes FireRate base 1."), *GetName());
+}
+
 void APixelSideCharacter::CacheStatBases()
 {
 	if (!Stats)
@@ -514,6 +583,7 @@ void APixelSideCharacter::HandleAffixChoiceClosed(bool bConfirmed)
 void APixelSideCharacter::HandleAffixChanged(FAffixChangeEvent Event)
 {
 	(void)Event;
+	// Move / HP only. The weapon rescales fire cooldown on this same component event.
 	RefreshFromStats();
 }
 

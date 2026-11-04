@@ -22,8 +22,10 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | Space，手柄下键 | 跳（Coyote 0.08s，Jump Buffer 0.10s；松跳且上升时竖直速度 ×0.35，短按更矮） |
 | 鼠标左键，右扳机 | 豌豆枪连发，朝向 ±X |
 | H | 调试受击（非 Shipping） |
+| F6 | `DebugGrantAffix("RapidFire")`（非 Shipping）。行为见 `Docs/AffixSubsystem_API.md` §10 |
+| F7 | 开三选一并暂停（非 Shipping）。行为见同一节 |
 
-非 Shipping 且角色 `bEnableCombatDebugHUD` 为开（默认开）时，左上角 (8, 40) 有调试战斗 HUD：HP、无敌帧、武器、冷却、最近一次伤害。父类 `UPixelDebugCombatHUD`，没有蓝图资产也会画。要换成自己的皮，按 `Content/_Dev/Combat/UI/README.md` 做 `WBP_DebugCombatHUD`。正式 `WBP_HUD` 不要引用它。Shipping 不创建。
+非 Shipping 且角色 `bEnableCombatDebugHUD` 为开（默认开）时，左上角 (8, 40) 有调试战斗 HUD：HP、无敌帧、武器、`FR`（`GetStat(FireRate)`）、冷却（剩余 / `GetResolvedFireCooldown()`）、最近一次伤害。父类 `UPixelDebugCombatHUD`，没有蓝图资产也会画。要换成自己的皮，按 `Content/_Dev/Combat/UI/README.md` 做 `WBP_DebugCombatHUD`。正式 `WBP_HUD` 不要引用它。Shipping 不创建。
 
 验收：急停更干脆；短按跳更矮、按住跳更高；空中可改线；弹是暖黄色小球，撞两端墙消失；打木桩掉血、闪白、击退更明显；炮塔或 H 打到玩家会闪白、击退，并在 0.6s 内闪烁且不再叠伤。从出生点能走过 G1 和 D1，穿过 CV1/2/3 去炮塔廊。木桩、G1 和 T1 不挡玩家位移，开火仍打中木桩和 Grunt；掩体仍挡住炮塔弹。挡弹站在掩体对侧（沿 X），不是跳上顶，也不是绕到深度侧面。玩家走到约 X=200（与 G1 相距 280）时它会警戒、朝你走，并水平射出慢弹（0.8 s、伤害 6）。豌豆能把它打死。炮塔仍是 7.5 / 1.0 s。
 
@@ -84,7 +86,7 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 | P0.5 Grunt | `EnemyGruntMoveSpeed` **140**、`EnemyGruntAggroRange` **280**、`EnemyGruntFireInterval` **0.8 s**、`EnemyGruntDamage` **6**。不读炮塔那一行 |
 | 常量只写在 | `Source/PixelSideRL/Public/Combat/PixelSideCombatMath.h` |
 
-战斗只读 `AC_StatModifiers.GetStat`。没有该组件时开火回退到 FireRate = 1 和武器 DA 的伤害/击退。不要在战斗蓝图里 Roll 词条。
+战斗只读 `AC_StatModifiers.GetStat`。没有该组件时开火回退到 FireRate = 1 和武器 DA 的伤害/击退。玩家 BeginPlay 会补上 `AC_StatModifiers`。不要在战斗蓝图里 Roll 词条。RapidFire 验收见 §6。F6 / F7 的词条行为以 `Docs/AffixSubsystem_API.md` §10 为准。
 
 击退距离用表里的 uu（70 / 145），0.11s 内 ease-out 走完。空中保留 60%。这样不会被地面急停摩擦（4000）收成不到 1 像素。
 
@@ -98,4 +100,17 @@ Idle / Run / Fire / Hurt 用同一套网格规则，帧数按上表。
 - [ ] 站掩体对侧时炮塔弹被挡住；探出挡线仍会挨打
 - [ ] H 或炮塔打中玩家：闪白、击退、闪烁，无敌期间不连扣
 - [ ] 若挂了 Jump Flipbook，Output Log 没有 “expects 5” 警告，滞空能看到 rise / apex / fall
-- [ ] 非 Shipping：左上角调试 HUD 的 HP / IFR / WPN / CD / DMG 会随开火和受击变化；Shipping 不应出现
+- [ ] 非 Shipping：左上角 `UPixelDebugCombatHUD` 的 HP / IFR / WPN / FR / CD / DMG 会随开火和受击变化。无词条时 `FR 1.000`，CD 分母 `0.120`。Shipping 不应出现
+- [ ] F6 或控制台 `PixelSide.DebugGrantAffix RapidFire` 之后，HUD 的 `FR` ≈ 1.12，CD 分母 ≈ 0.107，按住开火变快。F7 仍开三选一
+
+## 6. P0.6 射速挂钩（RapidFire）
+
+G1 追击与炮塔行见上文，数值不因本挂钩改动。调试 HUD 仍是 `UPixelDebugCombatHUD` / `AC_CombatDebugRead`。`FR` 读 `GetStat(FireRate)`，CD 分母读 `GetResolvedFireCooldown()`。
+
+战斗不 Roll、不写 Inventory，也不在武器蓝图里分支 AffixId。冷却仍是 `FireInterval / AC_StatModifiers::GetStat(FireRate)`（`UWeaponControllerComponent::ResolveStat`）。无词条时 FireRate = **1.0**，冷却 = **FireInterval**（豌豆 0.12 s）。
+
+`AC_WeaponController` 只订阅组件上的 `OnAffixChanged` 与 `OnStatsRebuilt`。词条官把 Subsystem 事件转到这些组件委托；枪不第二路订阅 Subsystem。射速和伤害每枪 live `GetStat`。事件里只把进行中的冷却按新的 `GetResolvedFireCooldown()` 等比重算。换枪和 BeginPlay 仍 `PushBasesToStats`。
+
+F6 = `DebugGrantAffix("RapidFire")`，F7 = 三选一。授予、暂停和 1.12 的手算在 `Docs/AffixSubsystem_API.md` §10。枪在 Stat 重建后吃 `GetStat`。控制台 `PixelSide.DebugGrantAffix RapidFire` 调用同一个 `UAffixSubsystemDefault::DebugGrantAffix`。
+
+手感表（JumpZ、Gravity、豌豆、Grunt、炮塔）不因本挂钩改动。

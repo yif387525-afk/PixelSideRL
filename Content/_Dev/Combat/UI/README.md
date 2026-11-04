@@ -37,6 +37,7 @@ C++ 父类已经能在 `Lab_CombatP0` 显示。只有要换像素字体或手摆
 | `Bar_HP` | Progress Bar | 血量比 | `Health / MaxHealth` |
 | `Txt_IFrame` | Text Block | `IFR 0.42s` | `GetIFrameRemaining`。大于 0 时约 2Hz 闪 |
 | `Txt_Weapon` | Text Block | `WPN Peashooter` | `GetWeaponId`（`GetWeaponName`） |
+| `Txt_FireRate` | Text Block | `FR  1.000` | `GetFireRate`（`AC_StatModifiers::GetStat(FireRate)`） |
 | `Txt_CD` | Text Block | `CD  0.05 / 0.12` | 剩余 `GetFireCooldownRemaining` / 分母 `GetResolvedFireCooldown` |
 | `Txt_LastDmg` | Text Block | `DMG -8 @ 12.3s` | `GetLastDamageTaken` + `GetLastDamageWorldTime`。0.5s 内 `#FF3B3B`，其后变暗 |
 | `Txt_Alive` | Text Block，可选 | `DEAD` | `IsAlive` 为 false 时显示，活着则折叠 |

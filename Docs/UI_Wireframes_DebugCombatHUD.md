@@ -13,7 +13,8 @@
 HP  24 / 30   [████████░░]
 IFR 0.42s
 WPN Peashooter
-CD  0.05 / 0.14
+FR  1.000
+CD  0.05 / 0.120
 DMG -8 @ 12.3s
 ```
 
@@ -27,7 +28,8 @@ DMG -8 @ 12.3s
 | `Bar_HP` | ProgressBar | `Health/MaxHealth` |
 | `Txt_IFrame` | TextBlock | `IFrameRemaining` → `"IFR 0.42s"`；>0 时 2Hz 闪烁 |
 | `Txt_Weapon` | TextBlock | `WeaponName` |
-| `Txt_CD` | TextBlock | `FireCooldownRemaining` / 间隔：优先 `DA.FireInterval`，否则 `1/FireRateBase`（`GetStatBase`） |
+| `Txt_FireRate` | TextBlock | `GetFireRate()` → `GetStat(FireRate)`，显示 `FR  1.000`；RapidFire ≈ `1.120` |
+| `Txt_CD` | TextBlock | `FireCooldownRemaining` / `GetResolvedFireCooldown()` |
 | `Txt_LastDmg` | TextBlock | `LastDamageTaken` + `LastDamageTime`；0.5s 内 `#FF3B3B`，其后变暗 |
 | `Txt_Alive`（可选） | TextBlock | `bAlive` 为 false 时显示 `DEAD` |
 
@@ -57,7 +59,7 @@ P0 **不做** `WBP_DebugDmgNumber`（非阻塞）。
 | 线框 | 代码 |
 |------|------|
 | `WBP_DebugCombatHUD` | 编辑器子蓝图，父类 `UPixelDebugCombatHUD`。路径 `Content/_Dev/Combat/UI/`。步骤见该目录 README |
-| `BI_CombatDebugRead` | `UCombatDebugRead` + `UCombatDebugReadComponent`（`AC_CombatDebugRead`）。只转发 `GetDamageable()` / `GetWeaponController()` |
+| `BI_CombatDebugRead` | `UCombatDebugRead` + `UCombatDebugReadComponent`（`AC_CombatDebugRead`）。血量/武器走原组件；`GetFireRate` 走 `AC_StatModifiers::GetStat` |
 | `Txt_*` / `Bar_HP` | `BindWidgetOptional`，名字与上表一致。没有设计师根节点时 C++ 按 (8, 40) 自建 |
 | CD 分母 | `GetResolvedFireCooldown` = `DA.FireInterval / GetStat(FireRate)`。FireRate 为 1 时等于 DA 间隔。没有间隔时用 `1/FireRateBase` |
 | 刷新 | 定时器 0.05s。不调用 `ApplyDamage` / `Fire`，不改 DA |

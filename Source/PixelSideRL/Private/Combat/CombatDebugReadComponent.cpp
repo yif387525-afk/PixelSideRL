@@ -3,6 +3,7 @@
 #include "Combat/DamageableComponent.h"
 #include "Combat/PixelSideCharacter.h"
 #include "Combat/PixelSideCombatMath.h"
+#include "Combat/StatModifiersComponent.h"
 #include "Combat/WeaponControllerComponent.h"
 
 UCombatDebugReadComponent::UCombatDebugReadComponent()
@@ -42,9 +43,24 @@ const UWeaponControllerComponent* UCombatDebugReadComponent::FindWeapon(AActor* 
 	return Actor->FindComponentByClass<UWeaponControllerComponent>();
 }
 
+float UCombatDebugReadComponent::ReadFireRate(AActor* Actor)
+{
+	const UStatModifiersComponent* Stats = nullptr;
+	if (const APixelSideCharacter* Player = Cast<APixelSideCharacter>(Actor))
+	{
+		Stats = Player->GetStatModifiers();
+	}
+	if (!Stats && Actor)
+	{
+		Stats = Actor->FindComponentByClass<UStatModifiersComponent>();
+	}
+	return Stats ? Stats->GetStat(EStatId::FireRate) : PixelSideCombat::FireRateBase;
+}
+
 FPixelCombatDebugView UCombatDebugReadComponent::ReadActor(AActor* Actor)
 {
 	FPixelCombatDebugView View;
+	View.FireRate = ReadFireRate(Actor);
 	View.ResolvedFireCooldown = 1.f / FMath::Max(PixelSideCombat::FireRateBase, PixelSideCombat::MinFireRate);
 
 	UDamageableComponent* Damageable = FindDamageable(Actor);
@@ -117,6 +133,11 @@ float UCombatDebugReadComponent::GetFireCooldownRemaining_Implementation()
 float UCombatDebugReadComponent::GetFireInterval_Implementation()
 {
 	return ReadActor(GetOwner()).FireInterval;
+}
+
+float UCombatDebugReadComponent::GetFireRate_Implementation()
+{
+	return ReadActor(GetOwner()).FireRate;
 }
 
 float UCombatDebugReadComponent::GetResolvedFireCooldown_Implementation()
