@@ -96,10 +96,13 @@ constexpr float PlayerMaxHealth = 30.f;
 // Five peashooter hits (5 * 8).
 constexpr float DamageDummyMaxHealth = 40.f;
 
-// Debug turret stands in for Grunt's slow pea (CombatFeel §7: 0.8 s, damage 6).
+// Lab debug turret and the H debug-hurt key (APixelDebugHurtTurret / HandleDebugHurt).
+// Supervisor rule: one shot ≤ 25% of PlayerMaxHealth, and the turret waits ≥ 1 s.
+// These two constants are the lab stand-in only. Future Grunt AI stays on
+// CombatFeel §7 (0.8 s, damage 6) until a doc says the lab turret shares that row.
 // Speed is intentionally under the player's 560 so the bolt stays readable.
-constexpr float GruntFireInterval = 0.80f;
-constexpr float GruntDamage = 6.f;
+constexpr float GruntFireInterval = 1.0f;
+constexpr float GruntDamage = 7.5f; // 25% of PlayerMaxHealth (30)
 constexpr float GruntProjectileSpeed = 280.f;
 constexpr float GruntProjectileLife = 3.5f;
 constexpr float DebugTurretFirstShotDelay = 0.60f;
@@ -170,4 +173,6 @@ static_assert(IdleFrameCount == 4, "T_Player_Idle is 4 frames");
 static_assert(RunFrameCount == 6, "T_Player_Run is 6 frames");
 static_assert(FireFrameCount == 3, "T_Player_Fire is 3 frames");
 static_assert(HurtFrameCount == 2, "T_Player_Hurt is 2 frames");
+static_assert(GruntDamage <= PlayerMaxHealth * 0.25f, "lab turret shot is at most 25% player max HP");
+static_assert(GruntFireInterval >= 1.f, "lab turret interval is at least 1 s");
 }
