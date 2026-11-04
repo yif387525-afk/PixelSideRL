@@ -1,0 +1,11 @@
+id,kind,x0,x1,x_center,width,top_y,height,facing,rule,notes
+G_main,Floor,0,1280,,,0,,,,"main walkable; no pit"
+WALL_L,Wall,-40,0,,,280,,,,"left bound"
+WALL_R,Wall,1280,1320,,,280,,,,"right bound"
+P_kite,Platform,,,700,160,28,,,,"kite line; step 28 <= jump ~32"
+CV_A,Cover,,,640,24,0,44,,PawnIgnore_ProjectileBlock,"2D stance peek along X"
+CV_B,Cover,,,880,24,0,40,,PawnIgnore_ProjectileBlock,"2D stance peek along X"
+PlayerStart,Anchor,40,0,,,,,,,"spawn feet"
+Exit_Left,Exit,-40,0,,,,,Exit.Left,,"entry/back"
+Exit_Right,Exit,1200,0,,,,,Exit.Right,RequireClear,"forward after clear+affix"
+AffixAnchor,Anchor,600,0,,,,,,,"affix UI reference"
