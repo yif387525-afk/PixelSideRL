@@ -1,0 +1,312 @@
+{
+  "note": "正式锁表。10 AffixId 含 Magnet；CritOptics=0.08；Scavenger=ScrapGain。冻名：DataAssetName=DA_Affix_<AffixId>，禁止另起资产名。",
+  "contractVersion": 3,
+  "affixCardFields": [
+    "DisplayName=Name",
+    "Description=Desc",
+    "Rarity",
+    "Icon"
+  ],
+  "currency": {
+    "run": "Scrap",
+    "meta": "Core"
+  },
+  "affixes": [
+    {
+      "AffixId": "RapidFire",
+      "DisplayName": "速射",
+      "Description": "射速 +{Value}",
+      "Rarity": "Common",
+      "Icon": null,
+      "StackRule": "AdditiveStack",
+      "MaxStacks": 3,
+      "Weight": 10,
+      "Tags": [
+        "Offense",
+        "Weapon"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "FireRate",
+          "Op": "Mul",
+          "Value": 0.12,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_RapidFire"
+    },
+    {
+      "AffixId": "HollowPoint",
+      "DisplayName": "空尖弹",
+      "Description": "伤害 +{Value}",
+      "Rarity": "Common",
+      "Icon": null,
+      "StackRule": "AdditiveStack",
+      "MaxStacks": 3,
+      "Weight": 10,
+      "Tags": [
+        "Offense"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "Damage",
+          "Op": "Mul",
+          "Value": 0.1,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_HollowPoint"
+    },
+    {
+      "AffixId": "ThickSkin",
+      "DisplayName": "厚皮",
+      "Description": "最大生命 +{Value}",
+      "Rarity": "Common",
+      "Icon": null,
+      "StackRule": "AdditiveStack",
+      "MaxStacks": 5,
+      "Weight": 10,
+      "Tags": [
+        "Defense"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "MaxHP",
+          "Op": "Add",
+          "Value": 10,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_ThickSkin"
+    },
+    {
+      "AffixId": "Magnet",
+      "DisplayName": "磁吸",
+      "Description": "拾取半径 +{Value}",
+      "Rarity": "Common",
+      "Icon": null,
+      "StackRule": "Unique",
+      "MaxStacks": 1,
+      "Weight": 8,
+      "Tags": [
+        "Economy"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "PickupRadius",
+          "Op": "Add",
+          "Value": 48,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_Magnet"
+    },
+    {
+      "AffixId": "Piercer",
+      "DisplayName": "穿甲",
+      "Description": "穿透 +1",
+      "Rarity": "Rare",
+      "Icon": null,
+      "StackRule": "AdditiveStack",
+      "MaxStacks": 2,
+      "Weight": 5,
+      "Tags": [
+        "Offense",
+        "Weapon"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "Pierce",
+          "Op": "Add",
+          "Value": 1,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_Piercer"
+    },
+    {
+      "AffixId": "TwinShot",
+      "DisplayName": "双生弹",
+      "Description": "弹数 +1",
+      "Rarity": "Rare",
+      "Icon": null,
+      "StackRule": "Unique",
+      "MaxStacks": 1,
+      "Weight": 4,
+      "Tags": [
+        "Offense",
+        "Weapon"
+      ],
+      "ExclusiveTags": [
+        "ProjectileShape"
+      ],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "ProjectileCount",
+          "Op": "Add",
+          "Value": 1,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_TwinShot"
+    },
+    {
+      "AffixId": "CritOptics",
+      "DisplayName": "暴击瞄具",
+      "Description": "暴击率 +{Value}",
+      "Rarity": "Rare",
+      "Icon": null,
+      "StackRule": "AdditiveStack",
+      "MaxStacks": 3,
+      "Weight": 5,
+      "Tags": [
+        "Offense"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "CritChance",
+          "Op": "Add",
+          "Value": 0.08,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_CritOptics"
+    },
+    {
+      "AffixId": "Adrenaline",
+      "DisplayName": "肾上腺素",
+      "Description": "击杀后短时移速提升",
+      "Rarity": "Epic",
+      "Icon": null,
+      "StackRule": "RefreshDuration",
+      "MaxStacks": 1,
+      "Weight": 3,
+      "Tags": [
+        "Mobility",
+        "OnKill"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "OnKill"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "MoveSpeed",
+          "Op": "Mul",
+          "Value": 0.25,
+          "DurationSec": 2.5
+        }
+      ],
+      "DataAssetName": "DA_Affix_Adrenaline"
+    },
+    {
+      "AffixId": "GlassCannon",
+      "DisplayName": "玻璃大炮",
+      "Description": "伤害大幅提升，最大生命降低",
+      "Rarity": "Epic",
+      "Icon": null,
+      "StackRule": "Unique",
+      "MaxStacks": 1,
+      "Weight": 2,
+      "Tags": [
+        "Offense",
+        "Defense"
+      ],
+      "ExclusiveTags": [
+        "GlassCannon"
+      ],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "Damage",
+          "Op": "Mul",
+          "Value": 0.35,
+          "DurationSec": 0
+        },
+        {
+          "Stat": "MaxHP",
+          "Op": "Mul",
+          "Value": -0.25,
+          "DurationSec": 0
+        }
+      ],
+      "DataAssetName": "DA_Affix_GlassCannon"
+    },
+    {
+      "AffixId": "Scavenger",
+      "DisplayName": "拾荒者",
+      "Description": "局内 Scrap 收益 +{Value}",
+      "Rarity": "Common",
+      "Icon": null,
+      "StackRule": "AdditiveStack",
+      "MaxStacks": 3,
+      "Weight": 8,
+      "Tags": [
+        "Economy"
+      ],
+      "ExclusiveTags": [],
+      "Triggers": [
+        "Passive"
+      ],
+      "Modifiers": [
+        {
+          "Stat": "ScrapGain",
+          "Op": "Mul",
+          "Value": 0.15,
+          "DurationSec": 0
+        }
+      ],
+      "runtimeNote": "Stat=ScrapGain（局内）。可暂映射 CoinGain。局外永久货币为 Core，本词条不改 Core。",
+      "DataAssetName": "DA_Affix_Scavenger"
+    }
+  ],
+  "postMvpCandidates": [
+    {
+      "AffixId": "ExtendedMag",
+      "DisplayName": "扩容弹匣",
+      "note": "Post-MVP；不进本表"
+    },
+    {
+      "AffixId": "ReflectShield",
+      "note": "见 RoguelikeMeta §2.2"
+    },
+    {
+      "AffixId": "QuakeLanding",
+      "note": "见 RoguelikeMeta §2.2"
+    }
+  ],
+  "locked": true,
+  "lockedBy": "织局 RoguelikeMeta + 主管货币/FireRate 2026-11-04",
+  "daNamingRule": "DA_Affix_<AffixId>",
+  "daNamingFrozen": true,
+  "alignedWith": "Docs/RoguelikeMeta.md AffixId 表 + 织局冻名消息"
+}

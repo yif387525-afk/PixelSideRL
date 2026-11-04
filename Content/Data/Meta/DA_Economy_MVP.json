@@ -1,0 +1,6 @@
+{
+  "deprecated": true,
+  "redirect": "DA_Economy.json",
+  "contractVersion": 3,
+  "deprecatedReason": "正式表验收通过；请用 DA_Economy.json"
+}

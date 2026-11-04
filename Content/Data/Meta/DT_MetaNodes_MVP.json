@@ -1,0 +1,156 @@
+{
+  "contractVersion": 3,
+  "locked": true,
+  "mvpAffixPoolPolicy": "AllTenUnlockedAtRunStart",
+  "daNamingRule": "DA_MetaNode_<NodeId>",
+  "note": "费用 CostCoreByRank 对齐 RoguelikeMeta §7；SalvageSense→MetaCoreMult。",
+  "nodes": [
+    {
+      "NodeId": "Vitality",
+      "DataAssetName": "DA_MetaNode_Vitality",
+      "DisplayName": "体质",
+      "Description": "开局 MaxHP +10 / +20 / +30",
+      "CostCoreByRank": [
+        25,
+        50,
+        90
+      ],
+      "Prerequisites": [],
+      "UnlockAffixIds": [],
+      "PermanentModifiersByRank": [
+        [
+          {
+            "Stat": "MaxHP",
+            "Op": "Add",
+            "Value": 10
+          }
+        ],
+        [
+          {
+            "Stat": "MaxHP",
+            "Op": "Add",
+            "Value": 20
+          }
+        ],
+        [
+          {
+            "Stat": "MaxHP",
+            "Op": "Add",
+            "Value": 30
+          }
+        ]
+      ],
+      "MaxPurchases": 3
+    },
+    {
+      "NodeId": "Stash",
+      "DataAssetName": "DA_MetaNode_Stash",
+      "DisplayName": "囤积",
+      "Description": "开局局内 Scrap +15 / +30 / +50",
+      "CostCoreByRank": [
+        20,
+        40,
+        75
+      ],
+      "Prerequisites": [],
+      "UnlockAffixIds": [],
+      "StartingScrapByRank": [
+        15,
+        30,
+        50
+      ],
+      "PermanentModifiersByRank": [
+        [],
+        [],
+        []
+      ],
+      "MaxPurchases": 3
+    },
+    {
+      "NodeId": "PeaFamiliar",
+      "DataAssetName": "DA_MetaNode_PeaFamiliar",
+      "DisplayName": "豆射手熟悉",
+      "Description": "Peashooter Damage Mul +0.04 / +0.08 / +0.12",
+      "CostCoreByRank": [
+        30,
+        60,
+        100
+      ],
+      "Prerequisites": [],
+      "UnlockAffixIds": [],
+      "WeaponId": "Peashooter",
+      "PermanentModifiersByRank": [
+        [
+          {
+            "Stat": "Damage",
+            "Op": "Mul",
+            "Value": 0.04,
+            "WeaponTag": "Peashooter"
+          }
+        ],
+        [
+          {
+            "Stat": "Damage",
+            "Op": "Mul",
+            "Value": 0.08,
+            "WeaponTag": "Peashooter"
+          }
+        ],
+        [
+          {
+            "Stat": "Damage",
+            "Op": "Mul",
+            "Value": 0.12,
+            "WeaponTag": "Peashooter"
+          }
+        ]
+      ],
+      "MaxPurchases": 3
+    },
+    {
+      "NodeId": "SalvageSense",
+      "DataAssetName": "DA_MetaNode_SalvageSense",
+      "DisplayName": "废料感知",
+      "Description": "MetaCoreMult +0.05 / +0.10 / +0.15",
+      "CostCoreByRank": [
+        35,
+        70,
+        110
+      ],
+      "Prerequisites": [],
+      "UnlockAffixIds": [],
+      "EconomyKey": "MetaCoreMult",
+      "EconomyDeltaByRank": [
+        0.05,
+        0.1,
+        0.15
+      ],
+      "PermanentModifiersByRank": [
+        [],
+        [],
+        []
+      ],
+      "MaxPurchases": 3
+    },
+    {
+      "NodeId": "SidearmLuck",
+      "DataAssetName": "DA_MetaNode_SidearmLuck",
+      "DisplayName": "第二枪缘分",
+      "Description": "层1 房2 后保底武器房",
+      "CostCoreByRank": [
+        45
+      ],
+      "Prerequisites": [],
+      "UnlockAffixIds": [],
+      "FlagsByRank": [
+        [
+          "GuaranteeWeaponRoomAfterRoom2_Act1"
+        ]
+      ],
+      "PermanentModifiersByRank": [
+        []
+      ],
+      "MaxPurchases": 1
+    }
+  ]
+}

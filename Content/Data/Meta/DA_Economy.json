@@ -1,0 +1,16 @@
+{
+  "RunCurrencyId": "Scrap",
+  "MetaCurrencyId": "Core",
+  "BaseClearBonus": 40,
+  "DeathMult": 0.5,
+  "PerRoom": 8,
+  "BossBonus": 55,
+  "CoinToScrap": 0.1,
+  "ScrapToCore": 0.1,
+  "MetaCoreMult": 1.0,
+  "SoftCapPerRun": 180,
+  "contractVersion": 3,
+  "locked": true,
+  "alignedWith": "Docs/RoguelikeMeta.md §6 表 + 织局对表确认（ScrapToCore=0.1）",
+  "note": "Scrap=局内；Core=永久。字段名 SoftCapPerRun（=单局 Core 入账软顶）。"
+}

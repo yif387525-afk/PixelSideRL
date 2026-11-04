@@ -1,0 +1,21 @@
+{
+  "rule": "DA_Affix_<AffixId>",
+  "frozen": true,
+  "map": {
+    "RapidFire": "DA_Affix_RapidFire",
+    "HollowPoint": "DA_Affix_HollowPoint",
+    "ThickSkin": "DA_Affix_ThickSkin",
+    "Magnet": "DA_Affix_Magnet",
+    "Piercer": "DA_Affix_Piercer",
+    "TwinShot": "DA_Affix_TwinShot",
+    "CritOptics": "DA_Affix_CritOptics",
+    "Adrenaline": "DA_Affix_Adrenaline",
+    "GlassCannon": "DA_Affix_GlassCannon",
+    "Scavenger": "DA_Affix_Scavenger"
+  },
+  "postMvp": [
+    "DA_Affix_ExtendedMag",
+    "DA_Affix_ReflectShield",
+    "DA_Affix_QuakeLanding"
+  ]
+}

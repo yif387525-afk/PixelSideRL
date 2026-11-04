@@ -1,0 +1,60 @@
+# Unreal Engine — generated, cached, and local build output.
+# Content/Art PNGs and Docs/ are tracked. Do not add blanket *.png rules.
+
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+
+# Editor and packaged output (spec uses Builds/; the engine also writes Build/)
+Builds/
+Build/
+StagedBuilds/
+Packaged/
+ArchivedBuilds/
+
+# Visual Studio / Rider / Xcode project files (regenerated from the .uproject)
+.vs/
+.idea/
+*.sln
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+*.opendb
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.user
+*.rsuser
+*.xcworkspace
+*.xcodeproj
+ipch/
+
+# Local binaries, crash dumps, and other large junk
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.obj
+*.o
+*.a
+*.so
+*.dylib
+*.app
+*.ipa
+*.dmp
+*.pak
+*.ucas
+*.utoc
+*.tmp
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
