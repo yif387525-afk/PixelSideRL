@@ -96,4 +96,5 @@ E_AffixTrigger: OnAcquire | OnHit | OnKill | OnRoomClear | OnTakeDamage | Passiv
 
 - [ ] 编辑器内改 `DA_Affix_*` 数值，进 `Run_Test` 无需改蓝图逻辑即可生效  
 - [ ] 三选一可重复开，Unique 词条不会二次出现  
-- [ ] `GetStat` 与手算表一致（Scripts 可做单元对照）
+- [ ] `GetStat` 与手算表一致（`Scripts/test_affix_p05.cpp`；RapidFire → FireRate 1.12，HollowPoint → Damage `Base*(1+0.1)`）
+- P0.6：`UAffixSubsystemDefault` + `AC_AffixInventory` + `AC_StatModifiers::GetStat` 转发；见 [AffixSubsystem_API.md](./AffixSubsystem_API.md) §10

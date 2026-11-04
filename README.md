@@ -14,7 +14,8 @@ This is a practice project. The repository holds the design seed plus a playable
 - `Docs/` — GDD, combat feel, roguelike meta, room pipeline, art bible, and UI notes
 - `Content/` — art PNGs under `Content/Art/`, affix and meta JSON stubs, and room specs under `Content/Maps/Rooms/` (including `Room_Combat_01_Spawns.md`)
 - `Source/PixelSideRL/` — game module: affix contracts (read-only from combat) and the combat P0 classes
-- `Scripts/validate_affix_stub.py` — checks the affix MVP table against the stub schema
+- `Scripts/validate_affix_stub.py` — checks the affix MVP table, the P0.6 subset, and that stubs stay deprecated
+- `Scripts/test_affix_p05.cpp` — host check for GetStat folds and the three-choice pool (no Unreal)
 
 ## License
 

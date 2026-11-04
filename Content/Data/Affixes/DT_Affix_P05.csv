@@ -1,0 +1,9 @@
+AffixId,DisplayName,Description,Rarity,StackRule,MaxStacks,Weight,Tags,ExclusiveTags,Triggers,Stat,Op,Value,DurationSec,DataAssetName
+RapidFire,速射,射速 +{Value},Common,AdditiveStack,3,10,Offense|Weapon,,Passive,FireRate,Mul,0.12,0,DA_Affix_RapidFire
+HollowPoint,空尖弹,伤害 +{Value},Common,AdditiveStack,3,10,Offense,,Passive,Damage,Mul,0.1,0,DA_Affix_HollowPoint
+ThickSkin,厚皮,最大生命 +{Value},Common,AdditiveStack,5,10,Defense,,Passive,MaxHP,Add,10,0,DA_Affix_ThickSkin
+Magnet,磁吸,拾取半径 +{Value},Common,Unique,1,8,Economy,,Passive,PickupRadius,Add,48,0,DA_Affix_Magnet
+Piercer,穿甲,穿透 +1,Rare,AdditiveStack,2,5,Offense|Weapon,,Passive,Pierce,Add,1,0,DA_Affix_Piercer
+TwinShot,双生弹,弹数 +1,Rare,Unique,1,4,Offense|Weapon,ProjectileShape,Passive,ProjectileCount,Add,1,0,DA_Affix_TwinShot
+CritOptics,暴击瞄具,暴击率 +{Value},Rare,AdditiveStack,3,5,Offense,,Passive,CritChance,Add,0.08,0,DA_Affix_CritOptics
+Scavenger,拾荒者,局内 Scrap 收益 +{Value},Common,AdditiveStack,3,8,Economy,,Passive,ScrapGain,Mul,0.15,0,DA_Affix_Scavenger

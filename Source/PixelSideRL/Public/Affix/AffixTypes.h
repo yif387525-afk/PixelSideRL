@@ -85,7 +85,7 @@ struct PIXELSIDERL_API FAffixModifier
 
 /**
  * DA_Affix_* row. Field names match SCHEMA_AffixDefinition.json (contractVersion 3).
- * Stub only — no uassets. 词条官 owns the real data.
+ * No uasset required: ApplyBuiltinP05 copies the P0.6 static table (DA_Affix_<AffixId>).
  */
 UCLASS(BlueprintType)
 class PIXELSIDERL_API UAffixDefinition : public UPrimaryDataAsset
@@ -93,6 +93,10 @@ class PIXELSIDERL_API UAffixDefinition : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
+	/** Copies one builtin P0.6 row onto this object. False if AffixId is not in the eight. */
+	UFUNCTION(BlueprintCallable, Category = "Affix")
+	bool ApplyBuiltinP05(FName InAffixId);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Affix")
 	FName AffixId;
 

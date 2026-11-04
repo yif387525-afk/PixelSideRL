@@ -170,4 +170,20 @@ BeginRun(FRunStartContext Ctx):
 - CritOptics=0.08；Scavenger=`ScrapGain`；无 ExtendedMag（Post-MVP）  
 - **FireRate：** 乘区默认 1.0；间隔=`FireInterval / GetStat(FireRate)`；武器 DA 字段=`FireInterval`（秒）  
 - **货币：** Scrap=局内；Core=永久。Economy：ScrapToCore**0.1** / SoftCapPerRun**180** / CoinToScrap0.1；冻名 `DA_Affix_<AffixId>`  
-- 正式 JSON：`Content/Data/Affixes/DT_Affix_MVP.json`、`DA_Affix_NameMap.json`、`Content/Data/Meta/DA_Economy.json`、`DT_MetaNodes_MVP.json`  
+- 正式 JSON：`Content/Data/Affixes/DT_Affix_MVP.json`、`DA_Affix_NameMap.json`、`Content/Data/Meta/DA_Economy.json`、`DT_MetaNodes_MVP.json`
+
+## 10. P0.6 三选一最小闭环（数据 / 系统）
+
+不造 uasset。池子读 `Content/Data/Affixes/DT_Affix_P05.json`（≤8，数值等于 `DT_Affix_MVP.json` contractVersion=3），失败则 CSV，再失败用 C++ `BuiltinP05Rows`。`UAffixSubsystemDefault` 是具体子系统。
+
+**手算（无 Meta、Peashooter Base）：**
+
+- `DebugGrantAffix("RapidFire")` 后 `GetStat(FireRate) = 1 * (1+0.12) = 1.12`
+- 冷却 = `FireInterval / 1.12`（Peashooter `0.12/1.12`）
+- `HollowPoint` ×1：`GetStat(Damage) = 8 * (1+0.1) = 8.8`
+
+`AC_StatModifiers::GetStat` 在子系统存在时**原样转发**子系统结果，并转发 `OnAffixChanged` / `OnStatsRebuilt`。`AC_AffixInventory` 在确认或 Grant 时写入同一份拥有列表。
+
+**暂停：** `RequestAffixChoice` 调 `ApplyChoicePause(true)`：先广播 `OnAffixPauseRequested(true)`，默认再 `UGameplayStatics::SetGamePaused`。`ConfirmAffixChoice` 反向解开。流程若要自己暂停，调用 `SetAutoPauseDuringChoice(false)` 并听 `OnAffixPauseRequested`（GameMode / PlayerController `SetPause`）。`WBP_AffixChoice` 只绑 `OnAffixChoiceOffered` / `OnAffixChoiceClosed` 与 `GetAffixCardView`；原生文本控件 `UAffixChoiceDebugWidget` 是无 uasset 的占位，按 1/2/3 确认。关掉占位：玩家上 `AC_AffixChoicePresenter.bEnableNativeChoiceUI = false`。
+
+**Lab（非 Shipping）：** `F6` = `DebugGrantAffix("RapidFire")`（立即约 1.12 射速）；`F7` = 开三选一并暂停。GDD 不允许跳过，所以没有跳过键。

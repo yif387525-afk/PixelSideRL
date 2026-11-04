@@ -59,3 +59,7 @@
 ## 5. Deprecated
 
 `*_stub.json`、`DA_Economy_MVP.json` 已标 `deprecated` → redirect 正式文件。新工作勿再读 stub。
+
+## 6. P0.6 子集（无 uasset）
+
+`DT_Affix_P05.json` / `DT_Affix_P05.csv` 是正式锁表的 8 条子集，冻名仍是 `DA_Affix_<AffixId>`。编辑器没导入 uasset 时，`UAffixSubsystemDefault` 读 JSON，否则 CSV，否则 `UAffixDefinition::ApplyBuiltinP05` / `BuiltinP05Rows`。不要提交占位 `.uasset`。
