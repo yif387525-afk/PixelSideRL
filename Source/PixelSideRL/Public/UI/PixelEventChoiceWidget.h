@@ -19,8 +19,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPixelEventClosed);
 
 /**
  * Display row for one Choices[] entry. Label only.
- * Effects (GrantScrap / DamageSelf / HealSelf / None) are not stored and not executed.
- * Room / flow reads the DA JSON and applies the Op whitelist later.
+ * Effects stay on the DA. Confirm asks UEventSubsystem::ResolveEventChoice once.
+ * This row does not add Scrap or change HP.
  */
 USTRUCT(BlueprintType)
 struct FPixelEventChoiceOption
@@ -74,8 +74,12 @@ struct FPixelEventChoiceView
 /**
  * C++ parent for WBP_EventChoice.
  * Shows DisplayName, PromptBody, up to three Choices[].Label buttons, and Btn_Skip (SkipHint).
- * Broadcasts OnEventChoiceSelected / OnEventSkipped / OnEventClosed.
- * Does not GrantScrap, DamageSelf, HealSelf, or open AffixChoice.
+ * Confirm (button, 1/2/3, Enter on a choice) calls UEventSubsystem::ResolveEventChoice once,
+ * then broadcasts OnEventChoiceSelected and closes (OnEventClosed).
+ * Skip / Esc, and Enter while focus is on Skip, do not call Resolve. They broadcast OnEventSkipped,
+ * then OnEventClosed. The shell does not add Scrap or change HP, and does not SetGamePaused.
+ * Unknown EventId / ChoiceId, or a missing subsystem, is logged. The UI still closes.
+ * Effects are not applied a second time. Does not open AffixChoice.
  *
  * Open / Close: calls APixelSideCharacter::SetEventChoiceBlocksControl.
  * That ignores move, jump, and fire only. The world is not paused, so door overlaps keep ticking.
@@ -161,6 +165,8 @@ private:
 	void BindSkip();
 	void ApplyView();
 	void ConfirmIndex(int32 Index);
+	/** One ResolveEventChoice. Does not write Scrap or HP itself. Skip does not call this. */
+	void ResolveConfirmedChoice(FName ChoiceId);
 	void Skip();
 	void CloseInternal();
 	void MoveFocus(int32 Delta);

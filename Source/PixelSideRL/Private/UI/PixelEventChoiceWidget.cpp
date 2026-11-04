@@ -3,6 +3,7 @@
 #include "UI/PixelAffixFont.h"
 #include "Blueprint/WidgetTree.h"
 #include "Combat/PixelSideCharacter.h"
+#include "Event/EventSubsystem.h"
 #include "Components/Button.h"
 #include "Components/ButtonSlot.h"
 #include "Components/Image.h"
@@ -141,7 +142,7 @@ void UPixelEventChoiceWidget::Present(const FPixelEventChoiceView& View)
 	}
 
 	UE_LOG(LogPixelEventUI, Log,
-		TEXT("EventChoice open EventId=%s choices=%d doorSkip=%s affixOnResolve=%s. No SetGamePaused. Effects are not applied."),
+		TEXT("EventChoice open EventId=%s choices=%d doorSkip=%s affixOnResolve=%s. No SetGamePaused. Open does not apply effects."),
 		*ActiveView.EventId.ToString(),
 		ChoiceCount(),
 		ActiveView.bAllowDoorSkip ? TEXT("true") : TEXT("false"),
@@ -478,6 +479,44 @@ void UPixelEventChoiceWidget::ApplyView()
 	}
 }
 
+void UPixelEventChoiceWidget::ResolveConfirmedChoice(FName ChoiceId)
+{
+	if (IsDesignTime())
+	{
+		return;
+	}
+
+	UEventSubsystem* Events = UEventSubsystem::Get(this);
+	if (!Events)
+	{
+		UE_LOG(LogPixelEventUI, Warning,
+			TEXT("EventChoice Resolve skipped: no EventSubsystem. EventId=%s ChoiceId=%s. UI still closes."),
+			*ActiveView.EventId.ToString(),
+			*ChoiceId.ToString());
+		return;
+	}
+
+	FEventResolveView Result;
+	const bool bOk = Events->ResolveEventChoice(ActiveView.EventId, ChoiceId, Result);
+	if (!bOk)
+	{
+		UE_LOG(LogPixelEventUI, Warning,
+			TEXT("EventChoice Resolve failed EventId=%s ChoiceId=%s: %s. UI still closes. Effects are not applied again."),
+			*ActiveView.EventId.ToString(),
+			*ChoiceId.ToString(),
+			Result.Error.IsEmpty() ? TEXT("unknown") : *Result.Error);
+		return;
+	}
+
+	UE_LOG(LogPixelEventUI, Log,
+		TEXT("EventChoice Resolve ok EventId=%s ChoiceId=%s RunScrap=%d HP=%.1f/%.1f."),
+		*ActiveView.EventId.ToString(),
+		*ChoiceId.ToString(),
+		Result.RunScrap,
+		Result.CurrentHP,
+		Result.MaxHP);
+}
+
 void UPixelEventChoiceWidget::ConfirmIndex(int32 Index)
 {
 	if (!bOpen || bResolving || Index < 0 || Index >= ChoiceCount())
@@ -492,7 +531,8 @@ void UPixelEventChoiceWidget::ConfirmIndex(int32 Index)
 	}
 
 	bResolving = true;
-	UE_LOG(LogPixelEventUI, Log, TEXT("OnEventChoiceSelected ChoiceId=%s. UI does not apply Effects."), *ChoiceId.ToString());
+	ResolveConfirmedChoice(ChoiceId);
+	UE_LOG(LogPixelEventUI, Log, TEXT("OnEventChoiceSelected ChoiceId=%s."), *ChoiceId.ToString());
 	ShowLabLine(FString::Printf(TEXT("OnEventChoiceSelected %s"), *ChoiceId.ToString()));
 	OnEventChoiceSelected.Broadcast(ChoiceId);
 	if (bOpen)

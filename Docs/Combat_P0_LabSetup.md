@@ -26,7 +26,7 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | F7 | 开三选一并暂停（非 Shipping）。弹出 `UPixelAffixChoiceWidget`。`AC_AffixChoicePresenter.bEnableNativeChoiceUI` 为关，不叠文本占位。顶栏 HUD 仍在。行为见同一节 |
 | F8 | `ResolveEventChoice("AbandonedCache","CarefulLoot")`（非 Shipping）。Output Log 见 Scrap +25。`Docs/EventOps_API.md` |
 | F9 | 同上，`ForceLoot`：先 −15 HP（下限 1）再 +50 Scrap。不改手感表 |
-| F10 | 开 `WBP_EventChoice`（非 Shipping）。AbandonedCache 标题、正文、小心撬开 / 硬拽出来、走开（无奖励）。只停移动和开火，不暂停世界，不调用 Resolve。不占 F8 / F9。见 `Docs/UI_Wireframes_Event.md` |
+| F10 | 开 `WBP_EventChoice`（非 Shipping）。AbandonedCache 标题、正文、小心撬开 / 硬拽出来、走开（无奖励）。只停移动和开火，不 `SetGamePaused`。确认选项调用 `ResolveEventChoice`（小心撬开 = F8，硬拽出来 = F9）。Skip / Esc 不调用。不改 F6–F11。见 `Docs/UI_Wireframes_Event.md` §6 |
 | F11 | 开商店壳（非 Shipping）。3 格读 `DA_Shop*`，`Scrap 128`。买回复 → Sold / `Scrap 98` → Leave。不调用 `AddRunScrap`，不占 F6–F10 |
 
 正式局内 HUD（`UPixelHUDWidget`，显示名 `WBP_HUD`）由玩家 `AC_HUDPresenter` 放进视口，Play Entry / Lab 就能看见：安全区 8px 的顶栏（血条、武器块、弹药、`Scrap`、最多 8 个词条格）。默认满血、弹药 `99`、`Scrap 000`。血和 Scrap 还没有战斗只读接口，用 `SetHealthRatio` / `SetScrap`。它不读调试战斗 HUD。调试条仍在 (8, 40)。做法见 `Content/Blueprints/UI/README.md`。
@@ -117,7 +117,7 @@ G1 追击与炮塔行见上文，数值不因本挂钩改动。调试 HUD 仍是
 
 `AC_WeaponController` 只订阅组件上的 `OnAffixChanged` 与 `OnStatsRebuilt`。词条官把 Subsystem 事件转到这些组件委托；枪不第二路订阅 Subsystem。射速和伤害每枪 live `GetStat`。事件里只把进行中的冷却按新的 `GetResolvedFireCooldown()` 等比重算。换枪和 BeginPlay 仍 `PushBasesToStats`。
 
-F6 = `DebugGrantAffix("RapidFire")`，F7 = 三选一。授予、暂停和 1.12 的手算在 `Docs/AffixSubsystem_API.md` §10。枪在 Stat 重建后吃 `GetStat`。控制台 `PixelSide.DebugGrantAffix RapidFire` 调用同一个 `UAffixSubsystemDefault::DebugGrantAffix`。F8 / F9 是事件 Resolve，F10 开事件壳，都不走这条射速路径。
+F6 = `DebugGrantAffix("RapidFire")`，F7 = 三选一。授予、暂停和 1.12 的手算在 `Docs/AffixSubsystem_API.md` §10。枪在 Stat 重建后吃 `GetStat`。控制台 `PixelSide.DebugGrantAffix RapidFire` 调用同一个 `UAffixSubsystemDefault::DebugGrantAffix`。F8 / F9 是事件 Resolve，F10 开事件壳（确认选项也走 Resolve，Skip 不走），F11 开商店，都不走这条射速路径。
 
 手感表（JumpZ、Gravity、豌豆、Grunt、炮塔）不因本挂钩改动。
 
