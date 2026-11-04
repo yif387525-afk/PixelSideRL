@@ -1,0 +1,2 @@
+room_id,type,tag,design_width,design_height,max_alive,clear_rule,affix_on_clear,require_clear_exit,notes
+Room_Combat_05,Combat,MidLate,2240,360,6,WavesCleared,true,Exit.Right,"Flank corridor; Groundx5+Airx1 W1-W3; mid cover breaks LOS; no pit"
