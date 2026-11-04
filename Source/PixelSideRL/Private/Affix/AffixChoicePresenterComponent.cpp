@@ -1,10 +1,12 @@
 #include "Affix/AffixChoicePresenterComponent.h"
 
 #include "Affix/AffixSubsystemDefault.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/InputComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "UI/AffixChoiceDebugWidget.h"
+#include "UI/PixelAffixChoiceWidget.h"
 
 UAffixChoicePresenterComponent::UAffixChoicePresenterComponent()
 {
@@ -17,6 +19,11 @@ void UAffixChoicePresenterComponent::BeginPlay()
 	if (Bound)
 	{
 		return;
+	}
+	if (AffixChoiceWidgetClass && bEnableNativeChoiceUI)
+	{
+		// Formal shell and the text stand-in must not both be on screen.
+		bEnableNativeChoiceUI = false;
 	}
 	UAffixSubsystem* Affix = Resolve();
 	if (!Affix)
@@ -36,6 +43,11 @@ void UAffixChoicePresenterComponent::EndPlay(const EEndPlayReason::Type EndPlayR
 		Widget->RemoveFromParent();
 		Widget = nullptr;
 	}
+	if (FormalChoiceWidget)
+	{
+		FormalChoiceWidget->RemoveFromParent();
+		FormalChoiceWidget = nullptr;
+	}
 	UnbindSubsystem();
 	Super::EndPlay(EndPlayReason);
 }
@@ -43,6 +55,11 @@ void UAffixChoicePresenterComponent::EndPlay(const EEndPlayReason::Type EndPlayR
 void UAffixChoicePresenterComponent::HandleOffered(const TArray<FAffixChoiceEntry>& Choices)
 {
 	BindPauseKeys();
+	if (AffixChoiceWidgetClass)
+	{
+		ShowFormalChoice(Choices);
+		return;
+	}
 	if (!bEnableNativeChoiceUI)
 	{
 		return;
@@ -76,17 +93,61 @@ void UAffixChoicePresenterComponent::HandleOffered(const TArray<FAffixChoiceEntr
 
 void UAffixChoicePresenterComponent::HandleClosed(bool bConfirmed)
 {
-	(void)bConfirmed;
 	APlayerController* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
 	if (Widget)
 	{
 		Widget->RemoveFromParent();
+	}
+	if (UPixelAffixChoiceWidget* Choice = Cast<UPixelAffixChoiceWidget>(FormalChoiceWidget))
+	{
+		Choice->CloseFromPresenter(bConfirmed);
+	}
+	else if (FormalChoiceWidget)
+	{
+		FormalChoiceWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 	if (PC)
 	{
 		PC->SetInputMode(FInputModeGameOnly());
 		PC->SetShowMouseCursor(false);
 	}
+}
+
+void UAffixChoicePresenterComponent::ShowFormalChoice(const TArray<FAffixChoiceEntry>& Choices)
+{
+	APlayerController* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+	if (!PC || !AffixChoiceWidgetClass)
+	{
+		return;
+	}
+	if (FormalChoiceWidget && FormalChoiceWidget->GetClass() != AffixChoiceWidgetClass)
+	{
+		FormalChoiceWidget->RemoveFromParent();
+		FormalChoiceWidget = nullptr;
+	}
+	if (!FormalChoiceWidget)
+	{
+		FormalChoiceWidget = CreateWidget<UUserWidget>(PC, AffixChoiceWidgetClass);
+	}
+	if (!FormalChoiceWidget)
+	{
+		return;
+	}
+	if (!FormalChoiceWidget->IsInViewport())
+	{
+		FormalChoiceWidget->AddToViewport(100);
+	}
+	if (UPixelAffixChoiceWidget* Choice = Cast<UPixelAffixChoiceWidget>(FormalChoiceWidget))
+	{
+		Choice->PresentOfferedChoice(Choices);
+	}
+	FInputModeGameAndUI Mode;
+	Mode.SetWidgetToFocus(FormalChoiceWidget->TakeWidget());
+	Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	Mode.SetHideCursorDuringCapture(false);
+	PC->SetInputMode(Mode);
+	PC->SetShowMouseCursor(true);
+	FormalChoiceWidget->SetKeyboardFocus();
 }
 
 void UAffixChoicePresenterComponent::ConfirmSlot(int32 Index)

@@ -171,7 +171,9 @@
 | 打开 | 听 `OnAffixChoiceOffered(TArray<FAffixChoiceEntry>)`（恰好 3）→ 对每条 `GetAffixCardView(Def)` → 填卡 |
 | 确认 | `ConfirmAffixChoice(ChoiceIndex)`（1/2/3 或点击对应 Index 0..2） |
 | 关闭 | 听 `OnAffixChoiceClosed(bConfirmed)` → Collapse；流程侧解暂停 |
-| 禁止 | UI 不调用 `RollChoices` / `RequestAffixChoice`；不写词条数值 |
+| 禁止 | UI 不调用 `RollChoices` / `RequestAffixChoice`；不写词条数值；不 `SetGamePaused`（暂停在 `ApplyChoicePause`） |
+
+**落地：** C++ 父类 `UPixelAffixChoiceWidget` / `UPixelAffixCardWidget`（显示名即 `WBP_AffixChoice` / `WBP_AffixCard`）。无 uasset 时自建上表控件。挂在现有 `AC_AffixChoicePresenter`：`AffixChoiceWidgetClass` 指到正式类，并且 **`bEnableNativeChoiceUI = false`**，避免和 `UAffixChoiceDebugWidget` 叠两层。配方：`Content/Blueprints/UI/README.md`。
 
 `SkipAffixChoice`：GDD 禁止跳过三选一 → UI **不暴露** Esc 跳过（与契约「若允许」分支一致：本期不允许）。
 
@@ -209,8 +211,8 @@
 | `WBP_AffixChoice` / `WBP_AffixCard` 控件列表 + 状态 | ✅ 本文 §2 |
 | 布局线框（ASCII） | ✅ |
 | 占位数据与输入表 | ✅ |
-| UE 内可点击蓝图壳 | ⏳ 等仓库 + 引擎环境；设计已可直接落地 |
-| 真实战斗/词条 DA 绑定 | ❌ 明确不做（本期） |
+| UE 内可点击壳 | ✅ C++ `UPixelAffixChoiceWidget` / `UPixelAffixCardWidget`。可选 WBP 子类见 `Content/Blueprints/UI/README.md`。不提交 uasset |
+| 真实战斗/词条 DA 绑定 | ❌ UI 不 Roll、不造 DA uasset。卡面只读 `GetAffixCardView` |
 
 ---
 
@@ -218,4 +220,4 @@
 
 1. 点阵：UI 切片尺寸按本文锁定（血条 96×8、词条图标 12、卡面 120×168、卡图标 32）。  
 2. 词条官：确认 Affix 展示字段 `Name` / `Desc` / `Rarity` / `Icon`。  
-3. 仓库就绪后：在 `Content/Blueprints/UI/` 建 `WBP_HUD`、`WBP_AffixChoice`、`WBP_AffixCard`。
+3. `WBP_AffixChoice` / `WBP_AffixCard` 的 C++ 父类已在。编辑器可选建同名子类，勿提交 uasset。`WBP_HUD` 仍是线框。玩家上关掉 `AC_AffixChoicePresenter.bEnableNativeChoiceUI`。

@@ -184,6 +184,6 @@ BeginRun(FRunStartContext Ctx):
 
 `AC_StatModifiers::GetStat` 在子系统存在时**原样转发**子系统结果，并转发 `OnAffixChanged` / `OnStatsRebuilt`。`AC_AffixInventory` 在确认或 Grant 时写入同一份拥有列表。
 
-**暂停：** `RequestAffixChoice` 调 `ApplyChoicePause(true)`：先广播 `OnAffixPauseRequested(true)`，默认再 `UGameplayStatics::SetGamePaused`。`ConfirmAffixChoice` 反向解开。流程若要自己暂停，调用 `SetAutoPauseDuringChoice(false)` 并听 `OnAffixPauseRequested`（GameMode / PlayerController `SetPause`）。`WBP_AffixChoice` 只绑 `OnAffixChoiceOffered` / `OnAffixChoiceClosed` 与 `GetAffixCardView`；原生文本控件 `UAffixChoiceDebugWidget` 是无 uasset 的占位，按 1/2/3 确认。关掉占位：玩家上 `AC_AffixChoicePresenter.bEnableNativeChoiceUI = false`。
+**暂停：** `RequestAffixChoice` 调 `ApplyChoicePause(true)`：先广播 `OnAffixPauseRequested(true)`，默认再 `UGameplayStatics::SetGamePaused`。`ConfirmAffixChoice` 反向解开。流程若要自己暂停，调用 `SetAutoPauseDuringChoice(false)` 并听 `OnAffixPauseRequested`（GameMode / PlayerController `SetPause`）。UI 不 `SetGamePaused`、不 Roll。正式壳是 `UPixelAffixChoiceWidget` / `UPixelAffixCardWidget`（显示名 `WBP_AffixChoice` / `WBP_AffixCard`），只绑 `OnAffixChoiceOffered` / `OnAffixChoiceClosed` 与 `GetAffixCardView`，确认 `ConfirmAffixChoice(Index)`。`APixelSideCharacter` 上 `AC_AffixChoicePresenter.bEnableNativeChoiceUI = false`，且 `AffixChoiceWidgetClass` 指向该壳，这样不会和文本占位 `UAffixChoiceDebugWidget` 叠两层。要回文本占位：清空 WidgetClass 并把开关打开。
 
 **Lab（非 Shipping）：** `F6` = `DebugGrantAffix("RapidFire")`（立即约 1.12 射速）；`F7` = 开三选一并暂停。GDD 不允许跳过，所以没有跳过键。

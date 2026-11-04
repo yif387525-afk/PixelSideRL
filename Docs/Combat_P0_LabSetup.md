@@ -23,7 +23,7 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 | 鼠标左键，右扳机 | 豌豆枪连发，朝向 ±X |
 | H | 调试受击（非 Shipping） |
 | F6 | `DebugGrantAffix("RapidFire")`（非 Shipping）。行为见 `Docs/AffixSubsystem_API.md` §10 |
-| F7 | 开三选一并暂停（非 Shipping）。行为见同一节 |
+| F7 | 开三选一并暂停（非 Shipping）。弹出 `UPixelAffixChoiceWidget`。`AC_AffixChoicePresenter.bEnableNativeChoiceUI` 为关，不叠文本占位。行为见同一节 |
 
 非 Shipping 且角色 `bEnableCombatDebugHUD` 为开（默认开）时，左上角 (8, 40) 有调试战斗 HUD：HP、无敌帧、武器、`FR`（`GetStat(FireRate)`）、冷却（剩余 / `GetResolvedFireCooldown()`）、最近一次伤害。父类 `UPixelDebugCombatHUD`，没有蓝图资产也会画。要换成自己的皮，按 `Content/_Dev/Combat/UI/README.md` 做 `WBP_DebugCombatHUD`。正式 `WBP_HUD` 不要引用它。Shipping 不创建。
 
