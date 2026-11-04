@@ -96,7 +96,7 @@ void APixelSideCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PixelSideMesh::Tint(PlaceholderMesh, TEXT("/Engine/BasicShapes/Cube.Cube"), PixelSidePalette::PlayerCloth(), false);
+	PixelSideMesh::Tint(PlaceholderMesh, TEXT("/Engine/BasicShapes/Cube.Cube"), PixelSidePalette::PlayerCloth(), PixelSideMesh::EMeshCollision::NoCollision);
 
 	if (Stats && !bStatsBound)
 	{

@@ -119,10 +119,10 @@ void APixelSideGameMode::SpawnLabSandbox()
 	{
 		Slab(CenterX - Width * 0.5f, CenterX + Width * 0.5f, TopY, PlatformT, FloorColor, Id);
 	};
-	auto Cover = [this, WallColor, CenterY](float BottomCenterX, float BottomY, float Height, float Width, const TCHAR* Id)
+	auto Cover = [this, WallColor, CenterY](float BottomCenterX, float BottomY, float Height, float Width, const TCHAR* Id, bool bLetPawnsPass)
 	{
 		const FVector Center(BottomCenterX, CenterY, BottomY + Height * 0.5f);
-		SpawnLabBox(Center, Width, Height, WallColor, Id);
+		SpawnLabBox(Center, Width, Height, WallColor, Id, bLetPawnsPass);
 	};
 
 	// §3.1 floors. PIT_C is the gap. Island uses ground thickness. No BRIDGE unless asked.
@@ -140,10 +140,12 @@ void APixelSideGameMode::SpawnLabSandbox()
 	Platform(P3CenterX, P3Width, P3TopY, TEXT("P3"));
 	Platform(P_E_CenterX, P_E_Width, P_E_TopY, TEXT("P_E_high"));
 
-	// §3.3 walkable tops, tall enough that CV2 cuts a horizontal shot from T1.
-	Cover(CV1_X, CV1_BottomY, CV1_Height, CV1_Width, TEXT("CV1"));
-	Cover(CV2_X, CV2_BottomY, CV2_Height, CV2_Width, TEXT("CV2"));
-	Cover(CV3_X, CV3_BottomY, CV3_Height, CV3_Width, TEXT("CV3"));
+	// §3.3 Taller than the jump, and the slab covers the shot plane, so there is no
+	// Y side to walk around and no top to land on. Pawns pass through. Shots and
+	// visibility still hit. Peek is standing on the far side along X.
+	Cover(CV1_X, CV1_BottomY, CV1_Height, CV1_Width, TEXT("CV1"), true);
+	Cover(CV2_X, CV2_BottomY, CV2_Height, CV2_Width, TEXT("CV2"), true);
+	Cover(CV3_X, CV3_BottomY, CV3_Height, CV3_Width, TEXT("CV3"), true);
 
 	// Boundary walls. Height is above the walkable plane; sink through the floor so the pawn cannot slip under.
 	const float WallTotalHeight = static_cast<float>(WallHeight + GroundThickness);
@@ -270,14 +272,14 @@ void APixelSideGameMode::RecoverLabPitFall()
 	UE_LOG(LogPixelSideCombat, Log, TEXT("Lab pit soft recovery to G_A safe point (0 damage)."));
 }
 
-void APixelSideGameMode::SpawnLabBox(const FVector& Center, float SizeX, float SizeZ, const FLinearColor& Color, const TCHAR* LayoutId) const
+void APixelSideGameMode::SpawnLabBox(const FVector& Center, float SizeX, float SizeZ, const FLinearColor& Color, const TCHAR* LayoutId, bool bLetPawnsPass) const
 {
 	const float Inv = 1.f / static_cast<float>(PixelSideLabLayout::CubeSize);
 	const FVector Scale(SizeX * Inv, static_cast<float>(PixelSideLabLayout::SlabDepth) * Inv, SizeZ * Inv);
-	SpawnBlock(Center, Scale, Color, LayoutId);
+	SpawnBlock(Center, Scale, Color, LayoutId, bLetPawnsPass);
 }
 
-void APixelSideGameMode::SpawnBlock(const FVector& Location, const FVector& Scale, const FLinearColor& Color, const TCHAR* LayoutId) const
+void APixelSideGameMode::SpawnBlock(const FVector& Location, const FVector& Scale, const FLinearColor& Color, const TCHAR* LayoutId, bool bLetPawnsPass) const
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -304,6 +306,9 @@ void APixelSideGameMode::SpawnBlock(const FVector& Location, const FVector& Scal
 	UStaticMeshComponent* Mesh = Block->GetStaticMeshComponent();
 	Mesh->SetMobility(EComponentMobility::Movable);
 	Block->SetActorScale3D(Scale);
-	PixelSideMesh::Tint(Mesh, TEXT("/Engine/BasicShapes/Cube.Cube"), Color, true);
+	const PixelSideMesh::EMeshCollision Collision = bLetPawnsPass
+		? PixelSideMesh::EMeshCollision::PassThroughPawn
+		: PixelSideMesh::EMeshCollision::BlockAll;
+	PixelSideMesh::Tint(Mesh, TEXT("/Engine/BasicShapes/Cube.Cube"), Color, Collision);
 	Block->SetActorLocation(Location);
 }

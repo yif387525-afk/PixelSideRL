@@ -9,13 +9,33 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+namespace
+{
+void ApplyDummyPawnPass(UCapsuleComponent* Capsule)
+{
+	if (!Capsule)
+	{
+		return;
+	}
+	// Profile first: object type stays Pawn, WorldStatic stays Block (the post stands),
+	// and a pea still overlaps this capsule. Then drop only Pawn-vs-Pawn. Profile last
+	// would put the block back and soft-lock the route.
+	Capsule->SetCollisionProfileName(TEXT("Pawn"));
+	PixelSideMesh::LetPawnsPass(Capsule);
+}
+}
+
 APixelDamageDummy::APixelDamageDummy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UPixelSideCharacterMovement>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = false;
 	AutoPossessAI = EAutoPossessAI::Disabled;
 	bUseControllerRotationYaw = false;
-	GetCapsuleComponent()->InitCapsuleSize(PixelSideCombat::CapsuleRadius, PixelSideCombat::CapsuleHalfHeight);
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	Capsule->InitCapsuleSize(PixelSideCombat::CapsuleRadius, PixelSideCombat::CapsuleHalfHeight);
+	// Capsule stays up (~38 uu). The live jump is ~32, so blocking Pawns soft-locks the route.
+	// Body mesh stays NoCollision; do not disable the capsule.
+	ApplyDummyPawnPass(Capsule);
 
 	Damageable = CreateDefaultSubobject<UDamageableComponent>(TEXT("AC_Damageable"));
 	Damageable->Team = ETeamId::Enemy;
@@ -70,5 +90,7 @@ ETeamId APixelDamageDummy::GetTeamId_Implementation()
 void APixelDamageDummy::BeginPlay()
 {
 	Super::BeginPlay();
-	PixelSideMesh::Tint(BodyMesh, TEXT("/Engine/BasicShapes/Cube.Cube"), PixelSidePalette::EnemyWarning(), false);
+	// Registration can reload the Pawn profile and put the block back.
+	ApplyDummyPawnPass(GetCapsuleComponent());
+	PixelSideMesh::Tint(BodyMesh, TEXT("/Engine/BasicShapes/Cube.Cube"), PixelSidePalette::EnemyWarning(), PixelSideMesh::EMeshCollision::NoCollision);
 }

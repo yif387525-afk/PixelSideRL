@@ -8,7 +8,11 @@
 class UDamageableComponent;
 class UStaticMeshComponent;
 
-/** BP_DamageDummy. Enemy-team post for the peashooter acceptance pass. */
+/**
+ * BP_DamageDummy. Enemy-team post for the peashooter acceptance pass.
+ * Capsule object type stays Pawn (shots overlap it). Response to Pawn is Ignore,
+ * so the player walks through instead of getting stuck on the ~38 uu capsule.
+ */
 UCLASS(Blueprintable, BlueprintType, meta = (DisplayName = "BP_DamageDummy"))
 class PIXELSIDERL_API APixelDamageDummy : public ACharacter, public IDamageable
 {
