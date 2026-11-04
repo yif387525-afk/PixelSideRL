@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Combat/DamageSpec.h"
-#include "Combat/ProjectilePea.generated.h"
+#include "ProjectilePea.generated.h"
 
 class USphereComponent;
 class UStaticMeshComponent;

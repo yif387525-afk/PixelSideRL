@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Combat/Damageable.h"
-#include "Combat/DamageableComponent.generated.h"
+#include "DamageableComponent.generated.h"
 
 class UPaperFlipbookComponent;
 class UMaterialInstanceDynamic;

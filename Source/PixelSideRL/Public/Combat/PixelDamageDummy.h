@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Combat/Damageable.h"
-#include "Combat/PixelDamageDummy.generated.h"
+#include "PixelDamageDummy.generated.h"
 
 class UDamageableComponent;
 class UStaticMeshComponent;

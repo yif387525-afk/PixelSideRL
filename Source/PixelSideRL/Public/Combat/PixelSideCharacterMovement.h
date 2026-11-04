@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Combat/PixelSideCharacterMovement.generated.h"
+#include "PixelSideCharacterMovement.generated.h"
 
 /** Side-view movement: documented accel/stop, fall gravity, and a short knockback slide. */
 UCLASS()

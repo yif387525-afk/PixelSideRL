@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Combat/PixelDebugHurtTurret.generated.h"
+#include "PixelDebugHurtTurret.generated.h"
 
 class UDamageableComponent;
 class UStaticMeshComponent;

@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Affix/AffixTypes.h"
-#include "Combat/WeaponControllerComponent.generated.h"
+#include "WeaponControllerComponent.generated.h"
 
 class UDA_Weapon;
 class UStatModifiersComponent;

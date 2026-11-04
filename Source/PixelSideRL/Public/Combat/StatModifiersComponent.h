@@ -4,7 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "Affix/AffixTypes.h"
 #include "Affix/AffixSubsystem.h"
-#include "Combat/StatModifiersComponent.generated.h"
+#include "StatModifiersComponent.generated.h"
 
 /**
  * AC_StatModifiers placeholder. GetStat returns the Base layer (weapon DA / move feel).

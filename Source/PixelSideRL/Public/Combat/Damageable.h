@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "Combat/DamageSpec.h"
-#include "Combat/Damageable.generated.h"
+#include "Damageable.generated.h"
 
 /**
  * BI_Damageable. Implemented by UDamageableComponent.
