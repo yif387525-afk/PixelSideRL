@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "InputActionValue.h"
+#include "Affix/AffixChoicePresenterComponent.h"
+#include "Affix/AffixInventoryComponent.h"
 #include "Affix/AffixSubsystem.h"
 #include "Combat/Damageable.h"
 #include "PixelSideCharacter.generated.h"
@@ -68,6 +70,8 @@ protected:
 	void MountCombatDebugHUD();
 	void CacheStatBases();
 	void RefreshFromStats();
+	void BeginAffixRun();
+	bool IsAffixChoiceBlockingControl() const;
 
 	UFUNCTION()
 	void HandleMove(const FInputActionValue& Value);
@@ -86,6 +90,18 @@ protected:
 
 	UFUNCTION()
 	void HandleDebugHurt(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void HandleDebugGrantRapidFire(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void HandleDebugAffixChoice(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void HandleAffixChoiceOffered(const TArray<FAffixChoiceEntry>& Choices);
+
+	UFUNCTION()
+	void HandleAffixChoiceClosed(bool bConfirmed);
 
 	UFUNCTION()
 	void HandleAffixChanged(FAffixChangeEvent Event);
@@ -111,6 +127,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
 	TObjectPtr<UStatModifiersComponent> Stats = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
+	TObjectPtr<UAffixInventoryComponent> AffixInventory = nullptr;
+
+	/** Native three-choice stand-in. Turn off when WBP_AffixChoice owns the events. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide")
+	TObjectPtr<UAffixChoicePresenterComponent> AffixChoicePresenter = nullptr;
 
 	/** Read-only BI_CombatDebugRead facade. No tick, no damage, no fire. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PixelSide|Debug")
@@ -175,6 +198,12 @@ protected:
 	TObjectPtr<UInputAction> DebugHurtAction = nullptr;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UInputAction> DebugGrantRapidFireAction = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UInputAction> DebugAffixChoiceAction = nullptr;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UInputMappingContext> CombatMappingContext = nullptr;
 
 	float FacingSign = 1.f;
@@ -187,6 +216,7 @@ protected:
 	/** Grounded frames to wait after a jump impulse so coyote does not re-arm before the pawn leaves the floor. */
 	int32 JumpLockFrames = 0;
 	bool bStatsBound = false;
+	bool bAffixChoiceBound = false;
 	FVector BaseSpriteRelativeLocation = FVector::ZeroVector;
 	FVector BasePlaceholderRelativeLocation = FVector::ZeroVector;
 

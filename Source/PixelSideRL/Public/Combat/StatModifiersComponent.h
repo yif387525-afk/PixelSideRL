@@ -7,9 +7,10 @@
 #include "StatModifiersComponent.generated.h"
 
 /**
- * AC_StatModifiers placeholder. GetStat returns the Base layer (weapon DA / move feel).
- * No Roll, no inventory. A future affix component can replace this class and keep GetStat.
- * Missing component: callers fall back to the same bases (see UWeaponControllerComponent).
+ * AC_StatModifiers. Base layer stays on this component (weapon DA / move feel).
+ * When UAffixSubsystemDefault is alive, GetStat returns that subsystem's aggregate
+ * (Base → Meta → Affix passive → temp), so it matches UAffixSubsystem::GetStat.
+ * OnAffixChanged / OnStatsRebuilt are forwarded from the subsystem for weapon cache refresh.
  */
 UCLASS(ClassGroup = (PixelSide), meta = (BlueprintSpawnableComponent, DisplayName = "AC_StatModifiers"))
 class PIXELSIDERL_API UStatModifiersComponent : public UActorComponent
@@ -18,6 +19,10 @@ class PIXELSIDERL_API UStatModifiersComponent : public UActorComponent
 
 public:
 	UStatModifiersComponent();
+
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void BeginDestroy() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Affix|Stats")
 	void SetBaseStat(EStatId Stat, float Value);
@@ -37,6 +42,19 @@ public:
 	static float FallbackBase(EStatId Stat);
 
 private:
+	UFUNCTION()
+	void HandleSubsystemAffixChanged(FAffixChangeEvent Event);
+
+	UFUNCTION()
+	void HandleSubsystemStatsRebuilt();
+
+	void EnsureAffixBound();
+	void UnbindAffix();
+	UAffixSubsystem* ResolveAffixSubsystem() const;
+
 	UPROPERTY()
 	TMap<EStatId, float> BaseStats;
+
+	UPROPERTY()
+	TObjectPtr<UAffixSubsystem> BoundAffix = nullptr;
 };

@@ -8,6 +8,9 @@
 #include "Combat/PixelSideCombatMath.h"
 #include "Combat/PixelSideMeshUtil.h"
 #include "Combat/PixelSidePalette.h"
+#include "Affix/AffixChoicePresenterComponent.h"
+#include "Affix/AffixInventoryComponent.h"
+#include "Affix/AffixSubsystemDefault.h"
 #include "Combat/StatModifiersComponent.h"
 #include "Combat/WeaponControllerComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -45,6 +48,8 @@ APixelSideCharacter::APixelSideCharacter(const FObjectInitializer& ObjectInitial
 	WeaponController = CreateDefaultSubobject<UWeaponControllerComponent>(TEXT("AC_WeaponController"));
 	Damageable = CreateDefaultSubobject<UDamageableComponent>(TEXT("AC_Damageable"));
 	Stats = CreateDefaultSubobject<UStatModifiersComponent>(TEXT("AC_StatModifiers"));
+	AffixInventory = CreateDefaultSubobject<UAffixInventoryComponent>(TEXT("AC_AffixInventory"));
+	AffixChoicePresenter = CreateDefaultSubobject<UAffixChoicePresenterComponent>(TEXT("AC_AffixChoicePresenter"));
 	CombatDebugRead = CreateDefaultSubobject<UCombatDebugReadComponent>(TEXT("AC_CombatDebugRead"));
 #if UE_BUILD_SHIPPING
 	bEnableCombatDebugHUD = false;
@@ -116,6 +121,7 @@ void APixelSideCharacter::BeginPlay()
 		WeaponController->OnWeaponFired.AddDynamic(this, &APixelSideCharacter::HandleWeaponFired);
 	}
 
+	BeginAffixRun();
 	CacheStatBases();
 	UpdateCamera();
 	MountCombatDebugHUD();
@@ -123,6 +129,15 @@ void APixelSideCharacter::BeginPlay()
 
 void APixelSideCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	if (bAffixChoiceBound)
+	{
+		if (UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
+		{
+			Affix->OnAffixChoiceOffered.RemoveDynamic(this, &APixelSideCharacter::HandleAffixChoiceOffered);
+			Affix->OnAffixChoiceClosed.RemoveDynamic(this, &APixelSideCharacter::HandleAffixChoiceClosed);
+		}
+		bAffixChoiceBound = false;
+	}
 	if (CombatDebugHUD)
 	{
 		CombatDebugHUD->RemoveFromParent();
@@ -179,6 +194,8 @@ void APixelSideCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	Enhanced->BindAction(FireAction, ETriggerEvent::Completed, this, &APixelSideCharacter::HandleFireCompleted);
 #if !UE_BUILD_SHIPPING
 	Enhanced->BindAction(DebugHurtAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugHurt);
+	Enhanced->BindAction(DebugGrantRapidFireAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugGrantRapidFire);
+	Enhanced->BindAction(DebugAffixChoiceAction, ETriggerEvent::Started, this, &APixelSideCharacter::HandleDebugAffixChoice);
 #endif
 }
 
@@ -260,7 +277,13 @@ void APixelSideCharacter::EnsureCombatInput()
 	CombatMappingContext->MapKey(FireAction, EKeys::LeftMouseButton);
 	CombatMappingContext->MapKey(FireAction, EKeys::Gamepad_RightTrigger);
 #if !UE_BUILD_SHIPPING
+	DebugGrantRapidFireAction = NewObject<UInputAction>(this, TEXT("IA_DebugGrantRapidFire"));
+	DebugGrantRapidFireAction->ValueType = EInputActionValueType::Boolean;
+	DebugAffixChoiceAction = NewObject<UInputAction>(this, TEXT("IA_DebugAffixChoice"));
+	DebugAffixChoiceAction->ValueType = EInputActionValueType::Boolean;
 	CombatMappingContext->MapKey(DebugHurtAction, EKeys::H);
+	CombatMappingContext->MapKey(DebugGrantRapidFireAction, EKeys::F6);
+	CombatMappingContext->MapKey(DebugAffixChoiceAction, EKeys::F7);
 #endif
 }
 
@@ -330,8 +353,40 @@ void APixelSideCharacter::RefreshFromStats()
 	}
 }
 
+void APixelSideCharacter::BeginAffixRun()
+{
+	UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this);
+	if (!Affix)
+	{
+		return;
+	}
+	if (!bAffixChoiceBound)
+	{
+		Affix->OnAffixChoiceOffered.AddDynamic(this, &APixelSideCharacter::HandleAffixChoiceOffered);
+		Affix->OnAffixChoiceClosed.AddDynamic(this, &APixelSideCharacter::HandleAffixChoiceClosed);
+		bAffixChoiceBound = true;
+	}
+	if (!Affix->IsInRun())
+	{
+		Affix->BeginRun(FRunStartContext());
+	}
+}
+
+bool APixelSideCharacter::IsAffixChoiceBlockingControl() const
+{
+	if (const UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
+	{
+		return Affix->IsChoicePending();
+	}
+	return false;
+}
+
 void APixelSideCharacter::HandleMove(const FInputActionValue& Value)
 {
+	if (IsAffixChoiceBlockingControl())
+	{
+		return;
+	}
 	const float Axis = Value.Get<float>();
 	AddMovementInput(FVector::XAxisVector, Axis);
 	if (FMath::Abs(Axis) > PixelSideCombat::FacingInputDeadzone)
@@ -342,6 +397,10 @@ void APixelSideCharacter::HandleMove(const FInputActionValue& Value)
 
 void APixelSideCharacter::HandleJumpStarted(const FInputActionValue& Value)
 {
+	if (IsAffixChoiceBlockingControl())
+	{
+		return;
+	}
 	bJumpHeld = true;
 	bJumpConsumed = false;
 	JumpBufferRemaining = JumpBuffer;
@@ -360,6 +419,10 @@ void APixelSideCharacter::HandleJumpCompleted(const FInputActionValue& Value)
 
 void APixelSideCharacter::HandleFireStarted(const FInputActionValue& Value)
 {
+	if (IsAffixChoiceBlockingControl())
+	{
+		return;
+	}
 	if (WeaponController)
 	{
 		WeaponController->SetWantsToFire(true);
@@ -402,6 +465,50 @@ void APixelSideCharacter::HandleDebugHurt(const FInputActionValue& Value)
 #else
 	(void)Value;
 #endif
+}
+
+void APixelSideCharacter::HandleDebugGrantRapidFire(const FInputActionValue& Value)
+{
+#if !UE_BUILD_SHIPPING
+	(void)Value;
+	if (UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
+	{
+		Affix->DebugGrantAffix(FName(TEXT("RapidFire")));
+	}
+#else
+	(void)Value;
+#endif
+}
+
+void APixelSideCharacter::HandleDebugAffixChoice(const FInputActionValue& Value)
+{
+#if !UE_BUILD_SHIPPING
+	(void)Value;
+	if (UAffixSubsystemDefault* Affix = UAffixSubsystemDefault::Get(this))
+	{
+		Affix->RequestAffixChoice(EAffixOfferSource::NormalRoom);
+	}
+#else
+	(void)Value;
+#endif
+}
+
+void APixelSideCharacter::HandleAffixChoiceOffered(const TArray<FAffixChoiceEntry>& Choices)
+{
+	(void)Choices;
+	if (WeaponController)
+	{
+		WeaponController->SetWantsToFire(false);
+	}
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->StopMovementImmediately();
+	}
+}
+
+void APixelSideCharacter::HandleAffixChoiceClosed(bool bConfirmed)
+{
+	(void)bConfirmed;
 }
 
 void APixelSideCharacter::HandleAffixChanged(FAffixChangeEvent Event)
