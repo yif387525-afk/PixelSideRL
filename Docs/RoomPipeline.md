@@ -232,7 +232,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | Room_Event_01 | Event | Branch | 规格定稿候选 | 正式 umap 已入库 `Content/Maps/Rooms/Room_Event_01.umap`（Editor Python 烘焙；无 `APixelRoomDirector` / 无 `APixelShopRoomHost` / 无 EventRoomHost；灰盒关；门常开；宽 1280；Git LFS）；规格挂 **DA_Event_AbandonedCache**（非关卡内 uasset）；清单 `Docs/Room_Event_01_UMapBuild.md` |
 | Room_Shop_01 | Shop | Branch | 规格定稿候选 | 正式 umap 已入库 `Content/Maps/Rooms/Room_Shop_01.umap`（Editor Python 烘焙；`APixelShopRoomHost`；`RoomId=Room_Shop_01`；`bBuildGreyboxFromCsv` 关；无战斗导演；Git LFS）；清单 `Docs/Room_Shop_01_UMapBuild.md` |
 | Room_BossAnte_01 | BossAnte | BossGate | 规格定稿候选 | 正式 umap 已入库 `Content/Maps/Rooms/Room_BossAnte_01.umap`（Editor Python 烘焙；无 `APixelRoomDirector` / 无 `APixelShopRoomHost`；灰盒关；宽 1280；`Exit.BossGate`→Boss_01；无 RequireClear；Git LFS）；清单 `Docs/Room_BossAnte_01_UMapBuild.md` |
-| Room_Boss_01 | Boss | Boss | 规格定稿候选 | 双阶段；CSV 已挂；经前厅进入 |
+| Room_Boss_01 | Boss | Boss | 规格定稿候选 | 正式 umap 已入库 `Content/Maps/Rooms/Room_Boss_01.umap`（Editor Python 烘焙；`APixelRoomDirector`；`RoomId=Room_Boss_01`；`bBuildGreyboxFromCsv` 关；宽 2560 双阶段；`Exit.FromAnte`/`Exit.Settle` BossDefeated；无三选一；Git LFS）；清单 `Docs/Room_Boss_01_UMapBuild.md` |
 
 > 建图顺序（已拍板）：`Combat_01/02` → `Boss_01` 骨架（**含前厅**）→ `Elite_01` → 其余 Combat → Event/Shop。
 
@@ -290,3 +290,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Combat_06 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；RoomId=Room_Combat_06；开阔风筝；待 COMMENT 开 PR） |
 | 2026-11-05 | Event_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；无宿主类；门常开；待 COMMENT 开 PR） |
 | 2026-11-05 | BossAnte_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；无宿主类；Exit.BossGate；待 COMMENT 开 PR） |
+| 2026-11-05 | Boss_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；RoomId=Room_Boss_01；双阶段；Exit.Settle；待 COMMENT 开 PR） |
