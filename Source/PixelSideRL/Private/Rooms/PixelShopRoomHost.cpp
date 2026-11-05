@@ -15,6 +15,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Meta/MetaStringConv.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
@@ -23,19 +24,6 @@ struct FPixelShopRoomHostPrivate
 	std::vector<PixelSideRoom::FGeometryRow> Geometry;
 	PixelSideRoom::FShopEntry Entry;
 };
-
-namespace
-{
-FString Utf8ToString(const std::string& Text)
-{
-	return FString(UTF8_TO_TCHAR(Text.c_str()));
-}
-
-std::string ToUtf8(const FString& Text)
-{
-	return std::string(TCHAR_TO_UTF8(*Text));
-}
-}
 
 APixelShopRoomHost::APixelShopRoomHost()
 {
@@ -104,9 +92,9 @@ bool APixelShopRoomHost::LoadAndEnter()
 
 	PixelSideRoom::FRoomMeta Meta;
 	std::string Error;
-	if (!PixelSideRoom::LoadRoomMetaCsv(ToUtf8(MetaText), Meta, Error))
+	if (!PixelSideRoom::LoadRoomMetaCsv(PixelSideMetaUE::ToUtf8(MetaText), Meta, Error))
 	{
-		UE_LOG(LogPixelSideCombat, Error, TEXT("Shop room meta: %s"), *Utf8ToString(Error));
+		UE_LOG(LogPixelSideCombat, Error, TEXT("Shop room meta: %s"), *PixelSideMetaUE::Utf8ToString(Error));
 		return false;
 	}
 
@@ -114,7 +102,7 @@ bool APixelShopRoomHost::LoadAndEnter()
 	if (!Priv->Entry.bOpenRunShop)
 	{
 		UE_LOG(LogPixelSideCombat, Warning, TEXT("ShopRoomHost refuses %s (type %s). Combat director is unchanged."),
-			*Utf8ToString(Meta.RoomId), *Utf8ToString(Meta.Type));
+			*PixelSideMetaUE::Utf8ToString(Meta.RoomId), *PixelSideMetaUE::Utf8ToString(Meta.Type));
 		return false;
 	}
 
@@ -125,9 +113,9 @@ bool APixelShopRoomHost::LoadAndEnter()
 		{
 			UE_LOG(LogPixelSideCombat, Error, TEXT("Shop room geometry CSV missing."));
 		}
-		else if (!PixelSideRoom::LoadGeometryCsv(ToUtf8(GeoText), Priv->Geometry, Error))
+		else if (!PixelSideRoom::LoadGeometryCsv(PixelSideMetaUE::ToUtf8(GeoText), Priv->Geometry, Error))
 		{
-			UE_LOG(LogPixelSideCombat, Error, TEXT("Shop room geometry: %s"), *Utf8ToString(Error));
+			UE_LOG(LogPixelSideCombat, Error, TEXT("Shop room geometry: %s"), *PixelSideMetaUE::Utf8ToString(Error));
 			Priv->Geometry.clear();
 		}
 		else
@@ -172,7 +160,7 @@ bool APixelShopRoomHost::LoadAndEnter()
 
 				for (const PixelSideRoom::FGeometryRow& Row : Priv->Geometry)
 				{
-					const FString Id = Utf8ToString(Row.Id);
+					const FString Id = PixelSideMetaUE::Utf8ToString(Row.Id);
 					if (Row.Kind == "Floor")
 					{
 						float X0 = 0.f;
@@ -233,13 +221,13 @@ bool APixelShopRoomHost::LoadAndEnter()
 						{
 							continue;
 						}
-						Exit->ExitId = FName(*Utf8ToString(Tag));
+						Exit->ExitId = FName(*PixelSideMetaUE::Utf8ToString(Tag));
 						Exit->bRequireClear = Priv->Entry.bLockDoors;
 						Exit->VolumeRelativeLocation = Offset;
 						Exit->FinishSpawning(FTransform(FRotator::ZeroRotator, Socket));
 						Exit->Tags.Add(TEXT("PixelSideShop"));
 #if WITH_EDITOR
-						Exit->SetActorLabel(Utf8ToString(Tag));
+						Exit->SetActorLabel(PixelSideMetaUE::Utf8ToString(Tag));
 #endif
 					}
 				}

@@ -45,14 +45,14 @@ namespace
 	const FText DemoWinLabel = NSLOCTEXT("PixelRunSummary", "DemoWin", "样例·胜");
 	const FText DemoFailLabel = NSLOCTEXT("PixelRunSummary", "DemoFail", "样例·败");
 
-	const FLinearColor Ink(FColor(0xF2, 0xF2, 0xF2));
+	const FLinearColor SummaryInk(FColor(0xF2, 0xF2, 0xF2));
 	const FLinearColor WinColor(FColor(0x2E, 0xE6, 0xA6));
 	const FLinearColor FailColor(FColor(0xFF, 0x3B, 0x3B));
 	const FLinearColor ScrapColor(FColor(0xFF, 0xD5, 0x4A));
-	const FLinearColor CoreColor(FColor(0xFF, 0xFF, 0xFF));
+	const FLinearColor SummaryCoreColor(FColor(0xFF, 0xFF, 0xFF));
 	const FLinearColor TipColor(FColor(0xB0, 0xB0, 0xB0));
 
-	void StyleLine(UTextBlock* Text, const FSlateFontInfo& Font, const FLinearColor& Color, ETextJustify::Type Align)
+	void StyleSummaryLine(UTextBlock* Text, const FSlateFontInfo& Font, const FLinearColor& Color, ETextJustify::Type Align)
 	{
 		if (!Text)
 		{
@@ -85,7 +85,7 @@ namespace
 		Face(Style.Disabled, FLinearColor(FColor(0x2A, 0x2A, 0x2A)));
 		Style.NormalPadding = FMargin(8.f, 4.f);
 		Style.PressedPadding = FMargin(8.f, 5.f, 8.f, 3.f);
-		const FSlateColor ButtonInk(Ink);
+		const FSlateColor ButtonInk(SummaryInk);
 		Style.NormalForeground = ButtonInk;
 		Style.HoveredForeground = ButtonInk;
 		Style.PressedForeground = ButtonInk;
@@ -437,16 +437,16 @@ void UPixelRunSummaryWidget::BuildFallbackShell()
 	}
 
 	Txt_Outcome = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Outcome"));
-	StyleLine(Txt_Outcome, OutcomeFont, WinColor, ETextJustify::Center);
+	StyleSummaryLine(Txt_Outcome, OutcomeFont, WinColor, ETextJustify::Center);
 
 	UHorizontalBox* Sub = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("HB_Sub"));
 	Sub->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	Txt_Time = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Time"));
 	Txt_Kills = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Kills"));
 	UTextBlock* Dot = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_SubDot"));
-	StyleLine(Txt_Time, BodyFont, Ink, ETextJustify::Center);
-	StyleLine(Dot, BodyFont, Ink, ETextJustify::Center);
-	StyleLine(Txt_Kills, BodyFont, Ink, ETextJustify::Center);
+	StyleSummaryLine(Txt_Time, BodyFont, SummaryInk, ETextJustify::Center);
+	StyleSummaryLine(Dot, BodyFont, SummaryInk, ETextJustify::Center);
+	StyleSummaryLine(Txt_Kills, BodyFont, SummaryInk, ETextJustify::Center);
 	Dot->SetText(NSLOCTEXT("PixelRunSummary", "Dot", "·"));
 	if (UHorizontalBoxSlot* TimeSlot = Sub->AddChildToHorizontalBox(Txt_Time))
 	{
@@ -473,7 +473,7 @@ void UPixelRunSummaryWidget::BuildFallbackShell()
 	UVerticalBox* BuildColumn = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("VB_Build"));
 	BuildColumn->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	UTextBlock* BuildLabel = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Build"));
-	StyleLine(BuildLabel, SmallFont, TipColor, ETextJustify::Left);
+	StyleSummaryLine(BuildLabel, SmallFont, TipColor, ETextJustify::Left);
 	BuildLabel->SetText(BuildCaption);
 	WB_Build = WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(), TEXT("WB_Build"));
 	WB_Build->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
@@ -489,8 +489,8 @@ void UPixelRunSummaryWidget::BuildFallbackShell()
 	Stats->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	Txt_Floor = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Floor"));
 	Txt_BossKills = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_BossKills"));
-	StyleLine(Txt_Floor, SmallFont, Ink, ETextJustify::Center);
-	StyleLine(Txt_BossKills, SmallFont, Ink, ETextJustify::Center);
+	StyleSummaryLine(Txt_Floor, SmallFont, SummaryInk, ETextJustify::Center);
+	StyleSummaryLine(Txt_BossKills, SmallFont, SummaryInk, ETextJustify::Center);
 	if (UHorizontalBoxSlot* FloorSlot = Stats->AddChildToHorizontalBox(Txt_Floor))
 	{
 		FloorSlot->SetPadding(FMargin(0.f, 0.f, 28.f, 0.f));
@@ -502,12 +502,12 @@ void UPixelRunSummaryWidget::BuildFallbackShell()
 	}
 
 	Txt_ScrapLeft = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_ScrapLeft"));
-	StyleLine(Txt_ScrapLeft, SmallFont, ScrapColor, ETextJustify::Center);
+	StyleSummaryLine(Txt_ScrapLeft, SmallFont, ScrapColor, ETextJustify::Center);
 	Txt_CoreTip = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_CoreTip"));
-	StyleLine(Txt_CoreTip, TipFont, TipColor, ETextJustify::Center);
+	StyleSummaryLine(Txt_CoreTip, TipFont, TipColor, ETextJustify::Center);
 	Txt_CoreTip->SetAutoWrapText(true);
 	Txt_CoreGain = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_CoreGain"));
-	StyleLine(Txt_CoreGain, CoreFont, CoreColor, ETextJustify::Center);
+	StyleSummaryLine(Txt_CoreGain, CoreFont, SummaryCoreColor, ETextJustify::Center);
 
 	USizeBox* ContinueSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("Size_Btn_Continue"));
 	ContinueSize->SetWidthOverride(128.f);
@@ -515,13 +515,13 @@ void UPixelRunSummaryWidget::BuildFallbackShell()
 	Btn_Continue = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("Btn_Continue"));
 	StyleSummaryButton(Btn_Continue);
 	Txt_Continue = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Continue"));
-	StyleLine(Txt_Continue, ButtonFont, Ink, ETextJustify::Center);
+	StyleSummaryLine(Txt_Continue, ButtonFont, SummaryInk, ETextJustify::Center);
 	Txt_Continue->SetText(ContinueLabel);
 	Btn_Continue->AddChild(Txt_Continue);
 	ContinueSize->SetContent(Btn_Continue);
 
 	Txt_Hint = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Hint"));
-	StyleLine(Txt_Hint, HintFont, Ink, ETextJustify::Center);
+	StyleSummaryLine(Txt_Hint, HintFont, SummaryInk, ETextJustify::Center);
 
 	auto AddRow = [Column](UWidget* Widget, float TopPad, float BottomPad, EHorizontalAlignment Align)
 	{
@@ -552,7 +552,7 @@ void UPixelRunSummaryWidget::BuildFallbackShell()
 		OutButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), ButtonName);
 		StyleSummaryButton(OutButton);
 		UTextBlock* Caption = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), LabelName);
-		StyleLine(Caption, ButtonFont, Ink, ETextJustify::Center);
+		StyleSummaryLine(Caption, ButtonFont, SummaryInk, ETextJustify::Center);
 		Caption->SetText(Label);
 		OutButton->AddChild(Caption);
 		Size->SetContent(OutButton);
@@ -605,7 +605,7 @@ void UPixelRunSummaryWidget::EnsureBuildChips()
 		Icon->SetVisibility(ESlateVisibility::HitTestInvisible);
 		IconSize->SetContent(Icon);
 		UTextBlock* Label = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
-		StyleLine(Label, ChipFont, Ink, ETextJustify::Left);
+		StyleSummaryLine(Label, ChipFont, SummaryInk, ETextJustify::Left);
 		if (UHorizontalBoxSlot* IconSlot = Row->AddChildToHorizontalBox(IconSize))
 		{
 			IconSlot->SetVerticalAlignment(VAlign_Center);
@@ -625,13 +625,13 @@ void UPixelRunSummaryWidget::EnsureBuildChips()
 	}
 
 	Txt_BuildMore = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_BuildMore"));
-	StyleLine(Txt_BuildMore, ChipFont, Ink, ETextJustify::Left);
+	StyleSummaryLine(Txt_BuildMore, ChipFont, SummaryInk, ETextJustify::Left);
 	Txt_BuildMore->SetText(MoreBuild);
 	Txt_BuildMore->SetVisibility(ESlateVisibility::Collapsed);
 	WB_Build->AddChildToWrapBox(Txt_BuildMore);
 
 	Txt_BuildEmpty = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_BuildEmpty"));
-	StyleLine(Txt_BuildEmpty, ChipFont, TipColor, ETextJustify::Left);
+	StyleSummaryLine(Txt_BuildEmpty, ChipFont, TipColor, ETextJustify::Left);
 	Txt_BuildEmpty->SetText(EmptyBuild);
 	Txt_BuildEmpty->SetVisibility(ESlateVisibility::Collapsed);
 	WB_Build->AddChildToWrapBox(Txt_BuildEmpty);
@@ -707,7 +707,7 @@ void UPixelRunSummaryWidget::Refresh()
 		Txt_CoreGain->SetText(FText::Format(
 			NSLOCTEXT("PixelRunSummary", "CoreGain", "获得 Core {0}"),
 			FormatSigned(View.CoreGained)));
-		Txt_CoreGain->SetColorAndOpacity(FSlateColor(CoreColor));
+		Txt_CoreGain->SetColorAndOpacity(FSlateColor(SummaryCoreColor));
 	}
 	if (Txt_CoreTip)
 	{

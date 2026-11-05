@@ -572,7 +572,7 @@ namespace
 		return false;
 	}
 
-	void StyleLine(UTextBlock* Text, const FSlateFontInfo& Font, const FLinearColor& Color, ETextJustify::Type Align)
+	void StyleShopLine(UTextBlock* Text, const FSlateFontInfo& Font, const FLinearColor& Color, ETextJustify::Type Align)
 	{
 		if (!Text)
 		{
@@ -1021,8 +1021,8 @@ void UPixelShopWidget::BuildFallbackShell()
 	UHorizontalBox* Top = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("HB_Top"));
 	Txt_Title = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Title"));
 	Txt_Scrap = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Scrap"));
-	StyleLine(Txt_Title, TitleFont, Ink, ETextJustify::Left);
-	StyleLine(Txt_Scrap, ScrapFont, ScrapColor, ETextJustify::Right);
+	StyleShopLine(Txt_Title, TitleFont, Ink, ETextJustify::Left);
+	StyleShopLine(Txt_Scrap, ScrapFont, ScrapColor, ETextJustify::Right);
 	Txt_Title->SetText(ShopTitle);
 	if (UHorizontalBoxSlot* TitleSlot = Top->AddChildToHorizontalBox(Txt_Title))
 	{
@@ -1049,7 +1049,7 @@ void UPixelShopWidget::BuildFallbackShell()
 		OutButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), ButtonName);
 		StyleShopButton(OutButton);
 		OutLabel = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), LabelName);
-		StyleLine(OutLabel, ButtonFont, Ink, ETextJustify::Center);
+		StyleShopLine(OutLabel, ButtonFont, Ink, ETextJustify::Center);
 		OutLabel->SetText(Label);
 		OutButton->AddChild(OutLabel);
 		Size->SetContent(OutButton);
@@ -1079,7 +1079,7 @@ void UPixelShopWidget::BuildFallbackShell()
 	}
 
 	Txt_Hint = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Hint"));
-	StyleLine(Txt_Hint, HintFont, Ink, ETextJustify::Center);
+	StyleShopLine(Txt_Hint, HintFont, Ink, ETextJustify::Center);
 	Txt_Hint->SetText(ShopHint);
 
 	auto AddRow = [Column](UWidget* Widget, float TopPad, float BottomPad, ESlateSizeRule::Type SizeRule)

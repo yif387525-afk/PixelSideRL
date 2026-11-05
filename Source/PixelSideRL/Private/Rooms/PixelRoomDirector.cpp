@@ -18,6 +18,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Meta/MetaStringConv.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
@@ -40,16 +41,6 @@ struct FPixelRoomDirectorPrivate
 
 namespace
 {
-FString Utf8ToString(const std::string& Text)
-{
-	return FString(UTF8_TO_TCHAR(Text.c_str()));
-}
-
-std::string ToUtf8(const FString& Text)
-{
-	return std::string(TCHAR_TO_UTF8(*Text));
-}
-
 EPixelRoomPhase ToPhase(PixelSideRoom::EPhase Phase)
 {
 	switch (Phase)
@@ -130,7 +121,7 @@ void APixelRoomDirector::StartRoom()
 		return;
 	}
 
-	const std::string RoomName = ToUtf8(RoomId.ToString());
+	const std::string RoomName = PixelSideMetaUE::ToUtf8(RoomId.ToString());
 	if (!PixelSideRoom::IsP07AcceptanceRoom(RoomName))
 	{
 		UE_LOG(LogPixelSideCombat, Warning, TEXT("P0.7 director drives Room_Combat_01 only (got %s)."), *RoomId.ToString());
@@ -150,9 +141,9 @@ void APixelRoomDirector::StartRoom()
 	}
 
 	std::string Error;
-	if (!Priv->Flow.Load(ToUtf8(MetaText), ToUtf8(SpawnText), PixelSideRoom::RoomCombat01Id, Error))
+	if (!Priv->Flow.Load(PixelSideMetaUE::ToUtf8(MetaText), PixelSideMetaUE::ToUtf8(SpawnText), PixelSideRoom::RoomCombat01Id, Error))
 	{
-		UE_LOG(LogPixelSideCombat, Error, TEXT("Room_Combat_01 CSV: %s"), *Utf8ToString(Error));
+		UE_LOG(LogPixelSideCombat, Error, TEXT("Room_Combat_01 CSV: %s"), *PixelSideMetaUE::Utf8ToString(Error));
 		bRoomStarted = true;
 		return;
 	}
@@ -167,9 +158,9 @@ void APixelRoomDirector::StartRoom()
 		{
 			UE_LOG(LogPixelSideCombat, Error, TEXT("Room_Combat_01 geometry CSV missing."));
 		}
-		else if (!PixelSideRoom::LoadGeometryCsv(ToUtf8(GeoText), Priv->Geometry, Error))
+		else if (!PixelSideRoom::LoadGeometryCsv(PixelSideMetaUE::ToUtf8(GeoText), Priv->Geometry, Error))
 		{
-			UE_LOG(LogPixelSideCombat, Error, TEXT("Room_Combat_01 geometry: %s"), *Utf8ToString(Error));
+			UE_LOG(LogPixelSideCombat, Error, TEXT("Room_Combat_01 geometry: %s"), *PixelSideMetaUE::Utf8ToString(Error));
 		}
 		else
 		{
@@ -206,7 +197,7 @@ void APixelRoomDirector::NotifyExitTouched(FName InExitId)
 	LastTouchId = InExitId;
 	LastTouchTime = Now;
 
-	const PixelSideRoom::EExitTouch Touch = Priv->Flow.NotifyExitUsed(ToUtf8(InExitId.ToString()));
+	const PixelSideRoom::EExitTouch Touch = Priv->Flow.NotifyExitUsed(PixelSideMetaUE::ToUtf8(InExitId.ToString()));
 	switch (Touch)
 	{
 	case PixelSideRoom::EExitTouch::DeniedLocked:
@@ -304,7 +295,7 @@ void APixelRoomDirector::SpawnQueued()
 	{
 		if (Order.Kind != PixelSideRoom::EEnemyKind::GruntEarly)
 		{
-			UE_LOG(LogPixelSideCombat, Warning, TEXT("Room_Combat_01 has no class for %s"), *Utf8ToString(Order.EnemyId));
+			UE_LOG(LogPixelSideCombat, Warning, TEXT("Room_Combat_01 has no class for %s"), *PixelSideMetaUE::Utf8ToString(Order.EnemyId));
 			Priv->Flow.NotifySpawnFailed(Order.SpawnId);
 			continue;
 		}
@@ -320,7 +311,7 @@ void APixelRoomDirector::SpawnQueued()
 		APixelEnemyGrunt* Grunt = World->SpawnActor<APixelEnemyGrunt>(Class, Location, FRotator::ZeroRotator, Params);
 		if (!Grunt)
 		{
-			UE_LOG(LogPixelSideCombat, Warning, TEXT("Room_Combat_01 failed to spawn %s"), *Utf8ToString(Order.SpawnId));
+			UE_LOG(LogPixelSideCombat, Warning, TEXT("Room_Combat_01 failed to spawn %s"), *PixelSideMetaUE::Utf8ToString(Order.SpawnId));
 			Priv->Flow.NotifySpawnFailed(Order.SpawnId);
 			continue;
 		}
@@ -328,8 +319,8 @@ void APixelRoomDirector::SpawnQueued()
 		Grunt->SetInitialFacingSign(Order.FacingSign);
 		Grunt->Tags.Add(TEXT("PixelSideRoom"));
 		Grunt->Tags.Add(TEXT("Room_Combat_01"));
-		Grunt->Tags.Add(FName(*Utf8ToString(Order.SpawnId)));
-		Grunt->Tags.Add(FName(*Utf8ToString(Order.EnemyId)));
+		Grunt->Tags.Add(FName(*PixelSideMetaUE::Utf8ToString(Order.SpawnId)));
+		Grunt->Tags.Add(FName(*PixelSideMetaUE::Utf8ToString(Order.EnemyId)));
 
 		FPixelRoomDirectorPrivate::FLiveEnemy Live;
 		Live.SpawnId = Order.SpawnId;
@@ -341,10 +332,10 @@ void APixelRoomDirector::SpawnQueued()
 			Log,
 			TEXT("Room_Combat_01 W%d %s at (%.0f, %.0f) facing %s"),
 			Order.WaveGroup,
-			*Utf8ToString(Order.SpawnId),
+			*PixelSideMetaUE::Utf8ToString(Order.SpawnId),
 			Order.X,
 			Order.Y,
-			*Utf8ToString(Order.Facing));
+			*PixelSideMetaUE::Utf8ToString(Order.Facing));
 	}
 }
 
@@ -399,7 +390,7 @@ void APixelRoomDirector::Publish()
 			{
 				continue;
 			}
-			Exit->ApplyLock(Priv->Flow.IsExitOpen(ToUtf8(Exit->ExitId.ToString())));
+			Exit->ApplyLock(Priv->Flow.IsExitOpen(PixelSideMetaUE::ToUtf8(Exit->ExitId.ToString())));
 		}
 	}
 
@@ -501,7 +492,7 @@ void APixelRoomDirector::BuildGreybox()
 
 	for (const PixelSideRoom::FGeometryRow& Row : Priv->Geometry)
 	{
-		const FString Id = Utf8ToString(Row.Id);
+		const FString Id = PixelSideMetaUE::Utf8ToString(Row.Id);
 		if (Row.Kind == "Floor")
 		{
 			const float SizeX = FMath::Abs(Row.X1 - Row.X0);
@@ -555,12 +546,12 @@ void APixelRoomDirector::BuildGreybox()
 			{
 				continue;
 			}
-			Exit->ExitId = FName(*Utf8ToString(Tag));
+			Exit->ExitId = FName(*PixelSideMetaUE::Utf8ToString(Tag));
 			Exit->bRequireClear = bRequire;
 			Exit->VolumeRelativeLocation = Offset;
 			Exit->FinishSpawning(FTransform(FRotator::ZeroRotator, Socket));
 #if WITH_EDITOR
-			Exit->SetActorLabel(Utf8ToString(Tag));
+			Exit->SetActorLabel(PixelSideMetaUE::Utf8ToString(Tag));
 #endif
 		}
 	}

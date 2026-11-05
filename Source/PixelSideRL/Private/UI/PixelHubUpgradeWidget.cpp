@@ -19,12 +19,12 @@
 #include "Styling/SlateTypes.h"
 #include "UI/PixelAffixFont.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogPixelHubUI, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogPixelHubUpgrade, Log, All);
 
 namespace
 {
-	const FLinearColor Ink(FColor(0xF2, 0xF2, 0xF2));
-	const FLinearColor CoreColor(FColor(0x7E, 0xC8, 0xFF));
+	const FLinearColor UpgradeInk(FColor(0xF2, 0xF2, 0xF2));
+	const FLinearColor UpgradeCoreColor(FColor(0x7E, 0xC8, 0xFF));
 	const FText UpgradeTitle = NSLOCTEXT("PixelHub", "UpgradeTitle", "永久成长");
 	const FText CloseLabel = NSLOCTEXT("PixelHub", "Close", "关闭");
 	const FText UpgradeHint = NSLOCTEXT("PixelHub", "UpgradeHint", "↑ ↓ 选择 · Enter 升级 · Esc 关闭");
@@ -56,7 +56,7 @@ namespace
 
 	constexpr int32 DemoNodeCount = UE_ARRAY_COUNT(GDemoNodes);
 
-	void StyleLine(UTextBlock* Text, const FSlateFontInfo& Font, const FLinearColor& Color, ETextJustify::Type Align)
+	void StyleUpgradeLine(UTextBlock* Text, const FSlateFontInfo& Font, const FLinearColor& Color, ETextJustify::Type Align)
 	{
 		if (!Text)
 		{
@@ -68,7 +68,7 @@ namespace
 		Text->SetShadowOffset(FVector2D::ZeroVector);
 	}
 
-	void StyleHubButton(UButton* Button)
+	void StyleUpgradeButton(UButton* Button)
 	{
 		if (!Button)
 		{
@@ -87,7 +87,7 @@ namespace
 		Face(Style.Disabled, FLinearColor(FColor(0x2A, 0x2A, 0x2A)));
 		Style.NormalPadding = FMargin(8.f, 4.f);
 		Style.PressedPadding = FMargin(8.f, 5.f, 8.f, 3.f);
-		const FSlateColor ButtonInk(Ink);
+		const FSlateColor ButtonInk(UpgradeInk);
 		Style.NormalForeground = ButtonInk;
 		Style.HoveredForeground = ButtonInk;
 		Style.PressedForeground = ButtonInk;
@@ -102,7 +102,7 @@ namespace
 			return;
 		}
 		Text->SetText(FText::FromString(FString::Printf(TEXT("Core %d"), Core)));
-		Text->SetColorAndOpacity(FSlateColor(CoreColor));
+		Text->SetColorAndOpacity(FSlateColor(UpgradeCoreColor));
 	}
 
 	FString DemoDescription(const FDemoNode& Node, int32 Rank)
@@ -162,7 +162,7 @@ void UPixelHubUpgradeWidget::UseDemoWallet(int32 StartingCore)
 	FocusIndex = 0;
 	RefreshRows();
 	BroadcastCore();
-	UE_LOG(LogPixelHubUI, Log, TEXT("Hub upgrade demo wallet Core=%d. Wireframe nodes. No GetCore, no Purchase, no save."), DemoCore);
+	UE_LOG(LogPixelHubUpgrade, Log, TEXT("Hub upgrade demo wallet Core=%d. Wireframe nodes. No GetCore, no Purchase, no save."), DemoCore);
 }
 
 void UPixelHubUpgradeWidget::UseMetaWallet()
@@ -173,11 +173,11 @@ void UPixelHubUpgradeWidget::UseMetaWallet()
 	FocusIndex = 0;
 	if (!UMetaProgressSubsystem::Get(this))
 	{
-		UE_LOG(LogPixelHubUI, Warning, TEXT("Hub upgrade meta path has no UMetaProgressSubsystem. Rows stay empty. No demo spend."));
+		UE_LOG(LogPixelHubUpgrade, Warning, TEXT("Hub upgrade meta path has no UMetaProgressSubsystem. Rows stay empty. No demo spend."));
 	}
 	RefreshRows();
 	BroadcastCore();
-	UE_LOG(LogPixelHubUI, Log, TEXT("Hub upgrade meta wallet Core=%d rows=%d. Purchase only. No save."), GetShownCore(), ShownCount);
+	UE_LOG(LogPixelHubUpgrade, Log, TEXT("Hub upgrade meta wallet Core=%d rows=%d. Purchase only. No save."), GetShownCore(), ShownCount);
 }
 
 void UPixelHubUpgradeWidget::OpenUpgrade()
@@ -310,7 +310,7 @@ void UPixelHubUpgradeWidget::EnsureLayout()
 		else if (!bWarnedMissingWidgets)
 		{
 			bWarnedMissingWidgets = true;
-			UE_LOG(LogPixelHubUI, Warning,
+			UE_LOG(LogPixelHubUpgrade, Warning,
 				TEXT("WBP_Hub_Upgrade is missing one of Overlay_Root, Txt_Title, Txt_Core, Btn_Close, VBox_Nodes, Txt_Hint."));
 		}
 	}
@@ -355,18 +355,18 @@ void UPixelHubUpgradeWidget::BuildFallbackShell()
 	UHorizontalBox* Header = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("HB_UpgradeHeader"));
 	Header->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	Txt_Title = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Title"));
-	StyleLine(Txt_Title, TitleFont, Ink, ETextJustify::Left);
+	StyleUpgradeLine(Txt_Title, TitleFont, UpgradeInk, ETextJustify::Left);
 	Txt_Title->SetText(UpgradeTitle);
 	Txt_Core = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Core"));
-	StyleLine(Txt_Core, BodyFont, CoreColor, ETextJustify::Right);
+	StyleUpgradeLine(Txt_Core, BodyFont, UpgradeCoreColor, ETextJustify::Right);
 	ApplyCoreText(Txt_Core, 0);
 	USizeBox* CloseSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("Size_Btn_Close"));
 	CloseSize->SetWidthOverride(64.f);
 	CloseSize->SetHeightOverride(22.f);
 	Btn_Close = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("Btn_Close"));
-	StyleHubButton(Btn_Close);
+	StyleUpgradeButton(Btn_Close);
 	Txt_Close = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Close"));
-	StyleLine(Txt_Close, HintFont, Ink, ETextJustify::Center);
+	StyleUpgradeLine(Txt_Close, HintFont, UpgradeInk, ETextJustify::Center);
 	Txt_Close->SetText(CloseLabel);
 	Btn_Close->AddChild(Txt_Close);
 	CloseSize->SetContent(Btn_Close);
@@ -393,7 +393,7 @@ void UPixelHubUpgradeWidget::BuildFallbackShell()
 	VBox_Nodes = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("VBox_Nodes"));
 	VBox_Nodes->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	Txt_Hint = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Hint"));
-	StyleLine(Txt_Hint, HintFont, Ink, ETextJustify::Left);
+	StyleUpgradeLine(Txt_Hint, HintFont, UpgradeInk, ETextJustify::Left);
 	Txt_Hint->SetText(UpgradeHint);
 
 	if (UVerticalBoxSlot* HeaderSlot = Column->AddChildToVerticalBox(Header))
@@ -436,7 +436,7 @@ void UPixelHubUpgradeWidget::EnsureRowCount(int32 Count)
 			*FString::Printf(TEXT("Row_%d"), Index));
 		if (!Row)
 		{
-			UE_LOG(LogPixelHubUI, Warning, TEXT("Hub upgrade failed to create row %d."), Index);
+			UE_LOG(LogPixelHubUpgrade, Warning, TEXT("Hub upgrade failed to create row %d."), Index);
 			break;
 		}
 		Row->OnBuyClicked.AddDynamic(this, &UPixelHubUpgradeWidget::HandleRowBuy);
@@ -596,7 +596,7 @@ void UPixelHubUpgradeWidget::CommitPurchase()
 		}
 		DemoCore -= Cost;
 		DemoRanks[Index] = Rank + 1;
-		UE_LOG(LogPixelHubUI, Log, TEXT("Hub demo purchase %s -> Lv %d Core=%d. Local only. No save."),
+		UE_LOG(LogPixelHubUpgrade, Log, TEXT("Hub demo purchase %s -> Lv %d Core=%d. Local only. No save."),
 			*NodeId.ToString(), DemoRanks[Index], DemoCore);
 		return;
 	}
@@ -604,15 +604,15 @@ void UPixelHubUpgradeWidget::CommitPurchase()
 	UMetaProgressSubsystem* Meta = UMetaProgressSubsystem::Get(this);
 	if (!Meta)
 	{
-		UE_LOG(LogPixelHubUI, Warning, TEXT("Hub Purchase skipped: no UMetaProgressSubsystem."));
+		UE_LOG(LogPixelHubUpgrade, Warning, TEXT("Hub Purchase skipped: no UMetaProgressSubsystem."));
 		return;
 	}
 	if (!Meta->CanPurchase(NodeId) || !Meta->Purchase(NodeId))
 	{
-		UE_LOG(LogPixelHubUI, Warning, TEXT("Hub Purchase %s failed. Core=%d. No save."), *NodeId.ToString(), Meta->GetCore());
+		UE_LOG(LogPixelHubUpgrade, Warning, TEXT("Hub Purchase %s failed. Core=%d. No save."), *NodeId.ToString(), Meta->GetCore());
 		return;
 	}
-	UE_LOG(LogPixelHubUI, Log, TEXT("Hub Purchase %s -> rank %d Core=%d. Save was not called."),
+	UE_LOG(LogPixelHubUpgrade, Log, TEXT("Hub Purchase %s -> rank %d Core=%d. Save was not called."),
 		*NodeId.ToString(), Meta->GetPurchasedRank(NodeId), Meta->GetCore());
 }
 

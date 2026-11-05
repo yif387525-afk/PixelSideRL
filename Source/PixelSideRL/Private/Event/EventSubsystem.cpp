@@ -9,35 +9,20 @@
 #include "GameFramework/PlayerController.h"
 #include "HAL/FileManager.h"
 #include "HAL/IConsoleManager.h"
+#include "Meta/MetaStringConv.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPixelSideEvent, Log, All);
 
-struct FEventCatalogState
+class FEventCatalogState
 {
+public:
 	PixelSideEvent::FCatalog Catalog;
 };
 
 namespace
 {
-std::string ToUtf8(const FString& Text)
-{
-	const FTCHARToUTF8 Convert(*Text);
-	return std::string(Convert.Get(), static_cast<size_t>(FMath::Max(0, Convert.Length())));
-}
-
-FString FromUtf8(std::string_view Text)
-{
-	const FUTF8ToTCHAR Convert(Text.data(), static_cast<int32>(Text.size()));
-	return FString(Convert.Length(), Convert.Get());
-}
-
-FName IdName(std::string_view Id)
-{
-	return FName(FromUtf8(Id));
-}
-
 UDamageableComponent* FindPlayerDamageable(const UObject* WorldContext)
 {
 	if (!WorldContext)
@@ -58,9 +43,9 @@ FEventResolveView ToView(const PixelSideEvent::FResolveResult& Result)
 {
 	FEventResolveView View;
 	View.bOk = Result.bOk;
-	View.EventId = IdName(Result.EventId);
-	View.ChoiceId = IdName(Result.ChoiceId);
-	View.ResultToast = FText::FromString(FromUtf8(Result.ResultToast));
+	View.EventId = PixelSideMetaUE::IdName(Result.EventId);
+	View.ChoiceId = PixelSideMetaUE::IdName(Result.ChoiceId);
+	View.ResultToast = FText::FromString(PixelSideMetaUE::FromUtf8(Result.ResultToast));
 	View.RunScrap = Result.Scrap;
 	View.CurrentHP = Result.CurrentHP;
 	View.MaxHP = Result.MaxHP;
@@ -68,22 +53,22 @@ FEventResolveView ToView(const PixelSideEvent::FResolveResult& Result)
 	View.bAffixChoiceRequested = Result.bAffixChoiceRequested;
 	View.bCombatAllowed = Result.bCombatAllowed;
 	View.bCombatStarted = Result.bCombatStarted;
-	View.Error = FromUtf8(Result.Error);
+	View.Error = PixelSideMetaUE::FromUtf8(Result.Error);
 	for (const std::string& Note : Result.Notes)
 	{
-		View.Notes.Add(FromUtf8(Note));
+		View.Notes.Add(PixelSideMetaUE::FromUtf8(Note));
 	}
 	for (const PixelSideEvent::FOpStep& Step : Result.Steps)
 	{
 		FEventOpStepView Row;
-		Row.Op = FromUtf8(Step.Op);
+		Row.Op = PixelSideMetaUE::FromUtf8(Step.Op);
 		Row.ScrapBefore = Step.ScrapBefore;
 		Row.ScrapAfter = Step.ScrapAfter;
 		Row.HpBefore = Step.HpBefore;
 		Row.HpAfter = Step.HpAfter;
 		Row.bApplied = Step.bApplied;
 		Row.bUnknown = Step.bUnknown;
-		Row.Message = FromUtf8(Step.Message);
+		Row.Message = PixelSideMetaUE::FromUtf8(Step.Message);
 		View.Steps.Add(Row);
 	}
 	return View;
@@ -210,9 +195,9 @@ void UEventSubsystem::ReloadFromContent()
 			continue;
 		}
 		std::string Error;
-		if (!State->Catalog.LoadEventJson(ToUtf8(Text), &Error))
+		if (!State->Catalog.LoadEventJson(PixelSideMetaUE::ToUtf8(Text), &Error))
 		{
-			UE_LOG(LogPixelSideEvent, Warning, TEXT("Event JSON rejected %s: %s"), *Path, *FromUtf8(Error));
+			UE_LOG(LogPixelSideEvent, Warning, TEXT("Event JSON rejected %s: %s"), *Path, *PixelSideMetaUE::FromUtf8(Error));
 			continue;
 		}
 		++Loaded;
@@ -223,16 +208,16 @@ void UEventSubsystem::ReloadFromContent()
 	if (FFileHelper::LoadFileToString(PoolText, *PoolPath))
 	{
 		std::string Error;
-		if (!State->Catalog.LoadPoolJson(ToUtf8(PoolText), &Error) || !State->Catalog.ValidatePool(&Error))
+		if (!State->Catalog.LoadPoolJson(PixelSideMetaUE::ToUtf8(PoolText), &Error) || !State->Catalog.ValidatePool(&Error))
 		{
-			UE_LOG(LogPixelSideEvent, Warning, TEXT("Event pool check failed: %s"), *FromUtf8(Error));
+			UE_LOG(LogPixelSideEvent, Warning, TEXT("Event pool check failed: %s"), *PixelSideMetaUE::FromUtf8(Error));
 		}
 		else
 		{
 			UE_LOG(LogPixelSideEvent, Log, TEXT("Event pool %s (%d DA, rule %s)"),
 				*PoolPath,
 				Loaded,
-				*FromUtf8(State->Catalog.PoolNamingRule()));
+				*PixelSideMetaUE::FromUtf8(State->Catalog.PoolNamingRule()));
 		}
 	}
 	else
@@ -266,26 +251,26 @@ bool UEventSubsystem::GetEventDefinition(FName EventId, FEventDefinitionView& Ou
 	{
 		return false;
 	}
-	const PixelSideEvent::FEventDefinition* Def = State->Catalog.Find(ToUtf8(EventId.ToString()));
+	const PixelSideEvent::FEventDefinition* Def = State->Catalog.Find(PixelSideMetaUE::ToUtf8(EventId.ToString()));
 	if (!Def)
 	{
 		return false;
 	}
-	Out.EventId = IdName(Def->EventId);
-	Out.DataAssetName = IdName(Def->DataAssetName);
-	Out.DisplayName = FText::FromString(FromUtf8(Def->DisplayName));
-	Out.PromptBody = FText::FromString(FromUtf8(Def->PromptBody));
-	Out.SkipHint = FText::FromString(FromUtf8(Def->SkipHint));
+	Out.EventId = PixelSideMetaUE::IdName(Def->EventId);
+	Out.DataAssetName = PixelSideMetaUE::IdName(Def->DataAssetName);
+	Out.DisplayName = FText::FromString(PixelSideMetaUE::FromUtf8(Def->DisplayName));
+	Out.PromptBody = FText::FromString(PixelSideMetaUE::FromUtf8(Def->PromptBody));
+	Out.SkipHint = FText::FromString(PixelSideMetaUE::FromUtf8(Def->SkipHint));
 	Out.bAllowDoorSkip = Def->bAllowDoorSkip;
 	Out.bCombatAllowed = Def->bCombatAllowed;
 	Out.bAffixOnResolve = Def->bAffixOnResolve;
-	Out.BindRoomId = IdName(Def->BindRoomId);
+	Out.BindRoomId = PixelSideMetaUE::IdName(Def->BindRoomId);
 	for (const PixelSideEvent::FChoice& Choice : Def->Choices)
 	{
 		FEventChoiceView Row;
-		Row.ChoiceId = IdName(Choice.ChoiceId);
-		Row.Label = FText::FromString(FromUtf8(Choice.Label));
-		Row.ResultToast = FText::FromString(FromUtf8(Choice.ResultToast));
+		Row.ChoiceId = PixelSideMetaUE::IdName(Choice.ChoiceId);
+		Row.Label = FText::FromString(PixelSideMetaUE::FromUtf8(Choice.Label));
+		Row.ResultToast = FText::FromString(PixelSideMetaUE::FromUtf8(Choice.ResultToast));
 		Row.EffectCount = static_cast<int32>(Choice.Effects.size());
 		Out.Choices.Add(Row);
 	}
@@ -321,8 +306,8 @@ bool UEventSubsystem::ResolveEventChoice(FName EventId, FName ChoiceId, FEventRe
 	PixelSideEvent::FRunScrapWallet Wallet;
 	Wallet.Scrap = RunScrap;
 	const PixelSideEvent::FResolveResult Result = State->Catalog.Resolve(
-		ToUtf8(EventId.ToString()),
-		ToUtf8(ChoiceId.ToString()),
+		PixelSideMetaUE::ToUtf8(EventId.ToString()),
+		PixelSideMetaUE::ToUtf8(ChoiceId.ToString()),
 		Wallet,
 		Vitals);
 	OutResult = ToView(Result);
