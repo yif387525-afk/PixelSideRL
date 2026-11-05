@@ -4,7 +4,7 @@
 |------|------|
 | Type / Tag | Shop / Branch |
 | Owner | 廊道 |
-| 状态 | **规格定稿候选** · COMMENT 交审 · 待 UE umap；商品由 Roguelike/词条官 DA 驱动 |
+| 状态 | **规格定稿候选** · Presenter/#47 已接 `OpenShop` · **尚无 umap** · 建图清单 `Docs/Room_Shop_01_UMapBuild.md` |
 | 尺寸 | 设计宽 **1280**（2 屏）· **安全区** |
 | 意图 | 支路商店；购买或跳过离开 |
 | 入口安全区 | 平层 X≈0–240；无威胁 |
@@ -120,7 +120,7 @@ Presenter->CloseShop(); // 与 Leave / Esc 相同
 
 `OpenShop` 是进房主路径。传入的 `Scrap` 不是余额。买成功 `AddRunScrap(-Price)`，刷新成功 `AddRunScrap(-RerollCost)`，然后再 `GetRunScrap`。Presenter 自己不调用 `AddRunScrap`。`OpenShopDemo` 不是本房验收路径。`F11` 仍直接开 Lab Demo（128→买回复→98），不经过本组件。`F6`–`F10` 不动。
 
-门仍不锁。可以不买，直接走门；关店用 `CloseShop`、Esc 或 `离开`。
+门仍不锁。可以不买，直接走门；关店用 `CloseShop`、Esc 或 `离开`。正式图按 `Docs/Room_Shop_01_UMapBuild.md` 在 Mac / UE 5.8.4 里手摆，宿主关掉 `bBuildGreyboxFromCsv`。**仓库里仍然没有 umap**，也不放假 uasset。不要放 `APixelRoomDirector`。
 
 ---
 
@@ -145,3 +145,4 @@ Presenter->CloseShop(); // 与 Leave / Esc 相同
 | 2026-11-05 | 流程开店：`AC_ShopPresenter` 调 `OpenShop` / `OpenShopDemo` / `CloseShop`。不改扣款，不改 F11 |
 | 2026-11-05 | 壳上两路钱包。`OpenShop` 读 `GetRunScrap` 并在买/刷成功 `AddRunScrap`。Presenter 开/关不改。F11 仍是 Demo |
 | 2026-11-05 | 进房 `APixelShopRoomHost` 调 `OpenShop`（真 RunScrap）。不走 OpenShopDemo，不改 F11 |
+| 2026-11-05 | 正式 umap 建图清单 `Docs/Room_Shop_01_UMapBuild.md`。真图待 Mac；本仓库仍无 umap |
