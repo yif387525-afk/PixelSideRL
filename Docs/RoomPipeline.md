@@ -227,8 +227,8 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | Room_Combat_04 | Combat | Mid | 规格定稿候选 | 坑+桥；CSV 已挂 |
 | Room_Combat_05 | Combat | Mid/Late | 规格定稿候选 | 夹击走廊；CSV 已挂 |
 | Room_Combat_06 | Combat | Late | 规格定稿候选 | 开阔风筝；CSV 已挂 |
-| Room_Elite_01 | Elite | Mid | 规格定稿候选 | 中央竞技场；CSV 已挂 |
-| Room_Elite_02 | Elite | Mid | 规格定稿候选 | 高台压制；CSV 已挂；与 Elite_01 池轮换 |
+| Room_Elite_01 | Elite | Mid | 规格定稿候选 | 中央竞技场；CSV 已挂；建图清单 `Docs/Room_Elite_01_UMapBuild.md`；Mac/UE 待拼 |
+| Room_Elite_02 | Elite | Mid | 规格定稿候选 | 高台压制；CSV 已挂；与 Elite_01 池轮换；建图清单 `Docs/Room_Elite_02_UMapBuild.md`；Mac/UE 待拼 |
 | Room_Event_01 | Event | Branch | 规格定稿候选 | 无战斗；仅支路；CSV 已挂；**DA_Event_AbandonedCache** |
 | Room_Shop_01 | Shop | Branch | 规格定稿候选 | Presenter/#47 已接 `OpenShop`；正式 umap 建图清单见 `Docs/Room_Shop_01_UMapBuild.md`；Mac/UE 待拼 |
 | Room_BossAnte_01 | BossAnte | BossGate | 规格定稿候选 | CSV 已挂；BossGate 进 Boss_01 |
@@ -278,3 +278,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Combat_01 正式 umap 建图清单（真图待 Mac；仓库无 umap） |
 | 2026-11-05 | Shop_01 正式 umap 建图清单（真图待 Mac；仓库无 umap） |
 | 2026-11-05 | Combat_01 / Shop_01 umap 验收勾选差异见 `Docs/Room_UMapBuild_AcceptDiff.md` |
+| 2026-11-05 | Elite_01 / Elite_02 正式 umap 建图清单（真图待 Mac；仓库无 umap） |
