@@ -5,6 +5,8 @@
 
 `Room_Combat_01` 已写正式几何 + 刷怪 + 出口（`Room_Combat_01.md` / `Room_Combat_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。P0.7 由 `APixelRoomDirector` 读这些 CSV（验收：进房 → 两波 → 三选一 → 右门开）。正式 umap 的摆法见 `Docs/Room_Combat_01_UMapBuild.md`。**尚无 umap / uasset**；真图在 Mac 上用 UE 拼好后再经 Git LFS 提交。
 
+`Room_Shop_01` 已写支路商店几何与锚点（`Room_Shop_01.md` / `Room_Shop_01_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Shop_01_{meta,spawns,geometry}.csv`。进房由 `APixelShopRoomHost` 调 `OpenShop`（真 RunScrap）。正式 umap 的摆法见 `Docs/Room_Shop_01_UMapBuild.md`。**尚无 umap / uasset**。
+
 `Room_Combat_02` 同样已有正式几何 + 刷怪 + 出口（`Room_Combat_02.md` / `Room_Combat_02_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_02_{meta,spawns,geometry}.csv`。尚无 umap / uasset。一层平台 TopY=28，无坑。
 
 `Room_Combat_03` 已有正式几何 + 刷怪 + 出口（`Room_Combat_03.md` / `Room_Combat_03_Spawns.md`），机读表在 `Content/Data/Rooms/Room_Combat_03_{meta,spawns,geometry}.csv`。尚无 umap / uasset。Mid 双高台：次台/踏板 TopY=28，主台 TopY=56，中路可冲，无坑。
@@ -46,4 +48,4 @@
 | Room_Combat_05.md | Combat Mid/Late | P2 |
 | Room_Combat_06.md | Combat Late | P2 |
 | Room_Event_01.md | Event 支路 | P3 |
-| Room_Shop_01.md | Shop 支路 | P3 |
+| Room_Shop_01.md | Shop 支路 · umap 建图清单待 Mac 拼 | P3 |
