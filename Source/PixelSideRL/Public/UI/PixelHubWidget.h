@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Delegates/IDelegateInstance.h"
+#include "Containers/Ticker.h"
 #include "UI/PixelHubUpgradeWidget.h"
 #include "UI/PixelRunSummaryWidget.h"
 #include "PixelHubWidget.generated.h"
@@ -217,7 +217,7 @@ private:
 	UPROPERTY()
 	FRunSummaryView LastSummary;
 
-	FDelegateHandle StartTicker;
+	FTSTicker::FDelegateHandle StartTicker;
 	EPixelHubState State = EPixelHubState::Closed;
 	int32 ShownCore = 0;
 	bool bDemoWallet = false;

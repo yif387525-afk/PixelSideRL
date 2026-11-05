@@ -72,7 +72,6 @@ namespace
 		{
 			return;
 		}
-		Button->SetIsFocusable(false);
 		FButtonStyle Style = Button->GetStyle();
 		auto Face = [](FSlateBrush& Brush, const FLinearColor& Color)
 		{

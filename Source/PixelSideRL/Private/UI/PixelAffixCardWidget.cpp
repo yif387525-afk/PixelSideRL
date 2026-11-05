@@ -266,7 +266,6 @@ void UPixelAffixCardWidget::BuildFallbackLayout()
 	AddText(Txt_Rarity, 0.f);
 
 	Btn_Select = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("Btn_Select"));
-	Btn_Select->SetIsFocusable(false);
 	FButtonStyle Style = Btn_Select->GetStyle();
 	auto ClearBrush = [](FSlateBrush& Brush)
 	{

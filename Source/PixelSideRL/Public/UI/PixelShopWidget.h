@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Delegates/IDelegateInstance.h"
+#include "Containers/Ticker.h"
 #include "UI/PixelShopSlotWidget.h"
 #include "PixelShopWidget.generated.h"
 
@@ -256,6 +256,6 @@ private:
 
 	int32 NudgeSlot = INDEX_NONE;
 	float NudgeAge = 0.f;
-	FDelegateHandle NudgeTicker;
-	FDelegateHandle InputLockTicker;
+	FTSTicker::FDelegateHandle NudgeTicker;
+	FTSTicker::FDelegateHandle InputLockTicker;
 };

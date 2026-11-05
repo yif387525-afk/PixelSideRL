@@ -592,7 +592,6 @@ namespace
 		{
 			return;
 		}
-		Button->SetIsFocusable(false);
 		FButtonStyle Style = Button->GetStyle();
 		auto Face = [](FSlateBrush& Brush, const FLinearColor& Color)
 		{
@@ -1119,7 +1118,7 @@ void UPixelShopWidget::EnsureFallbackSlots()
 	{
 		return;
 	}
-	UPixelShopSlotWidget** Slots[ShopSlotCount] = {&Slot_1, &Slot_2, &Slot_3};
+	TObjectPtr<UPixelShopSlotWidget>* Slots[ShopSlotCount] = {&Slot_1, &Slot_2, &Slot_3};
 	const TCHAR* Names[ShopSlotCount] = {TEXT("Slot_1"), TEXT("Slot_2"), TEXT("Slot_3")};
 	for (int32 Index = 0; Index < ShopSlotCount; ++Index)
 	{
