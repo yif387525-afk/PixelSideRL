@@ -543,7 +543,7 @@ void UPixelRunSummaryWidget::BuildFallbackShell()
 #if !UE_BUILD_SHIPPING
 	UHorizontalBox* DemoRow = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("HB_Demo"));
 	DemoRow->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	auto MakeDemo = [this, ButtonFont](const TCHAR* ButtonName, const TCHAR* LabelName, const FText& Label, UButton*& OutButton)
+	auto MakeDemo = [this, ButtonFont](const TCHAR* ButtonName, const TCHAR* LabelName, const FText& Label, TObjectPtr<UButton>& OutButton)
 	{
 		USizeBox* Size = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), *FString::Printf(TEXT("Size_%s"), ButtonName));
 		Size->SetWidthOverride(96.f);

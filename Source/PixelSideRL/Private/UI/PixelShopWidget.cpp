@@ -604,10 +604,10 @@ namespace
 		Face(Style.Disabled, FLinearColor(FColor(0x2A, 0x2A, 0x2A)));
 		Style.NormalPadding = FMargin(8.f, 4.f);
 		Style.PressedPadding = FMargin(8.f, 5.f, 8.f, 3.f);
-		const FSlateColor Ink(FLinearColor(FColor(0xF2, 0xF2, 0xF2)));
-		Style.NormalForeground = Ink;
-		Style.HoveredForeground = Ink;
-		Style.PressedForeground = Ink;
+		const FSlateColor ShopInk(FLinearColor(FColor(0xF2, 0xF2, 0xF2)));
+		Style.NormalForeground = ShopInk;
+		Style.HoveredForeground = ShopInk;
+		Style.PressedForeground = ShopInk;
 		Style.DisabledForeground = FSlateColor(FLinearColor(FColor(0x88, 0x88, 0x88)));
 		Button->SetStyle(Style);
 	}
@@ -989,8 +989,8 @@ void UPixelShopWidget::BuildFallbackShell()
 	const FSlateFontInfo ScrapFont = PixelAffixMakeFont(14);
 	const FSlateFontInfo HintFont = PixelAffixMakeFont(11);
 	const FSlateFontInfo ButtonFont = PixelAffixMakeFont(12);
-	const FLinearColor Ink(FColor(0xF2, 0xF2, 0xF2));
-	const FLinearColor ScrapColor(FColor(0xFF, 0xD5, 0x4A));
+	const FLinearColor ShopInk(FColor(0xF2, 0xF2, 0xF2));
+	const FLinearColor ShopScrapColor(FColor(0xFF, 0xD5, 0x4A));
 
 	Overlay_Root = WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("Overlay_Root"));
 	Overlay_Root->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
@@ -1020,8 +1020,8 @@ void UPixelShopWidget::BuildFallbackShell()
 	UHorizontalBox* Top = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("HB_Top"));
 	Txt_Title = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Title"));
 	Txt_Scrap = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Scrap"));
-	StyleShopLine(Txt_Title, TitleFont, Ink, ETextJustify::Left);
-	StyleShopLine(Txt_Scrap, ScrapFont, ScrapColor, ETextJustify::Right);
+	StyleShopLine(Txt_Title, TitleFont, ShopInk, ETextJustify::Left);
+	StyleShopLine(Txt_Scrap, ScrapFont, ShopScrapColor, ETextJustify::Right);
 	Txt_Title->SetText(ShopTitle);
 	if (UHorizontalBoxSlot* TitleSlot = Top->AddChildToHorizontalBox(Txt_Title))
 	{
@@ -1040,7 +1040,7 @@ void UPixelShopWidget::BuildFallbackShell()
 	HB_Slots = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("HB_Slots"));
 	HB_Slots->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 
-	auto MakeButton = [this, ButtonFont, Ink](const TCHAR* ButtonName, const TCHAR* LabelName, const FText& Label, UButton*& OutButton, UTextBlock*& OutLabel, float Width)
+	auto MakeButton = [this, ButtonFont, ShopInk](const TCHAR* ButtonName, const TCHAR* LabelName, const FText& Label, TObjectPtr<UButton>& OutButton, TObjectPtr<UTextBlock>& OutLabel, float Width)
 	{
 		USizeBox* Size = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), *FString::Printf(TEXT("Size_%s"), ButtonName));
 		Size->SetWidthOverride(Width);
@@ -1048,7 +1048,7 @@ void UPixelShopWidget::BuildFallbackShell()
 		OutButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), ButtonName);
 		StyleShopButton(OutButton);
 		OutLabel = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), LabelName);
-		StyleShopLine(OutLabel, ButtonFont, Ink, ETextJustify::Center);
+		StyleShopLine(OutLabel, ButtonFont, ShopInk, ETextJustify::Center);
 		OutLabel->SetText(Label);
 		OutButton->AddChild(OutLabel);
 		Size->SetContent(OutButton);
@@ -1078,7 +1078,7 @@ void UPixelShopWidget::BuildFallbackShell()
 	}
 
 	Txt_Hint = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Hint"));
-	StyleShopLine(Txt_Hint, HintFont, Ink, ETextJustify::Center);
+	StyleShopLine(Txt_Hint, HintFont, ShopInk, ETextJustify::Center);
 	Txt_Hint->SetText(ShopHint);
 
 	auto AddRow = [Column](UWidget* Widget, float TopPad, float BottomPad, ESlateSizeRule::Type SizeRule)
