@@ -61,7 +61,6 @@ namespace
 		Style.PressedPadding = FMargin(10.f, 5.f);
 		Button->SetStyle(Style);
 		Button->SetBackgroundColor(FLinearColor::White);
-		Button->SetIsFocusable(false);
 	}
 
 	void ShowLabLine(const FString& Line)
@@ -386,7 +385,7 @@ void UPixelEventChoiceWidget::EnsureFallbackChoices()
 		return;
 	}
 
-	UPixelEventChoiceButton** Slots[MaxChoices] = {&Btn_Choice_1, &Btn_Choice_2, &Btn_Choice_3};
+	TObjectPtr<UPixelEventChoiceButton>* Slots[MaxChoices] = {&Btn_Choice_1, &Btn_Choice_2, &Btn_Choice_3};
 	const TCHAR* Names[MaxChoices] = {TEXT("Btn_Choice_1"), TEXT("Btn_Choice_2"), TEXT("Btn_Choice_3")};
 	for (int32 Index = 0; Index < MaxChoices; ++Index)
 	{

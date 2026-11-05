@@ -20,11 +20,14 @@ FSlateFontInfo PixelAffixMakeFont(int32 Size)
 		if (FPaths::FileExists(Regular))
 		{
 			Composite = MakeShared<FCompositeFont>();
-			Composite->DefaultTypeface.AppendFont(TEXT("Regular"), Regular, EFontHinting::Default);
+			Composite->DefaultTypeface.AppendFont(
+				TEXT("Regular"), Regular, EFontHinting::Default, EFontLoadingPolicy::LazyLoad);
 			if (FPaths::FileExists(Fallback))
 			{
-				FCompositeFallbackFont& Row = Composite->FallbackTypeface.AddDefaulted_GetRef();
-				Row.Typeface.AppendFont(TEXT("Regular"), Fallback, EFontHinting::Default);
+				// FallbackTypeface is one FCompositeFallbackFont, not an array.
+				FCompositeFallbackFont& Row = Composite->FallbackTypeface;
+				Row.Typeface.AppendFont(
+					TEXT("Regular"), Fallback, EFontHinting::Default, EFontLoadingPolicy::LazyLoad);
 				Row.ScalingFactor = 1.f;
 			}
 			else

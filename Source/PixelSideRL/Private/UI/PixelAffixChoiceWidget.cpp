@@ -267,7 +267,7 @@ void UPixelAffixChoiceWidget::EnsureFallbackCards()
 		return;
 	}
 
-	UPixelAffixCardWidget** Slots[3] = {&Card_0, &Card_1, &Card_2};
+	TObjectPtr<UPixelAffixCardWidget>* Slots[3] = {&Card_0, &Card_1, &Card_2};
 	const TCHAR* Names[3] = {TEXT("Card_0"), TEXT("Card_1"), TEXT("Card_2")};
 	for (int32 Index = 0; Index < 3; ++Index)
 	{

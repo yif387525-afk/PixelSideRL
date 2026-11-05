@@ -54,7 +54,6 @@ namespace
 		Style.PressedPadding = FMargin(10.f, 5.f);
 		Button->SetStyle(Style);
 		Button->SetBackgroundColor(FLinearColor::White);
-		Button->SetIsFocusable(false);
 	}
 }
 

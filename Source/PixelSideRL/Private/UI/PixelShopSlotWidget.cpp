@@ -328,7 +328,6 @@ void UPixelShopSlotWidget::BuildFallbackLayout()
 	AddText(Txt_Price, 0.f);
 
 	Btn_Buy = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("Btn_Buy"));
-	Btn_Buy->SetIsFocusable(false);
 	FButtonStyle Style = Btn_Buy->GetStyle();
 	auto ClearBrush = [](FSlateBrush& Brush)
 	{

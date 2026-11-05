@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Delegates/IDelegateInstance.h"
+#include "Containers/Ticker.h"
 #include "UI/PixelHubNodeRowWidget.h"
 #include "PixelHubUpgradeWidget.generated.h"
 
@@ -127,7 +127,7 @@ private:
 	TArray<int32> DemoRanks;
 
 	FName PendingNodeId;
-	FDelegateHandle PurchaseTicker;
+	FTSTicker::FDelegateHandle PurchaseTicker;
 	int32 DemoCore = 0;
 	int32 FocusIndex = 0;
 	int32 ShownCount = 0;
