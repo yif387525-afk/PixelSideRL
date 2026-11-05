@@ -1,7 +1,7 @@
 # Room_Elite_02 — 正式 umap 建图清单
 
 **引擎：** UE 5.8.4  
-**状态：** 清单已写。**仓库里还没有** `Room_Elite_02.umap`。本文件不附带任何 `.umap` / `.uasset`。Mac 上用编辑器按下面摆好之后，再单独提交真图（Git LFS）。  
+**状态：** 正式 umap 已入库 `Content/Maps/Rooms/Room_Elite_02.umap`（Mac Editor Python 烘焙；Git LFS；magic `c1832a9e`；灰盒关；`RoomId=Room_Elite_02`）。本文件是建图清单，不附带二进制。  
 **规格：** `Content/Maps/Rooms/Room_Elite_02.md`  
 **机读表：** `Content/Data/Rooms/Room_Elite_02_{meta,spawns,geometry}.csv`  
 **对照：** 章节与 [`Room_Combat_01_UMapBuild.md`](Room_Combat_01_UMapBuild.md) 相同。本房是高台压制，和 [`Room_Elite_01_UMapBuild.md`](Room_Elite_01_UMapBuild.md) 进池轮换。同一次 Run 仍只抽一间精英房。不要摆成 Elite_01 的中央地坪。
@@ -145,3 +145,4 @@ Y=28 是台面，不是地面。不要改成 (1100, 0)，那是 Elite_01。同�
 | 日期 | 说明 |
 |------|------|
 | 2026-11-05 | 建图清单。真 umap 仍待 Mac / UE 5.8.4。仓库不放假二进制。导演尚未跑精英波次。 |
+| 2026-11-05 | Mac Editor Python 已烘焙真图（LFS；灰盒关；RoomId=Room_Elite_02；高台压制 P_elite/P_approach_*；待 COMMENT 开 PR）。 |
