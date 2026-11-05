@@ -4,7 +4,7 @@
 **状态：** 清单已写。**仓库里还没有** `Room_Shop_01.umap`。本文件不附带任何 `.umap` / `.uasset`。Mac 上用编辑器按下面摆好之后，再单独提交真图（Git LFS）。  
 **规格：** `Content/Maps/Rooms/Room_Shop_01.md`  
 **机读表：** `Content/Data/Rooms/Room_Shop_01_{meta,spawns,geometry}.csv`  
-**进房：** `APixelShopRoomHost`（显示名 **ShopRoomHost**）。空关用 `PixelSide.DriveRoomShop01 1`（或 GameMode 上勾 `bDriveRoomShop01`）。宿主经 `AC_ShopPresenter` 调 `OpenShop`，读真 `RunScrap`。**不走** `APixelRoomDirector`，也不靠 `bBuildGreyboxFromCsv` 铺正式图。与 `DriveRoomCombat01` 同时打开时，商店让路。见 `Room_Shop_01.md` §7。
+**进房：** `APixelShopRoomHost`（显示名 **ShopRoomHost**）。空关用 `PixelSide.DriveRoomShop01 1`（或 GameMode 上勾 `bDriveRoomShop01`）。宿主经 `AC_ShopPresenter` 调 `OpenShop`，读真 `RunScrap`。**不走** `APixelRoomDirector`，也不靠 `bBuildGreyboxFromCsv` 铺正式图。与 `DriveRoomCombat01` 同时打开时，商店让路。见 `Room_Shop_01.md` §7。和战斗清单的验收勾选差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)。
 
 不要改 JumpZ、重力、Lab 级差，也不要改 F11、Presenter 或 P0.6 三选一。本房无刷怪、无三选一、无强制购买。门常开。
 
@@ -123,7 +123,7 @@
 2. **不要**同时开 `PixelSide.DriveRoomCombat01`。两者一起开时商店让路，这张图不会开店。
 3. 不要为了这张图去改 F11、Lab 数值或 P0.6 三选一。
 
-验收：
+验收（与战斗图的差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)）：
 
 - [ ] 进房后 `AC_ShopPresenter` 打开商店，余额是真 `RunScrap`，不是 Demo 的 128。
 - [ ] 三件商品可读。买得起会扣 `RunScrap`；买不起格子变灰，不扣款。
@@ -153,3 +153,4 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-11-05 | 建图清单。真 umap 仍待 Mac / UE 5.8.4。仓库不放假二进制。 |
+| 2026-11-05 | 验收勾选与 Combat_01 的差异见 `Docs/Room_UMapBuild_AcceptDiff.md`。 |
