@@ -1,7 +1,7 @@
 # Room_Elite_01 — 正式 umap 建图清单
 
 **引擎：** UE 5.8.4  
-**状态：** 清单已写。**仓库里还没有** `Room_Elite_01.umap`。本文件不附带任何 `.umap` / `.uasset`。Mac 上用编辑器按下面摆好之后，再单独提交真图（Git LFS）。  
+**状态：** Mac Editor Python 已烘焙真图 `Content/Maps/Rooms/Room_Elite_01.umap`（`APixelRoomDirector`；`RoomId=Room_Elite_01`；`bBuildGreyboxFromCsv` 关；Git LFS）。进仓 / COMMENT PR 待审合。导演尚未跑精英波次（预期）。  
 **规格：** `Content/Maps/Rooms/Room_Elite_01.md`  
 **机读表：** `Content/Data/Rooms/Room_Elite_01_{meta,spawns,geometry}.csv`  
 **对照：** 章节与 [`Room_Combat_01_UMapBuild.md`](Room_Combat_01_UMapBuild.md) 相同。本房是中央地坪竞技场，和 [`Room_Elite_02_UMapBuild.md`](Room_Elite_02_UMapBuild.md) 进池轮换，不要摆成同一张图。
@@ -144,3 +144,4 @@ Actor Label 用 CSV 的 `id`。UE 位置 `(X, 0, Z)`，Z = 设计 Y。
 | 日期 | 说明 |
 |------|------|
 | 2026-11-05 | 建图清单。真 umap 仍待 Mac / UE 5.8.4。仓库不放假二进制。导演尚未跑精英波次。 |
+| 2026-11-05 | Mac Editor Python 已烘焙真图（LFS；灰盒关；RoomId=Room_Elite_01；待 COMMENT 开 PR）。 |
