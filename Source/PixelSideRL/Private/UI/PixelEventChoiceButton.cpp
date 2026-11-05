@@ -19,7 +19,7 @@ namespace
 	const FLinearColor HoverColor(FColor(0x2C, 0x2C, 0x48));
 	const FLinearColor PressedColor(FColor(0x3D, 0x7E, 0xFF));
 
-	void StyleLine(UTextBlock* Text, const FSlateFontInfo& Font)
+	void StyleEventChoiceLine(UTextBlock* Text, const FSlateFontInfo& Font)
 	{
 		if (!Text)
 		{
@@ -177,8 +177,8 @@ void UPixelEventChoiceButton::BuildFallbackLayout()
 
 	Txt_Hotkey = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Hotkey"));
 	Txt_Label = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Label"));
-	StyleLine(Txt_Hotkey, Font);
-	StyleLine(Txt_Label, Font);
+	StyleEventChoiceLine(Txt_Hotkey, Font);
+	StyleEventChoiceLine(Txt_Label, Font);
 	Txt_Hotkey->SetText(FText::AsNumber(HotkeyNumber));
 
 	if (UHorizontalBoxSlot* HotkeySlot = Row->AddChildToHorizontalBox(Txt_Hotkey))

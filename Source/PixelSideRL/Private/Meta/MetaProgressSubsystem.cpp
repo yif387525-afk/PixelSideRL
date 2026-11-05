@@ -7,40 +7,21 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "HAL/IConsoleManager.h"
+#include "Meta/MetaStringConv.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Templates/Function.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPixelSideMeta, Log, All);
 
-struct FMetaProgressState
+class FMetaProgressState
 {
+public:
 	PixelSideMeta::FProgress Progress;
 };
 
 namespace
 {
-std::string ToUtf8(const FString& Text)
-{
-	const FTCHARToUTF8 Convert(*Text);
-	return std::string(Convert.Get(), static_cast<size_t>(FMath::Max(0, Convert.Length())));
-}
-
-FString FromUtf8(std::string_view Text)
-{
-	const FUTF8ToTCHAR Convert(Text.data(), static_cast<int32>(Text.size()));
-	return FString(Convert.Length(), Convert.Get());
-}
-
-FName IdName(std::string_view Id)
-{
-	if (Id.empty())
-	{
-		return NAME_None;
-	}
-	return FName(FromUtf8(Id));
-}
-
 bool ToStat(const std::string& Name, EStatId& Out)
 {
 	if (Name == "MaxHP") { Out = EStatId::MaxHP; return true; }
@@ -79,21 +60,21 @@ FRunStartContext ToContext(const PixelSideMeta::FRunStart& Start)
 		FAffixModifier Row;
 		if (!ToStat(Mod.Stat, Row.Stat) || !ToOp(Mod.Op, Row.Op))
 		{
-			UE_LOG(LogPixelSideMeta, Warning, TEXT("Dropped meta modifier %s %s"), *FromUtf8(Mod.Stat), *FromUtf8(Mod.Op));
+			UE_LOG(LogPixelSideMeta, Warning, TEXT("Dropped meta modifier %s %s"), *PixelSideMetaUE::FromUtf8(Mod.Stat), *PixelSideMetaUE::FromUtf8(Mod.Op));
 			continue;
 		}
 		Row.Value = static_cast<float>(Mod.Value);
 		Row.DurationSec = 0.f;
-		Row.WeaponTag = IdName(Mod.WeaponTag);
+		Row.WeaponTag = PixelSideMetaUE::IdName(Mod.WeaponTag);
 		Context.PermanentModifiers.Add(Row);
 	}
 	for (const std::string& Id : Start.UnlockedAffixIds)
 	{
-		Context.UnlockedAffixIds.Add(IdName(Id));
+		Context.UnlockedAffixIds.Add(PixelSideMetaUE::IdName(Id));
 	}
 	for (const std::string& Flag : Start.Flags)
 	{
-		Context.MetaFlags.Add(IdName(Flag));
+		Context.MetaFlags.Add(PixelSideMetaUE::IdName(Flag));
 	}
 	if (!Start.bAffixPoolReady)
 	{
@@ -154,33 +135,33 @@ void UMetaProgressSubsystem::ReloadFromContent()
 
 	FString Text;
 	std::string Error;
-	if (!FFileHelper::LoadFileToString(Text, *EconomyPath) || !State->Progress.LoadEconomyJson(ToUtf8(Text), &Error))
+	if (!FFileHelper::LoadFileToString(Text, *EconomyPath) || !State->Progress.LoadEconomyJson(PixelSideMetaUE::ToUtf8(Text), &Error))
 	{
-		UE_LOG(LogPixelSideMeta, Warning, TEXT("Economy JSON rejected %s: %s"), *EconomyPath, *FromUtf8(Error));
+		UE_LOG(LogPixelSideMeta, Warning, TEXT("Economy JSON rejected %s: %s"), *EconomyPath, *PixelSideMetaUE::FromUtf8(Error));
 	}
 	else
 	{
 		UE_LOG(LogPixelSideMeta, Log, TEXT("Loaded %s"), *EconomyPath);
 	}
-	if (!FFileHelper::LoadFileToString(Text, *NodesPath) || !State->Progress.LoadNodesJson(ToUtf8(Text), &Error))
+	if (!FFileHelper::LoadFileToString(Text, *NodesPath) || !State->Progress.LoadNodesJson(PixelSideMetaUE::ToUtf8(Text), &Error))
 	{
-		UE_LOG(LogPixelSideMeta, Warning, TEXT("Meta nodes JSON rejected %s: %s"), *NodesPath, *FromUtf8(Error));
+		UE_LOG(LogPixelSideMeta, Warning, TEXT("Meta nodes JSON rejected %s: %s"), *NodesPath, *PixelSideMetaUE::FromUtf8(Error));
 	}
 	else
 	{
 		UE_LOG(LogPixelSideMeta, Log, TEXT("Loaded %s (%d, rule %s)"),
 			*NodesPath,
 			static_cast<int32>(State->Progress.Nodes().size()),
-			*FromUtf8(State->Progress.NamingRuleText()));
+			*PixelSideMetaUE::FromUtf8(State->Progress.NamingRuleText()));
 		const std::vector<std::string> Ignored = State->Progress.IgnoredUnlockAffixIds();
 		for (const std::string& Row : Ignored)
 		{
-			UE_LOG(LogPixelSideMeta, Warning, TEXT("UnlockAffix ignored (MVP pool is the ten, no Piercer/TwinShot gate): %s"), *FromUtf8(Row));
+			UE_LOG(LogPixelSideMeta, Warning, TEXT("UnlockAffix ignored (MVP pool is the ten, no Piercer/TwinShot gate): %s"), *PixelSideMetaUE::FromUtf8(Row));
 		}
 	}
-	if (!FFileHelper::LoadFileToString(Text, *AffixPath) || !State->Progress.LoadAffixPoolJson(ToUtf8(Text), &Error))
+	if (!FFileHelper::LoadFileToString(Text, *AffixPath) || !State->Progress.LoadAffixPoolJson(PixelSideMetaUE::ToUtf8(Text), &Error))
 	{
-		UE_LOG(LogPixelSideMeta, Warning, TEXT("Affix pool JSON rejected %s: %s"), *AffixPath, *FromUtf8(Error));
+		UE_LOG(LogPixelSideMeta, Warning, TEXT("Affix pool JSON rejected %s: %s"), *AffixPath, *PixelSideMetaUE::FromUtf8(Error));
 	}
 	else
 	{
@@ -199,7 +180,7 @@ void UMetaProgressSubsystem::AddCore(int32 Delta, const FString& Reason)
 	{
 		return;
 	}
-	State->Progress.AddCore(Delta, ToUtf8(Reason));
+	State->Progress.AddCore(Delta, PixelSideMetaUE::ToUtf8(Reason));
 	UE_LOG(LogPixelSideMeta, Log, TEXT("AddCore %+d (%s) -> Core=%d"), Delta, *Reason, State->Progress.GetCore());
 }
 
@@ -209,7 +190,7 @@ int32 UMetaProgressSubsystem::GetPurchasedRank(FName NodeId) const
 	{
 		return 0;
 	}
-	return State->Progress.GetPurchasedRank(ToUtf8(NodeId.ToString()));
+	return State->Progress.GetPurchasedRank(PixelSideMetaUE::ToUtf8(NodeId.ToString()));
 }
 
 TMap<FName, int32> UMetaProgressSubsystem::GetPurchasedNodes() const
@@ -221,7 +202,7 @@ TMap<FName, int32> UMetaProgressSubsystem::GetPurchasedNodes() const
 	}
 	for (const PixelSideMeta::FNode& Node : State->Progress.Nodes())
 	{
-		Out.Add(IdName(Node.NodeId), State->Progress.GetPurchasedRank(Node.NodeId));
+		Out.Add(PixelSideMetaUE::IdName(Node.NodeId), State->Progress.GetPurchasedRank(Node.NodeId));
 	}
 	return Out;
 }
@@ -236,9 +217,9 @@ TArray<FMetaNodeView> UMetaProgressSubsystem::GetNodeViews() const
 	for (const PixelSideMeta::FNodeView& Row : State->Progress.NodeViews())
 	{
 		FMetaNodeView View;
-		View.NodeId = IdName(Row.NodeId);
-		View.DisplayName = FText::FromString(FromUtf8(Row.DisplayName));
-		View.Description = FText::FromString(FromUtf8(Row.Description));
+		View.NodeId = PixelSideMetaUE::IdName(Row.NodeId);
+		View.DisplayName = FText::FromString(PixelSideMetaUE::FromUtf8(Row.DisplayName));
+		View.Description = FText::FromString(PixelSideMetaUE::FromUtf8(Row.Description));
 		View.OwnedRank = Row.OwnedRank;
 		View.MaxPurchases = Row.MaxPurchases;
 		View.NextCostCore = Row.NextCostCore;
@@ -257,7 +238,7 @@ bool UMetaProgressSubsystem::CanPurchase(FName NodeId) const
 		return false;
 	}
 	std::string Reason;
-	return State->Progress.CanPurchase(ToUtf8(NodeId.ToString()), &Reason);
+	return State->Progress.CanPurchase(PixelSideMetaUE::ToUtf8(NodeId.ToString()), &Reason);
 }
 
 bool UMetaProgressSubsystem::PurchaseInternal(FName NodeId, FString* Reason)
@@ -271,23 +252,23 @@ bool UMetaProgressSubsystem::PurchaseInternal(FName NodeId, FString* Reason)
 		return false;
 	}
 	std::string HostReason;
-	const bool bOk = State->Progress.Purchase(ToUtf8(NodeId.ToString()), &HostReason);
+	const bool bOk = State->Progress.Purchase(PixelSideMetaUE::ToUtf8(NodeId.ToString()), &HostReason);
 	if (Reason)
 	{
-		*Reason = FromUtf8(HostReason);
+		*Reason = PixelSideMetaUE::FromUtf8(HostReason);
 	}
 	if (!bOk)
 	{
 		UE_LOG(LogPixelSideMeta, Warning, TEXT("Purchase %s failed: %s (Core=%d rank=%d)"),
 			*NodeId.ToString(),
-			*FromUtf8(HostReason),
+			*PixelSideMetaUE::FromUtf8(HostReason),
 			State->Progress.GetCore(),
-			State->Progress.GetPurchasedRank(ToUtf8(NodeId.ToString())));
+			State->Progress.GetPurchasedRank(PixelSideMetaUE::ToUtf8(NodeId.ToString())));
 		return false;
 	}
 	UE_LOG(LogPixelSideMeta, Log, TEXT("Purchase %s -> rank %d Core=%d"),
 		*NodeId.ToString(),
-		State->Progress.GetPurchasedRank(ToUtf8(NodeId.ToString())),
+		State->Progress.GetPurchasedRank(PixelSideMetaUE::ToUtf8(NodeId.ToString())),
 		State->Progress.GetCore());
 	return true;
 }
@@ -399,7 +380,7 @@ FString UMetaProgressSubsystem::DescribeRunStartContext() const
 	{
 		return FString();
 	}
-	return FromUtf8(State->Progress.Describe());
+	return PixelSideMetaUE::FromUtf8(State->Progress.Describe());
 }
 
 #if !UE_BUILD_SHIPPING

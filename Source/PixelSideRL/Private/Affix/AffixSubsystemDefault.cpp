@@ -10,8 +10,9 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogPixelSideAffix, Log, All);
 
-struct FAffixP05State
+class FAffixP05State
 {
+public:
 	PixelSideAffix::FRunModel Model;
 };
 

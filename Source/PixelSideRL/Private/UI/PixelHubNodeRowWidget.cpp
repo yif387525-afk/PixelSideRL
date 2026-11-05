@@ -18,8 +18,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogPixelHubRow, Log, All);
 
 namespace
 {
-	const FLinearColor Ink(FColor(0xF2, 0xF2, 0xF2));
-	const FLinearColor CoreColor(FColor(0x7E, 0xC8, 0xFF));
+	const FLinearColor RowInk(FColor(0xF2, 0xF2, 0xF2));
+	const FLinearColor RowCoreColor(FColor(0x7E, 0xC8, 0xFF));
 	const FLinearColor CostRed(FColor(0xFF, 0x3B, 0x3B));
 	const FLinearColor DimText(FColor(0x9A, 0xA0, 0xA6));
 	const FLinearColor FrameIdle(FColor(0x3A, 0x3A, 0x4E));
@@ -59,7 +59,7 @@ namespace
 		Face(Style.Disabled, FLinearColor(FColor(0x2A, 0x2A, 0x2A)));
 		Style.NormalPadding = FMargin(6.f, 2.f);
 		Style.PressedPadding = FMargin(6.f, 3.f, 6.f, 1.f);
-		const FSlateColor ButtonInk(Ink);
+		const FSlateColor ButtonInk(RowInk);
 		Style.NormalForeground = ButtonInk;
 		Style.HoveredForeground = ButtonInk;
 		Style.PressedForeground = ButtonInk;
@@ -90,13 +90,13 @@ void UPixelHubNodeRowWidget::ApplyRow(const FPixelHubNodeRowView& View, bool bFo
 	if (Txt_Name)
 	{
 		Txt_Name->SetText(View.DisplayName);
-		Txt_Name->SetColorAndOpacity(FSlateColor(Ink));
+		Txt_Name->SetColorAndOpacity(FSlateColor(RowInk));
 	}
 	if (Txt_Level)
 	{
 		const int32 MaxRank = FMath::Max(1, View.MaxPurchases);
 		Txt_Level->SetText(FText::FromString(FString::Printf(TEXT("Lv %d/%d"), View.OwnedRank, MaxRank)));
-		Txt_Level->SetColorAndOpacity(FSlateColor(Ink));
+		Txt_Level->SetColorAndOpacity(FSlateColor(RowInk));
 	}
 	if (Txt_Desc)
 	{
@@ -114,7 +114,7 @@ void UPixelHubNodeRowWidget::ApplyRow(const FPixelHubNodeRowView& View, bool bFo
 		{
 			Txt_Cost->SetText(FText::FromString(FString::Printf(TEXT("下一阶 %d Core"), View.NextCostCore)));
 			const bool bShort = !View.bLocked && !View.bCanPurchase;
-			Txt_Cost->SetColorAndOpacity(FSlateColor(bShort ? CostRed : CoreColor));
+			Txt_Cost->SetColorAndOpacity(FSlateColor(bShort ? CostRed : RowCoreColor));
 		}
 	}
 	if (Btn_Buy)
@@ -208,9 +208,9 @@ void UPixelHubNodeRowWidget::BuildFallbackLayout()
 	Txt_Name = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Name"));
 	Txt_Level = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Level"));
 	Txt_Cost = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Cost"));
-	StyleLine(Txt_Name, NameFont, Ink);
-	StyleLine(Txt_Level, BodyFont, Ink);
-	StyleLine(Txt_Cost, BodyFont, CoreColor);
+	StyleLine(Txt_Name, NameFont, RowInk);
+	StyleLine(Txt_Level, BodyFont, RowInk);
+	StyleLine(Txt_Cost, BodyFont, RowCoreColor);
 	if (UHorizontalBoxSlot* NameSlot = Top->AddChildToHorizontalBox(Txt_Name))
 	{
 		NameSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
@@ -234,7 +234,7 @@ void UPixelHubNodeRowWidget::BuildFallbackLayout()
 	Btn_Buy = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("Btn_Buy"));
 	StyleBuyButton(Btn_Buy);
 	Txt_Buy = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Txt_Buy"));
-	StyleLine(Txt_Buy, BodyFont, Ink);
+	StyleLine(Txt_Buy, BodyFont, RowInk);
 	Txt_Buy->SetJustification(ETextJustify::Center);
 	Txt_Buy->SetText(BuyLabel);
 	Btn_Buy->AddChild(Txt_Buy);
