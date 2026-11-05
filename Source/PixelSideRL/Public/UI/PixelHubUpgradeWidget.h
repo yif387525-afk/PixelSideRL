@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Misc/DelegateHandle.h"
+#include "Delegates/IDelegateInstance.h"
 #include "UI/PixelHubNodeRowWidget.h"
 #include "PixelHubUpgradeWidget.generated.h"
 
