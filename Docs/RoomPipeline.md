@@ -221,7 +221,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 
 | ID | Type | 标签 | 状态 | 备注 |
 |----|------|------|------|------|
-| Room_Combat_01 | Combat | Early | P0.7 导演已接 CSV | 平层+矮台风筝+2D Peek；umap 待拼。验收：进房 → 两波 → 三选一 → 右门开 |
+| Room_Combat_01 | Combat | Early | P0.7 导演已接 CSV | 灰盒导演已接；正式 umap 建图清单见 `Docs/Room_Combat_01_UMapBuild.md`；Mac/UE 待拼 |
 | Room_Combat_02 | Combat | Early | 规格定稿候选 | 一层平台 TopY=28 + Air@W2；CSV 已挂 |
 | Room_Combat_03 | Combat | Mid | 规格定稿候选 | 双高台主次不对称 28/56；CSV 已挂 |
 | Room_Combat_04 | Combat | Mid | 规格定稿候选 | 坑+桥；CSV 已挂 |
@@ -275,3 +275,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Event_01 挂 `DA_Event_AbandonedCache`；开放问题关闭 |
 | 2026-11-04 | P0.7：Room_Combat_01 导演读 CSV（两波 → 三选一 → 右门）。umap 待拼 |
 | 2026-11-05 | Elite_02 骨架正式规格 COMMENT 交审 |
+| 2026-11-05 | Combat_01 正式 umap 建图清单（真图待 Mac；仓库无 umap） |
