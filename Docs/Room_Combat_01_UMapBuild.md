@@ -1,7 +1,7 @@
 # Room_Combat_01 — 正式 umap 建图清单
 
 **引擎：** UE 5.8.4  
-**状态：** 清单已写。**仓库里还没有** `Room_Combat_01.umap`。本文件不附带任何 `.umap` / `.uasset`。Mac 上用编辑器按下面摆好之后，再单独提交真图（Git LFS）。  
+**状态：** Mac Editor Python 已烘焙真图 `Content/Maps/Rooms/Room_Combat_01.umap`（`bBuildGreyboxFromCsv` 关；Git LFS）。进仓 / COMMENT PR 待审合。  
 **规格：** `Content/Maps/Rooms/Room_Combat_01.md`  
 **机读表：** `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`  
 **空关对照：** `Docs/Combat_P0_LabSetup.md` §7。空关继续用 `PixelSide.DriveRoomCombat01 1`，由导演按 CSV 程序化铺灰盒。正式图落地后，关卡里的导演必须关掉 `bBuildGreyboxFromCsv`。和商店清单的验收勾选差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)。
