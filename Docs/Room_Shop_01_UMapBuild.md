@@ -1,7 +1,7 @@
 # Room_Shop_01 — 正式 umap 建图清单
 
 **引擎：** UE 5.8.4  
-**状态：** 清单已写。**仓库里还没有** `Room_Shop_01.umap`。本文件不附带任何 `.umap` / `.uasset`。Mac 上用编辑器按下面摆好之后，再单独提交真图（Git LFS）。  
+**状态：** Mac Editor Python 已烘焙真图 `Content/Maps/Rooms/Room_Shop_01.umap`（宿主 `APixelShopRoomHost`；`RoomId=Room_Shop_01`；`bBuildGreyboxFromCsv` 关；无 `APixelRoomDirector`；Git LFS）。进仓 / COMMENT PR 待审合。  
 **规格：** `Content/Maps/Rooms/Room_Shop_01.md`  
 **机读表：** `Content/Data/Rooms/Room_Shop_01_{meta,spawns,geometry}.csv`  
 **进房：** `APixelShopRoomHost`（显示名 **ShopRoomHost**）。空关用 `PixelSide.DriveRoomShop01 1`（或 GameMode 上勾 `bDriveRoomShop01`）。宿主经 `AC_ShopPresenter` 调 `OpenShop`，读真 `RunScrap`。**不走** `APixelRoomDirector`，也不靠 `bBuildGreyboxFromCsv` 铺正式图。与 `DriveRoomCombat01` 同时打开时，商店让路。见 `Room_Shop_01.md` §7。和战斗清单的验收勾选差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)。
@@ -154,3 +154,4 @@
 |------|------|
 | 2026-11-05 | 建图清单。真 umap 仍待 Mac / UE 5.8.4。仓库不放假二进制。 |
 | 2026-11-05 | 验收勾选与 Combat_01 的差异见 `Docs/Room_UMapBuild_AcceptDiff.md`。 |
+| 2026-11-05 | Mac Editor Python 已烘焙真图（LFS；灰盒关；无战斗导演；待 COMMENT 开 PR）。 |
