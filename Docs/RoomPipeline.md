@@ -222,7 +222,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 | ID | Type | 标签 | 状态 | 备注 |
 |----|------|------|------|------|
 | Room_Combat_01 | Combat | Early | P0.7 导演已接 CSV | 正式 umap 已入库 `Content/Maps/Rooms/Room_Combat_01.umap`（Editor Python 烘焙；`RoomId=Room_Combat_01`；`bBuildGreyboxFromCsv` 关；Git LFS）；清单 `Docs/Room_Combat_01_UMapBuild.md` |
-| Room_Combat_02 | Combat | Early | 规格定稿候选 | 一层平台 TopY=28 + Air@W2；CSV 已挂 |
+| Room_Combat_02 | Combat | Early | 规格定稿候选 | 正式 umap 已入库 `Content/Maps/Rooms/Room_Combat_02.umap`（Editor Python 烘焙；`APixelRoomDirector`；`RoomId=Room_Combat_02`；`bBuildGreyboxFromCsv` 关；一层平台 P_L/P_R；Git LFS）；清单 `Docs/Room_Combat_02_UMapBuild.md` |
 | Room_Combat_03 | Combat | Mid | 规格定稿候选 | 双高台主次不对称 28/56；CSV 已挂 |
 | Room_Combat_04 | Combat | Mid | 规格定稿候选 | 坑+桥；CSV 已挂 |
 | Room_Combat_05 | Combat | Mid/Late | 规格定稿候选 | 夹击走廊；CSV 已挂 |
@@ -283,3 +283,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Shop_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；无战斗导演；待 COMMENT 开 PR） |
 | 2026-11-05 | Elite_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；RoomId=Room_Elite_01；待 COMMENT 开 PR） |
 | 2026-11-05 | Elite_02 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；RoomId=Room_Elite_02；高台压制；待 COMMENT 开 PR） |
+| 2026-11-05 | Combat_02 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；RoomId=Room_Combat_02；一层平台；待 COMMENT 开 PR） |
