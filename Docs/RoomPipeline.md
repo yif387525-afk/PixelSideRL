@@ -277,3 +277,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Elite_02 骨架正式规格 COMMENT 交审 |
 | 2026-11-05 | Combat_01 正式 umap 建图清单（真图待 Mac；仓库无 umap） |
 | 2026-11-05 | Shop_01 正式 umap 建图清单（真图待 Mac；仓库无 umap） |
+| 2026-11-05 | Combat_01 / Shop_01 umap 验收勾选差异见 `Docs/Room_UMapBuild_AcceptDiff.md` |

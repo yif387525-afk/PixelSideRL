@@ -4,7 +4,7 @@
 **状态：** 清单已写。**仓库里还没有** `Room_Combat_01.umap`。本文件不附带任何 `.umap` / `.uasset`。Mac 上用编辑器按下面摆好之后，再单独提交真图（Git LFS）。  
 **规格：** `Content/Maps/Rooms/Room_Combat_01.md`  
 **机读表：** `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`  
-**空关对照：** `Docs/Combat_P0_LabSetup.md` §7。空关继续用 `PixelSide.DriveRoomCombat01 1`，由导演按 CSV 程序化铺灰盒。正式图落地后，关卡里的导演必须关掉 `bBuildGreyboxFromCsv`。
+**空关对照：** `Docs/Combat_P0_LabSetup.md` §7。空关继续用 `PixelSide.DriveRoomCombat01 1`，由导演按 CSV 程序化铺灰盒。正式图落地后，关卡里的导演必须关掉 `bBuildGreyboxFromCsv`。和商店清单的验收勾选差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)。
 
 不要改 JumpZ、重力、Lab 级差。Peek 仍是穿过掩体后沿 X 站到对侧，不是跳上掩体顶，也不是绕 Y。
 
@@ -128,7 +128,7 @@
 1. 控制台先执行 `PixelSide.DriveRoomCombat01 1`（或在 GameMode 上勾 `bDriveRoomCombat01`）。这样不会再铺 Lab 五区。关卡里已经有导演时，GameMode **不会**再生成第二只。
 2. 不要为了这张图去改 F11、Shop、P0.6 三选一或 Lab 数值。
 
-验收：
+验收（与商店图的差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)）：
 
 - [ ] 进房约 0.75s 后只出 W1（G1、G2），两只都死后才出 W2（G3、G4）。同时不超过 4 只。
 - [ ] 两波清空后弹出三选一（`RequestAffixChoice(NormalRoom)`）。没选中就关掉，右门仍然挡。
@@ -158,3 +158,4 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-11-05 | 建图清单。真 umap 仍待 Mac / UE 5.8.4。仓库不放假二进制。 |
+| 2026-11-05 | 验收勾选与 Shop_01 的差异见 `Docs/Room_UMapBuild_AcceptDiff.md`。 |
