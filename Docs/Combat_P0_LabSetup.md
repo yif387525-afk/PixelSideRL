@@ -121,19 +121,19 @@ F6 = `DebugGrantAffix("RapidFire")`，F7 = 三选一。授予、暂停和 1.12 �
 
 手感表（JumpZ、Gravity、豌豆、Grunt、炮塔）不因本挂钩改动。
 
-## 7. P0.7 Room_Combat_01（灰盒，umap 明早）
+## 7. P0.7 Room_Combat_01
 
 验收：进房 → 两波 → 三选一 → 右门开。
 
-`Room_Combat_01.umap` 这次不进仓库。空关用导演把 CSV 跑起来。
+**正式图：** 打开 `Content/Maps/Rooms/Room_Combat_01`，直接 Play。不要先执行 `PixelSide.DriveRoomCombat01`，也不要勾 `bDriveRoomCombat01`。`APixelSideGameMode` 在 `InitGame` 看到地图名或包名里有 `Room_Combat_01` 时，不挪关卡里的 PlayerStart，也不铺 Lab。`BeginPlay` 再看到已经摆好的 `APixelRoomDirector` 时同样跳过 Lab，并且不再生成第二只导演。波次仍由这只导演读 CSV 跑。手感表不改。
 
-Play 前在控制台执行：
+**空关 / Lab / Entry：** 没有正式几何时，Play 前在控制台执行：
 
 ```
 PixelSide.DriveRoomCombat01 1
 ```
 
-然后 Play（仍可用 `/Engine/Maps/Entry`）。`APixelSideGameMode` 看到该开关后不铺 Lab 五区，改为在原点生成 `APixelRoomDirector`（显示名 `RoomDirector`）。GameMode 上勾 `bDriveRoomCombat01` 等价。导演读：
+然后 Play（仍可用 `/Engine/Maps/Entry`）。`APixelSideGameMode` 看到该开关后不铺 Lab 五区，改为在原点生成 `APixelRoomDirector`（显示名 `RoomDirector`，`bBuildGreyboxFromCsv` 默认开，按 CSV 铺灰盒）。GameMode 上勾 `bDriveRoomCombat01` 等价。正式图不要靠这个开关。导演读：
 
 | 文件 | 用途 |
 |------|------|
@@ -145,7 +145,7 @@ PixelSide.DriveRoomCombat01 1
 
 进房后 **0.75s**（运行时夹在 **0.5–1.0s**）刷 W1。两只都死后刷 W2。同时存活不超过 4。两波清空后导演调用 `RequestAffixChoice(NormalRoom)`，池子就是 F7 / P0.6 那八条。按 1 / 2 / 3 选一张，`Exit.Right` 的门碰撞关掉。清房前，或三选一关掉但没选中，右门继续挡。走到左侧 `Exit.Left`（左墙内侧的触发盒）不会把已清状态清掉，也不会把怪再刷出来。
 
-关卡里已经放了一只 `APixelRoomDirector` 时，GameMode 不再多生成一只。正式 umap 拼上之后：导演放在房间原点（入口内侧地面），关掉 `bBuildGreyboxFromCsv`，出口用 `APixelRoomExit`（显示名 `BP_RoomExit`）。右门 `Exit Id = Exit.Right` 并勾上 `bRequireClear`。导演仍按同一份 CSV 刷怪。手感表（JumpZ、Gravity、豌豆、Grunt、炮塔）不动。
+关卡里已经放了一只 `APixelRoomDirector` 时，GameMode 不再多生成一只，也不铺 Lab。正式图 `Content/Maps/Rooms/Room_Combat_01.umap` 已入库：导演在房间原点，`bBuildGreyboxFromCsv` 关，出口是 `APixelRoomExit`（显示名 `BP_RoomExit`）。右门 `Exit Id = Exit.Right` 并勾上 `bRequireClear`。打开该图直接 Play 即可，导演仍按同一份 CSV 刷怪。手感表（JumpZ、Gravity、豌豆、Grunt、炮塔）不动。
 
 主机检查（不需要编辑器）：
 

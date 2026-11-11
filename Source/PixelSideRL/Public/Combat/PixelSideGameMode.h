@@ -8,11 +8,14 @@
  * Default mode for the combat slice. When bSpawnLabSandbox is set and the map
  * has no damage dummy, spawns the Lab_CombatP0 5-zone greybox (platforms, covers,
  * dummies, one grunt, one debug turret, a directional light) and soft-recovers pit falls.
- * bDriveRoomCombat01 (or the PixelSide.DriveRoomCombat01 cvar) skips that sandbox
- * and runs the P0.7 Room_Combat_01 director instead.
+ * Official Room_Combat_01 (map / package name names that room, or the level already
+ * has APixelRoomDirector) skips the sandbox, leaves the in-map PlayerStart, and does
+ * not spawn a second director. The placed director runs the P0.7 loop.
+ * bDriveRoomCombat01 (or the PixelSide.DriveRoomCombat01 cvar) is the empty-map
+ * fallback: it skips the sandbox and spawns a director that builds greybox from CSV.
  * bDriveRoomShop01 (or PixelSide.DriveRoomShop01) skips the sandbox and opens
- * Room_Shop_01 through AC_ShopPresenter. Combat drive wins if both are set.
- * Neither flag changes the F11 Lab shop widget.
+ * Room_Shop_01 through AC_ShopPresenter. Combat drive wins if both drives are set.
+ * Official Room_Combat_01 play wins over either drive. Neither flag changes the F11 Lab shop widget.
  */
 UCLASS(Blueprintable)
 class PIXELSIDERL_API APixelSideGameMode : public AGameModeBase
@@ -32,7 +35,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Lab")
 	bool bSpawnLabSandbox = true;
 
-	/** P0.7. Skips the Lab sandbox and drives Room_Combat_01 from CSV. Default off. */
+	/** Empty-map P0.7 fallback. Skips Lab and spawns a Room_Combat_01 director. Official Room_Combat_01 does not need this. Default off. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Room")
 	bool bDriveRoomCombat01 = false;
 
@@ -54,4 +57,7 @@ protected:
 	void RecoverLabPitFall();
 
 	bool bLabPitRecoveryActive = false;
+
+	/** Map name passed to InitGame. BeginPlay also checks the world package and any placed director. */
+	FString StartupMapName;
 };

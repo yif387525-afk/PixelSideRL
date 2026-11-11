@@ -132,7 +132,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 
 ### 5.3 P0.7 落地（仅 Room_Combat_01）
 
-`APixelRoomDirector` 读 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。进房 0.5–1.0s 刷 W1，清 W1 再刷 W2，同时存活不超过 `max_alive`。`clear_rule=WavesCleared` 且 `affix_on_clear` 时调用 `RequestAffixChoice(NormalRoom)`（P0.6 同一池）。确认一张后打开 `require_clear_exit`（`Exit.Right`）。`Exit.Left` 回退不重置已清、不重刷。精英房 / Boss / Hub 不在本步。正式 umap 未拼，空关驱动见 `Docs/Combat_P0_LabSetup.md` §7。
+`APixelRoomDirector` 读 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。进房 0.5–1.0s 刷 W1，清 W1 再刷 W2，同时存活不超过 `max_alive`。`clear_rule=WavesCleared` 且 `affix_on_clear` 时调用 `RequestAffixChoice(NormalRoom)`（P0.6 同一池）。确认一张后打开 `require_clear_exit`（`Exit.Right`）。`Exit.Left` 回退不重置已清、不重刷。精英房 / Boss / Hub 不在本步。正式图打开 `Room_Combat_01` 后直接 Play。空关驱动见 `Docs/Combat_P0_LabSetup.md` §7。
 
 验收：进房 → 两波 → 三选一 → 右门开。
 
@@ -293,3 +293,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | BossAnte_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；无宿主类；Exit.BossGate；待 COMMENT 开 PR） |
 | 2026-11-05 | Boss_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；RoomId=Room_Boss_01；双阶段；Exit.Settle；待 COMMENT 开 PR） |
 | 2026-11-11 | 全部正式房 `CV_*` 碰撞改为项目配置 `PassThroughPawn`（Pawn 可穿、仍挡弹）；不改几何 |
+| 2026-11-11 | Combat_01 正式图打开即 Play。空关仍用 `PixelSide.DriveRoomCombat01` |

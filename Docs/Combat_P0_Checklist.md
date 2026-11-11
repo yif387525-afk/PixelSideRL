@@ -241,7 +241,7 @@ sequenceDiagram
 
 验收：进房 → 两波 → 三选一 → 右门开。
 
-`APixelRoomDirector` 读 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。`Enemy.Grunt.Early` 生成 `APixelEnemyGrunt`。两波清空后 `RequestAffixChoice(NormalRoom)`（F7 / P0.6 同一八条池）。确认一张后 `Exit.Right` 打开。`Exit.Left` 不把已清房打回未清、也不重刷。挂法与灰盒开关见 `Docs/Combat_P0_LabSetup.md` §7。`Room_Combat_01.umap` 留待拼关。手感表不改。
+`APixelRoomDirector` 读 `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`。`Enemy.Grunt.Early` 生成 `APixelEnemyGrunt`。两波清空后 `RequestAffixChoice(NormalRoom)`（F7 / P0.6 同一八条池）。确认一张后 `Exit.Right` 打开。`Exit.Left` 不把已清房打回未清、也不重刷。正式图打开 `Room_Combat_01` 后直接 Play。空关灰盒开关见 `Docs/Combat_P0_LabSetup.md` §7。手感表不改。
 
 ## 变更记录
 
@@ -256,3 +256,4 @@ sequenceDiagram
 | 2026-11-04 | 弹芯 | P0.5 Lab Grunt（`APixelEnemyGrunt` / G1）：警戒追击、水平慢弹 0.8 s / 6。正式刷怪房仍不进 P0。 |
 | 2026-11-04 | 弹芯 | P0.6 战斗挂钩：枪只绑 `AC_StatModifiers` 委托并 live `GetStat(FireRate)`。授予仍走 #29 的 `DebugGrantAffix` / F6。 |
 | 2026-11-04 | 廊道 + 弹芯 | P0.7：`Room_Combat_01` 导演读 CSV，两波 Grunt，清房 `RequestAffixChoice`，确认后开右门。umap 未拼。 |
+| 2026-11-11 | 廊道 | 正式图打开 `Room_Combat_01` 直接 Play。空关仍用 LabSetup §7 的 CVar。 |

@@ -4,7 +4,7 @@
 **用途：** Mac 上线前，对照两张已写清单的验收勾选。不新开房间规格，不提交 `.umap` / `.uasset`。  
 **清单：** [`Room_Combat_01_UMapBuild.md`](Room_Combat_01_UMapBuild.md) · [`Room_Shop_01_UMapBuild.md`](Room_Shop_01_UMapBuild.md)
 
-真图都还没进仓库。灰盒可以先在空关验：Combat 用 `PixelSide.DriveRoomCombat01 1`，Shop 用 `PixelSide.DriveRoomShop01 1`。两个开关不要同时开。
+`Room_Combat_01` 正式图打开后直接 Play，不设 `PixelSide.DriveRoomCombat01`。灰盒仍可在空关先验：Combat 用 `PixelSide.DriveRoomCombat01 1`，Shop 用 `PixelSide.DriveRoomShop01 1`。两个开关不要同时开。
 
 ---
 
@@ -37,7 +37,7 @@
 | 宿主 | **`APixelRoomDirector`**（RoomDirector），放在原点，全关一只 | **`APixelShopRoomHost`**（ShopRoomHost），放在原点，全关一只。**不要**放战斗导演 |
 | `RoomId` | `Room_Combat_01`。写成 `Combat_01` 导演拒绝启动 | `Room_Shop_01`。写成 `Shop_01` 读不到 meta |
 | 自动开 | `bAutoStart` 勾上。`FirstWaveDelay` 0.75（夹在 0.5–1.0s）。`GruntEarlyClass` 留空 | `bAutoOpen` 勾上。不跑波次时钟 |
-| Play 开关 | `PixelSide.DriveRoomCombat01 1`（或 `bDriveRoomCombat01`） | `PixelSide.DriveRoomShop01 1`（或 `bDriveRoomShop01`） |
+| Play 开关 | 正式图：打开 `Room_Combat_01` 直接 Play。空关才用 `PixelSide.DriveRoomCombat01 1`（或 `bDriveRoomCombat01`） | `PixelSide.DriveRoomShop01 1`（或 `bDriveRoomShop01`） |
 | 互斥 | 两者同时开时 **商店让路**，Combat 导演优先。验商店时不要开 Combat 开关 | 同上。验战斗时可以不开商店开关 |
 | 右门 | **勾** `bRequireClear`。清房并确认三选一之后才开 | **不勾**。左右门常开，无清房锁 |
 | 左门 | 始终可走。清房后踩左门 **不** 重置已清、不重刷 | 始终可走。没有「已清」状态 |
@@ -58,7 +58,7 @@
 
 1. 这张图的宿主类对不对，`RoomId` 是不是带 `Room_` 的全名。
 2. `bBuildGreyboxFromCsv` 是不是关的。正式图不靠它铺几何；空关先验才靠它。
-3. 只开对应的那一个 Drive 开关。
+3. 战斗正式图直接 Play。空关先验才开对应的 Drive 开关。商店图仍开商店开关。两个 Drive 不要同时开。
 4. 战斗图勾两波、三选一、右门锁；商店图勾真 RunScrap、可跳过、两门常开、没有导演。
 
 Mac 手拼完成后，各自清单 §5 再把登记表里的「Mac/UE 待拼」改成 umap 已入库。在那之前仓库保持没有假二进制。
@@ -70,3 +70,4 @@ Mac 手拼完成后，各自清单 §5 再把登记表里的「Mac/UE 待拼」�
 | 日期 | 说明 |
 |------|------|
 | 2026-11-05 | 整理 Combat_01 / Shop_01 建图验收勾选差异。不新开房间，不提交 umap。 |
+| 2026-11-11 | Combat_01 正式图改为打开即 Play。空关仍用 `DriveRoomCombat01`。 |
