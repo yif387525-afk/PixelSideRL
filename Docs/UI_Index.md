@@ -107,7 +107,7 @@ C++ 壳 `UPixelRunSummaryWidget`。`Present(View, bPause=true)` / `OpenWin` / `O
 | `GetNodeViews` | 只读行：DisplayName、Description、NextCostCore、OwnedRank、MaxPurchases、bMaxed、bLocked、bCanPurchase |
 | `CanPurchase` / `Purchase` | 节点升级。不调用 `Save` / `AddCore` |
 
-C++ 壳 `UPixelHubWidget` / `UPixelHubUpgradeWidget` / `UPixelHubNodeRowWidget`。事件 `OnStartRun` / `OnOpenUpgrades` / `OnBackToMenu`。`OnStartRun` 不调用 `BeginRunFromMeta`。
+C++ 壳 `UPixelHubWidget` / `UPixelHubUpgradeWidget` / `UPixelHubNodeRowWidget`。事件 `OnStartRun` / `OnOpenUpgrades` / `OnBackToMenu`。`OnStartRun` 不调用 `BeginRunFromMeta`。Hub 地图上由 `UPixelHubRunFlowSubsystem` 在短锁之后调用一次 `BeginRunFromMeta`，再旅行到 `Room_Combat_01`。直接 Play 该战斗房不打开 Hub。确认结算后回 Hub 并 `OpenHub`。`GameDefaultMap` 仍是 `/Engine/Maps/Entry`。步骤见 [UI_Wireframes_Hub.md](./UI_Wireframes_Hub.md) §5。
 
 两条钱包。
 

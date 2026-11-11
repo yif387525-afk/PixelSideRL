@@ -89,6 +89,8 @@ BeginRunFromMeta StartingScrap=<n> RunScrap=<n> ...
 
 没有 Meta 子系统时，`BeginAffixRun` 仍用空的 `FRunStartContext` 并 `ResetRunScrap(0)`，和以前的空开局一样。
 
+P0.8：Hub 上点「开始新一局」由 `UPixelHubRunFlowSubsystem` 在旅行前调用 **一次** `BeginRunFromMeta`（日志里的 `StartingScrap` 就是这一行）。然后 `OpenLevel` 到 `Room_Combat_01`。新地图里玩家 `BeginAffixRun` 因 `IsInRun()` 为真而跳过，不会再调一次。直接 Play `Room_Combat_01` 时没人提前调用，仍由 `BeginAffixRun` 开局。结算不调用 `AddCore` / `PreviewCoreGain` / `Save`，Core 显示 0。步骤见 `Docs/UI_Wireframes_Hub.md` §5。
+
 `UnlockedAffixIds` 在读表成功时是十个 MVP Id。P0.6 实际加载的是其中 8 条（不含 Adrenaline / GlassCannon）；这十个把那 8 条都留在池里，不另开 Unlock 门。读表失败时列表留空，Affix 把空列表当成「当前已加载池」。
 
 `BeginRun` 把修饰的 `Stat` / `Op` / `Value` / `DurationSec` / `WeaponTag` 放进 Meta 层。空 `WeaponTag` 是全局：每个武器查询，以及不带武器的 `GetStat`，都计入，和没有这个字段时一样。非空 Tag 只在查询的 `WeaponId` 与它相等时计入；没匹配上的那一条不参加该层的 Add / Mul / Override。

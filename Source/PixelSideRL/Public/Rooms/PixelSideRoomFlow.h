@@ -150,6 +150,44 @@ inline bool MapNameNamesRoomCombat01(std::string_view MapName)
 	return false;
 }
 
+/** Package for Content/Maps/Hub.umap. Not a room template and not Run_Test. */
+inline constexpr char HubMapId[] = "Hub";
+inline constexpr char HubMapPackage[] = "/Game/Maps/Hub";
+/** Official playable map for the one-room P0.8 loop. */
+inline constexpr char RoomCombat01MapPackage[] = "/Game/Maps/Rooms/Room_Combat_01";
+
+/**
+ * True when a map name, PIE world name, or package path is the Hub map.
+ * `UEDPIE_0_Hub` and `/Game/Maps/Hub` match. A longer token such as HubWorld
+ * or MyHub does not. Room_Combat_01 does not.
+ */
+inline bool MapNameNamesHub(std::string_view MapName)
+{
+	const auto IsIdent = [](unsigned char C) -> bool
+	{
+		return (C >= '0' && C <= '9') || (C >= 'A' && C <= 'Z') || (C >= 'a' && C <= 'z');
+	};
+	const std::string_view Id(HubMapId);
+	std::size_t From = 0;
+	while (From < MapName.size())
+	{
+		const std::size_t At = MapName.find(Id, From);
+		if (At == std::string_view::npos)
+		{
+			return false;
+		}
+		const bool bBeforeOk = (At == 0) || !IsIdent(static_cast<unsigned char>(MapName[At - 1]));
+		const std::size_t After = At + Id.size();
+		const bool bAfterOk = (After >= MapName.size()) || !IsIdent(static_cast<unsigned char>(MapName[After]));
+		if (bBeforeOk && bAfterOk)
+		{
+			return true;
+		}
+		From = At + 1;
+	}
+	return false;
+}
+
 /**
  * Side sun Lab already uses, and official Room_Combat_01 Play applies again.
  * FRotator order is pitch, yaw, roll. The camera sits on +Y looking toward -Y, so yaw -90

@@ -117,7 +117,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "PixelSide|UI")
 	static FRunSummaryView MakeDemoFailView();
 
-	/** Enter / Space / click / Esc. Idempotent. Broadcasts OnContinueToHub and does not travel. */
+	/**
+	 * Enter / Space / click / Esc. Idempotent. Broadcasts OnContinueToHub and does not travel.
+	 * When UPixelHubRunFlowSubsystem presented this summary, that subsystem travels to Hub.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "PixelSide|UI")
 	void Confirm();
 

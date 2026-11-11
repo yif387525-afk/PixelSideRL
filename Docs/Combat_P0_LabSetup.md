@@ -14,7 +14,9 @@ git checkout cursor/combat-p0-playable-beb4   # 合入 main 之后改为 pull ma
 
 用 **Unreal Editor 5.8.4** 打开该目录下的 `PixelSideRL.uproject`。若提示模块缺失，选编译。需要插件 **Enhanced Input**、**Paper2D**（`.uproject` 已打开）。
 
-第一次 Play 用引擎自带的 `/Engine/Maps/Entry`。`APixelSideGameMode` 在关卡里还没有木桩时，按 `Docs/Lab_CombatP0_Layout.md` 程序化铺 **5 区**灰盒（平地一条平台已替换）、木桩 D1–D5、一只 Grunt（G1）和调试炮塔 T1。开关仍是 `bSpawnLabSandbox`。掉进 C 区坑会软回收到岛左侧，扣 0 伤。
+第一次 Play 用引擎自带的 `/Engine/Maps/Entry`。`GameDefaultMap` 仍是这张图，没有改成 Hub。`APixelSideGameMode` 在关卡里还没有木桩时，按 `Docs/Lab_CombatP0_Layout.md` 程序化铺 **5 区**灰盒（平地一条平台已替换）、木桩 D1–D5、一只 Grunt（G1）和调试炮塔 T1。开关仍是 `bSpawnLabSandbox`。掉进 C 区坑会软回收到岛左侧，扣 0 伤。
+
+Hub 一键开局是另一张图，步骤在 `Docs/UI_Wireframes_Hub.md` §5。打开 `Content/Maps/Hub` 再 Play 才会 `OpenHub`。打开 `Room_Combat_01` 再 Play 仍然直接进战斗房，不强制打开 Hub；死亡或 `PixelSide.Run.End` 才出结算。Entry 上不会自动打开 Hub。
 
 | 键 | 作用 |
 |----|------|

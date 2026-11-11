@@ -20,6 +20,7 @@ This is a practice project. The repository holds the design seed plus a playable
 - `Scripts/test_affix_p05.cpp` — host check for GetStat folds and the three-choice pool (no Unreal)
 - `Scripts/test_event_ops.cpp` — host check for event ops on `DA_Event_AbandonedCache` (no Unreal)
 - `Scripts/test_room_combat01.cpp` — host check for the Room_Combat_01 wave clock (no Unreal)
+- `Scripts/test_hub_run_flow.cpp` — host check for the Hub start loop (no Unreal). Editor steps: [Docs/UI_Wireframes_Hub.md](Docs/UI_Wireframes_Hub.md) §5. `GameDefaultMap` stays `/Engine/Maps/Entry`
 - `Scripts/test_room_shop01.cpp` — host check that shop entry opens the run wallet and stays off the combat clock (no Unreal)
 
 ## License

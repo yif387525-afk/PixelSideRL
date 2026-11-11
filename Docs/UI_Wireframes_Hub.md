@@ -166,3 +166,43 @@ PixelSide.Hub.Open
 ```
 
 `F6`–`F11` 不动，不加 F12。房间进店仍走廊道的 `AC_ShopPresenter`，本壳不打开商店。
+
+## 5. P0.8 一键开局
+
+`FinishStart` 仍只广播 `OnStartRun`。这只壳不调用 `BeginRunFromMeta`，也不 `OpenLevel`。
+
+`UPixelHubRunFlowSubsystem`（GameInstance，旅行后还在）在 **Hub 地图** 的 `BeginPlay` 里 `OpenHub`（不是 Demo）。短锁结束后下一拍：
+
+1. `CloseHub`（解开这只壳自己的暂停；世界若仍暂停，再解开一次，避免旅行卡住）
+2. `BeginRunFromMeta()` **一次**。Output Log 有 `BeginRunFromMeta StartingScrap=`
+3. `OpenLevel` 到 `/Game/Maps/Rooms/Room_Combat_01`
+
+进战斗房后 Hub UI 关掉。玩家 `BeginAffixRun` 看到 `IsInRun()` 就不再次 `BeginRunFromMeta`。
+
+直接打开 `Room_Combat_01` 再 Play：**不**打开 Hub。导演、波次、三选一、出口、手感表、`EnsureSideSun` 仍走 OfficialPlay。本流程不改这些。
+
+玩家 HP ≤ 0，或非 Shipping 控制台 `PixelSide.Run.End`（可选 `Fail`），弹出 `WBP_RunSummary`。`CoreGained` 固定 **0**。不调用 `AddCore` / `PreviewCoreGain` / `Save`。确认（按钮、Enter、Space、Esc）后旅行回 `/Game/Maps/Hub`，进图再 `OpenHub`。Esc 与确认相同，避免卡在结算。Hub 包还不在时，确认会重新打开结算，并在日志里指向 `Tools/BakeHub.py`。
+
+`GameDefaultMap` **仍是** `/Engine/Maps/Entry`。编辑器里的 Play 用**当前打开的关卡**，不用 GameDefaultMap。Lab 的第一次 Play 不变。
+
+不做 2 层，不建 `Run_Test`，不改 `Room_Combat_01.umap`，不占 F6–F11，不加自动曝光。
+
+### 怎么验
+
+**Hub 开局**
+
+1. 若还没有 `Content/Maps/Hub.umap`：用 UE 5.8.4 打开工程，编译 C++ 后在 Python 控制台执行 `py Tools/BakeHub.py`。脚本只放一个 PlayerStart，不铺 Lab，不放导演，不造 Widget uasset，不加方向光。不要手写 umap。提交时走 Git LFS。
+2. 打开 `Content/Maps/Hub`，Play。应自动 `OpenHub`。不要勾 `bDriveRoomCombat01`。
+3. 点「开始新一局」。Output Log 有 `BeginRunFromMeta StartingScrap=`。进入 `Room_Combat_01`，据点界面已关。
+4. 被打死，或控制台执行 `PixelSide.Run.End`。出现 `WBP_RunSummary`，Core 为 +0。
+5. 点「回据点」（或 Enter / Space / Esc）。回到 Hub，并再次 `OpenHub`。
+
+**直接 Play 战斗房**
+
+1. 打开 `Content/Maps/Rooms/Room_Combat_01`，直接 Play。不要先打开 Hub，不要先执行 `PixelSide.DriveRoomCombat01`。
+2. 进房没有据点 UI。波次和侧光与 OfficialPlay 相同（`EnsureSideSun`，10 lux，旋转 -40/-90/0，自动曝光仍关）。
+3. 死亡或 `PixelSide.Run.End` 才出结算。确认之后才去 Hub。
+
+**Lab**
+
+打开 `/Engine/Maps/Entry` 再 Play，仍是五区沙盒。Hub 不会在 Entry 上自动打开。F6–F11 不改。
