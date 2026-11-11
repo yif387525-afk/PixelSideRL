@@ -173,6 +173,9 @@ void APixelSideGameMode::InitGame(const FString& MapName, const FString& Options
 	if (Startup == PixelSideRoom::ERoomCombat01Startup::OfficialPlay)
 	{
 		UE_LOG(LogPixelSideCombat, Log, TEXT("Official Room_Combat_01 play (map name or placed RoomDirector). PlayerStart stays. Lab sandbox stays out."));
+		// The placed DirectionalLight_Room often did not keep intensity or rotation.
+		// With auto exposure off, that light does not show in Lit. Same sun as Lab.
+		EnsureSideSun(World, TEXT("PixelSideRoom"));
 		return;
 	}
 
@@ -228,6 +231,8 @@ void APixelSideGameMode::BeginPlay()
 			UE_LOG(LogPixelSideCombat, Log, TEXT("Room_Shop_01 drive is ignored while Room_Combat_01 official play is active."));
 		}
 		UE_LOG(LogPixelSideCombat, Log, TEXT("Official Room_Combat_01 play. Lab sandbox stays out. No second director."));
+		// BeginPlay sees a director already placed on the official room. Do not skip the sun.
+		EnsureSideSun(World, TEXT("PixelSideRoom"));
 		return;
 	}
 	if (Startup == PixelSideRoom::ERoomCombat01Startup::EmptyMapDrive)
@@ -332,6 +337,86 @@ bool APixelSideGameMode::HasDamageDummy() const
 	TArray<AActor*> Found;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APixelDamageDummy::StaticClass(), Found);
 	return Found.Num() > 0;
+}
+
+void APixelSideGameMode::EnsureSideSun(UWorld* World, const TCHAR* NewLightTag)
+{
+	if (!World)
+	{
+		return;
+	}
+
+	// Camera sits on +Y looking down -Y. Yaw -90 puts the sun on that side so the faces
+	// in view, and the floor, catch it. Numbers are PixelSideRoom::SideSun* so Lab,
+	// official Play, and the empty-map director cannot drift apart.
+	// No skylight. Lab is already visible with this sun while auto exposure stays off.
+	// A fill light would lift shadows past that look.
+	const FRotator SunRotation(
+		PixelSideRoom::SideSunPitchDeg,
+		PixelSideRoom::SideSunYawDeg,
+		PixelSideRoom::SideSunRollDeg);
+
+	auto Apply = [SunRotation](ADirectionalLight* Sun)
+	{
+		if (!Sun)
+		{
+			return;
+		}
+		// Mobility first. A static placed light ignores rotation until it can move.
+		// The light component is the directional actor's root, so this is the actor mobility too.
+		UDirectionalLightComponent* Light = Cast<UDirectionalLightComponent>(Sun->GetLightComponent());
+		if (Light)
+		{
+			Light->SetMobility(EComponentMobility::Movable);
+			Light->SetIntensity(PixelSideRoom::SideSunIntensityLux);
+			Light->SetAtmosphereSunLight(false);
+		}
+		Sun->SetActorRotation(SunRotation);
+		if (Light)
+		{
+			Light->SetWorldRotation(SunRotation);
+		}
+	};
+
+	TArray<AActor*> Lights;
+	UGameplayStatics::GetAllActorsOfClass(World, ADirectionalLight::StaticClass(), Lights);
+	if (Lights.Num() == 0)
+	{
+		FActorSpawnParameters LightParams;
+		LightParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(
+			ADirectionalLight::StaticClass(),
+			FVector::ZeroVector,
+			SunRotation,
+			LightParams);
+		if (!Sun)
+		{
+			UE_LOG(LogPixelSideCombat, Warning, TEXT("Side sun spawn failed."));
+			return;
+		}
+		if (NewLightTag && *NewLightTag)
+		{
+			Sun->Tags.Add(NewLightTag);
+		}
+		Apply(Sun);
+		UE_LOG(LogPixelSideCombat, Log, TEXT("Side sun spawned (%.0f lux, rotation %.0f, %.0f, %.0f)."),
+			PixelSideRoom::SideSunIntensityLux,
+			PixelSideRoom::SideSunPitchDeg,
+			PixelSideRoom::SideSunYawDeg,
+			PixelSideRoom::SideSunRollDeg);
+		return;
+	}
+
+	for (AActor* Actor : Lights)
+	{
+		Apply(Cast<ADirectionalLight>(Actor));
+	}
+	UE_LOG(LogPixelSideCombat, Log, TEXT("Side sun retargeted %d directional light(s) (%.0f lux, rotation %.0f, %.0f, %.0f)."),
+		Lights.Num(),
+		PixelSideRoom::SideSunIntensityLux,
+		PixelSideRoom::SideSunPitchDeg,
+		PixelSideRoom::SideSunYawDeg,
+		PixelSideRoom::SideSunRollDeg);
 }
 
 void APixelSideGameMode::SpawnLabSandbox()
@@ -450,30 +535,8 @@ void APixelSideGameMode::SpawnLabSandbox()
 		Turret->Tags.Add(TEXT("T1"));
 	}
 
-	// Entry has no lights. BasicShapeMaterial is lit, so an unlit map draws solid black.
-	// Camera sits on +Y looking down -Y; yaw -90 puts the sun on that side so the faces
-	// in view, and the floor, catch it. 10 lux is the UE5 directional default.
-	constexpr float LabSunIntensityLux = 10.f;
-	const FRotator SunRotation(-40.f, -90.f, 0.f);
-	FActorSpawnParameters LightParams;
-	LightParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(
-		ADirectionalLight::StaticClass(),
-		FVector::ZeroVector,
-		SunRotation,
-		LightParams);
-	if (Sun)
-	{
-		Sun->Tags.Add(TEXT("PixelSideLab"));
-		Sun->SetActorRotation(SunRotation);
-		if (UDirectionalLightComponent* Light = Cast<UDirectionalLightComponent>(Sun->GetLightComponent()))
-		{
-			Light->SetMobility(EComponentMobility::Movable);
-			Light->SetIntensity(LabSunIntensityLux);
-			Light->SetAtmosphereSunLight(false);
-			Light->SetWorldRotation(SunRotation);
-		}
-	}
+	// Entry has no lights. BasicShapeMaterial is lit, so a map with no sun draws solid black.
+	EnsureSideSun(World, TEXT("PixelSideLab"));
 
 	bLabPitRecoveryActive = true;
 	SetActorTickEnabled(true);

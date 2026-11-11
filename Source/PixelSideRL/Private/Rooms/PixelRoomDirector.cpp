@@ -4,6 +4,7 @@
 #include "Affix/AffixSubsystemDefault.h"
 #include "Combat/Damageable.h"
 #include "Combat/PixelSideCombatLog.h"
+#include "Combat/PixelSideGameMode.h"
 #include "Combat/PixelSideCombatMath.h"
 #include "Combat/PixelSideLabSandboxLayout.h"
 #include "Combat/PixelSideMeshUtil.h"
@@ -11,8 +12,6 @@
 #include "Rooms/PixelRoomExit.h"
 #include "Rooms/PixelSideRoomFlow.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/DirectionalLightComponent.h"
-#include "Engine/DirectionalLight.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -556,25 +555,6 @@ void APixelRoomDirector::BuildGreybox()
 		}
 	}
 
-	TArray<AActor*> Lights;
-	UGameplayStatics::GetAllActorsOfClass(World, ADirectionalLight::StaticClass(), Lights);
-	if (Lights.Num() == 0)
-	{
-		const FRotator SunRotation(-40.f, -90.f, 0.f);
-		FActorSpawnParameters LightParams;
-		LightParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(ADirectionalLight::StaticClass(), Origin, SunRotation, LightParams);
-		if (Sun)
-		{
-			Sun->Tags.Add(TEXT("PixelSideRoom"));
-			Sun->SetActorRotation(SunRotation);
-			if (UDirectionalLightComponent* Light = Cast<UDirectionalLightComponent>(Sun->GetLightComponent()))
-			{
-				Light->SetMobility(EComponentMobility::Movable);
-				Light->SetIntensity(10.f);
-				Light->SetAtmosphereSunLight(false);
-				Light->SetWorldRotation(SunRotation);
-			}
-		}
-	}
+	// Empty-map drive still gets Lab's side sun. A directional already in the level is retargeted.
+	APixelSideGameMode::EnsureSideSun(World, TEXT("PixelSideRoom"));
 }

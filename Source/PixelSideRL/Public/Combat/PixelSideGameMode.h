@@ -4,13 +4,16 @@
 #include "GameFramework/GameModeBase.h"
 #include "PixelSideGameMode.generated.h"
 
+class UWorld;
+
 /**
  * Default mode for the combat slice. When bSpawnLabSandbox is set and the map
  * has no damage dummy, spawns the Lab_CombatP0 5-zone greybox (platforms, covers,
  * dummies, one grunt, one debug turret, a directional light) and soft-recovers pit falls.
  * Official Room_Combat_01 (map / package name names that room, or the level already
  * has APixelRoomDirector) skips the sandbox, leaves the in-map PlayerStart, and does
- * not spawn a second director. The placed director runs the P0.7 loop.
+ * not spawn a second director. It still runs EnsureSideSun so Lit Play matches Lab.
+ * The placed director runs the P0.7 loop.
  * bDriveRoomCombat01 (or the PixelSide.DriveRoomCombat01 cvar) is the empty-map
  * fallback: it skips the sandbox and spawns a director that builds greybox from CSV.
  * bDriveRoomShop01 (or PixelSide.DriveRoomShop01) skips the sandbox and opens
@@ -31,6 +34,15 @@ public:
 
 	bool ShouldDriveRoomCombat01() const;
 	bool ShouldDriveRoomShop01() const;
+
+	/**
+	 * Lab's side sun (PixelSideRoom::SideSun*).
+	 * If any directional light is already in the world, force each one: Mobility Movable,
+	 * intensity SideSunIntensityLux, rotation (pitch, yaw, roll) on the actor and the light
+	 * component, atmosphere sun off. If none exists, spawn one with those settings and tag it.
+	 * Official Room_Combat_01 Play calls this so the early return does not leave Lit black.
+	 */
+	static void EnsureSideSun(UWorld* World, const TCHAR* NewLightTag);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PixelSide|Lab")
 	bool bSpawnLabSandbox = true;

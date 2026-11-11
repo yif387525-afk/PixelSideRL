@@ -151,9 +151,21 @@ inline bool MapNameNamesRoomCombat01(std::string_view MapName)
 }
 
 /**
+ * Side sun Lab already uses, and official Room_Combat_01 Play applies again.
+ * FRotator order is pitch, yaw, roll. The camera sits on +Y looking toward -Y, so yaw -90
+ * lights the faces in view and the floor. 10 lux is the UE5 directional default.
+ * AutoExposure stays off. These values are the Lit look; do not fork a second set.
+ */
+inline constexpr float SideSunIntensityLux = 10.f;
+inline constexpr float SideSunPitchDeg = -40.f;
+inline constexpr float SideSunYawDeg = -90.f;
+inline constexpr float SideSunRollDeg = 0.f;
+
+/**
  * How Play starts Room_Combat_01.
  * OfficialPlay: the loaded map names Room_Combat_01, or a director is already placed.
  * Leave the in-map PlayerStart, skip the Lab sandbox, and do not spawn another director.
+ * Still apply the side sun above. The placed directional often did not keep intensity or rotation.
  * EmptyMapDrive: PixelSide.DriveRoomCombat01 on a map that is not official and has no director.
  * Default: Lab sandbox when that map is actually a Lab / empty entry.
  * OfficialPlay wins when the cvar is also set.
