@@ -4,7 +4,7 @@
 **状态：** Mac Editor Python 已烘焙真图 `Content/Maps/Rooms/Room_Combat_01.umap`（`bBuildGreyboxFromCsv` 关；Git LFS）。进仓 / COMMENT PR 待审合。  
 **规格：** `Content/Maps/Rooms/Room_Combat_01.md`  
 **机读表：** `Content/Data/Rooms/Room_Combat_01_{meta,spawns,geometry}.csv`  
-**空关对照：** `Docs/Combat_P0_LabSetup.md` §7。空关继续用 `PixelSide.DriveRoomCombat01 1`，由导演按 CSV 程序化铺灰盒。正式图落地后，关卡里的导演必须关掉 `bBuildGreyboxFromCsv`。和商店清单的验收勾选差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)。
+**空关对照：** `Docs/Combat_P0_LabSetup.md` §7。正式图打开后直接 Play，不靠 `PixelSide.DriveRoomCombat01`。空关继续用该开关，由导演按 CSV 程序化铺灰盒。正式图上的导演必须关掉 `bBuildGreyboxFromCsv`。和商店清单的验收勾选差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)。
 
 不要改 JumpZ、重力、Lab 级差。Peek 仍是穿过掩体后沿 X 站到对侧，不是跳上掩体顶，也不是绕 Y。
 
@@ -31,7 +31,7 @@
 1. 内容浏览器：`Content/Maps/Rooms/`。
 2. 新建空关卡，保存为 **`Room_Combat_01`**。资产路径必须是 `Content/Maps/Rooms/Room_Combat_01`，对应文件 `Content/Maps/Rooms/Room_Combat_01.umap`。
 3. 用 Git LFS 跟踪该 umap。不要提交空文件、占位文件或手写假 uasset。
-4. 世界设置里仍用现有 `APixelSideGameMode`。不要为了这张图去改 GameMode C++。
+4. 世界设置里仍用现有 `APixelSideGameMode`。打开这张图直接 Play（§4）。不要勾 `bDriveRoomCombat01`。
 
 ---
 
@@ -123,19 +123,22 @@
 
 ## 4. 在编辑器里试
 
-正式图自己当当前关卡 Play 时：
+正式图自己当当前关卡时：**打开 `Room_Combat_01`，直接 Play。** 不要先执行 `PixelSide.DriveRoomCombat01`，也不要勾 `bDriveRoomCombat01`。
 
-1. 控制台先执行 `PixelSide.DriveRoomCombat01 1`（或在 GameMode 上勾 `bDriveRoomCombat01`）。这样不会再铺 Lab 五区。关卡里已经有导演时，GameMode **不会**再生成第二只。
-2. 不要为了这张图去改 F11、Shop、P0.6 三选一或 Lab 数值。
+`InitGame` 看到地图名或包名里有 `Room_Combat_01`（含 PIE 前缀，例如 `UEDPIE_0_Room_Combat_01`）时，不挪关卡里的 PlayerStart，也不铺 Lab。`BeginPlay` 再看到关卡里已经放好的 `APixelRoomDirector` 时同样跳过 Lab，并且不再生成第二只导演。波次、三选一、出口仍由这只导演读 CSV 完成。
+
+空关 / Lab / `/Engine/Maps/Entry` 没有这张正式几何时，仍用 `PixelSide.DriveRoomCombat01 1`（见 `Docs/Combat_P0_LabSetup.md` §7）。那个开关才会在原点生成导演并按 CSV 铺灰盒。
+
+不要为了这张图去改 F11、Shop、P0.6 三选一或 Lab 数值。
 
 验收（与商店图的差异见 [`Room_UMapBuild_AcceptDiff.md`](Room_UMapBuild_AcceptDiff.md)）：
 
-- [ ] 进房约 0.75s 后只出 W1（G1、G2），两只都死后才出 W2（G3、G4）。同时不超过 4 只。
+- [ ] 打开 `Room_Combat_01`，直接 Play（不设 CVar）。进房约 0.75s 后只出 W1（G1、G2），两只都死后才出 W2（G3、G4）。同时不超过 4 只。
 - [ ] 两波清空后弹出三选一（`RequestAffixChoice(NormalRoom)`）。没选中就关掉，右门仍然挡。
 - [ ] 确认一张之后 `Exit.Right` 打开，可以走出去。
 - [ ] 清房后踩 `Exit.Left`，已清状态还在，怪不会重刷。
 - [ ] 能从地面单跳上 `P_kite`（TopY 28）。没有坑。掩体挡弹、人能穿过，Peek 沿 X。
-- [ ] 关卡里看不到第二套程序化灰盒（`bBuildGreyboxFromCsv` 是关的）。
+- [ ] 关卡里看不到第二套 Lab 沙盒或程序化灰盒，也没有第二只导演（`bBuildGreyboxFromCsv` 是关的）。
 
 ---
 
@@ -159,3 +162,4 @@
 |------|------|
 | 2026-11-05 | 建图清单。真 umap 仍待 Mac / UE 5.8.4。仓库不放假二进制。 |
 | 2026-11-05 | 验收勾选与 Shop_01 的差异见 `Docs/Room_UMapBuild_AcceptDiff.md`。 |
+| 2026-11-11 | 正式图打开后直接 Play。`PixelSide.DriveRoomCombat01` 只留给空关。 |

@@ -4,7 +4,7 @@
 |------|------|
 | Type / Tag | Combat / Early |
 | Owner | 廊道 |
-| 状态 | **P0.7 导演已接 CSV** · 验收：进房 → 两波 → 三选一 → 右门开 · **尚无 umap** · 建图清单 `Docs/Room_Combat_01_UMapBuild.md` |
+| 状态 | **P0.7 导演已接 CSV** · 验收：打开 `Room_Combat_01` 直接 Play → 两波 → 三选一 → 右门开 · 正式 umap 已入库 · 建图清单 `Docs/Room_Combat_01_UMapBuild.md` |
 | 尺寸 | 设计宽 **1280**（2 屏）· 640×360 正交 |
 | 意图 | 开局压枪、左右走位、矮台风筝、2D 站位 Peek |
 | 入口安全区 | 入口内侧 X≈0–320，无伤害体积、无刷怪点 |
@@ -124,11 +124,11 @@ Y
 
 ---
 
-## 8. P0.7 运行（umap 未拼）
+## 8. P0.7 运行
 
-验收：进房 → 两波 → 三选一 → 右门开。
+验收：打开 `Room_Combat_01` 直接 Play → 两波 → 三选一 → 右门开。
 
-`APixelRoomDirector`（`Source/PixelSideRL/Public/Rooms/PixelRoomDirector.h`）读本节三份 CSV。`Enemy.Grunt.Early` → `APixelEnemyGrunt`。清房调用 `RequestAffixChoice(NormalRoom)`，确认后开 `Exit.Right`。`Exit.Left` 不重置已清。Lab / 空关挂法见 `Docs/Combat_P0_LabSetup.md` §7。正式图按 `Docs/Room_Combat_01_UMapBuild.md` 在 Mac / UE 5.8.4 里手摆，导演关掉 `bBuildGreyboxFromCsv`。**仓库里仍然没有 umap**，也不放假 uasset。
+`APixelRoomDirector`（`Source/PixelSideRL/Public/Rooms/PixelRoomDirector.h`）读本节三份 CSV。`Enemy.Grunt.Early` → `APixelEnemyGrunt`。清房调用 `RequestAffixChoice(NormalRoom)`，确认后开 `Exit.Right`。`Exit.Left` 不重置已清。正式图打开 `Content/Maps/Rooms/Room_Combat_01` 后直接 Play（`Docs/Room_Combat_01_UMapBuild.md` §4），导演关掉 `bBuildGreyboxFromCsv`。空关挂法见 `Docs/Combat_P0_LabSetup.md` §7。
 
 ## 变更
 
@@ -138,3 +138,4 @@ Y
 | 2026-11-05 | 正式模板：几何表 / 出口 / CSV；级差≤28；2D Peek；COMMENT 交审 |
 | 2026-11-04 | P0.7：导演读 CSV 刷两波并在三选一确认后开右门。umap 仍待拼 |
 | 2026-11-05 | 正式 umap 建图清单 `Docs/Room_Combat_01_UMapBuild.md`。真图待 Mac；本仓库仍无 umap |
+| 2026-11-11 | 正式图打开即 Play。空关仍用 LabSetup §7 的 CVar。 |

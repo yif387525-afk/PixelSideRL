@@ -118,6 +118,66 @@ inline bool IsP07AcceptanceRoom(std::string_view RoomId)
 	return RoomId == RoomCombat01Id;
 }
 
+/**
+ * True when a map name, PIE world name, or package path is official Room_Combat_01.
+ * `UEDPIE_0_Room_Combat_01` and `/Game/Maps/Rooms/Room_Combat_01` match.
+ * A longer token such as Room_Combat_02 or Room_Combat_010 does not.
+ */
+inline bool MapNameNamesRoomCombat01(std::string_view MapName)
+{
+	const std::string_view Id(RoomCombat01Id);
+	std::size_t From = 0;
+	while (From < MapName.size())
+	{
+		const std::size_t At = MapName.find(Id, From);
+		if (At == std::string_view::npos)
+		{
+			return false;
+		}
+		const std::size_t After = At + Id.size();
+		if (After >= MapName.size())
+		{
+			return true;
+		}
+		const unsigned char Next = static_cast<unsigned char>(MapName[After]);
+		const bool bContinuesToken = (Next >= '0' && Next <= '9') || (Next >= 'A' && Next <= 'Z') || (Next >= 'a' && Next <= 'z');
+		if (!bContinuesToken)
+		{
+			return true;
+		}
+		From = After;
+	}
+	return false;
+}
+
+/**
+ * How Play starts Room_Combat_01.
+ * OfficialPlay: the loaded map names Room_Combat_01, or a director is already placed.
+ * Leave the in-map PlayerStart, skip the Lab sandbox, and do not spawn another director.
+ * EmptyMapDrive: PixelSide.DriveRoomCombat01 on a map that is not official and has no director.
+ * Default: Lab sandbox when that map is actually a Lab / empty entry.
+ * OfficialPlay wins when the cvar is also set.
+ */
+enum class ERoomCombat01Startup : uint8_t
+{
+	Default,
+	EmptyMapDrive,
+	OfficialPlay
+};
+
+inline ERoomCombat01Startup ResolveRoomCombat01Startup(bool bMapNamesOfficialRoom, bool bPlacedDirector, bool bEmptyMapDrive)
+{
+	if (bMapNamesOfficialRoom || bPlacedDirector)
+	{
+		return ERoomCombat01Startup::OfficialPlay;
+	}
+	if (bEmptyMapDrive)
+	{
+		return ERoomCombat01Startup::EmptyMapDrive;
+	}
+	return ERoomCombat01Startup::Default;
+}
+
 /** Room id or meta type. Combat_01 is neither. */
 inline bool IsShopRoom(std::string_view RoomId, std::string_view Type)
 {

@@ -20,6 +20,7 @@
 #include "Components/DirectionalLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/DirectionalLight.h"
+#include "Engine/Level.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
@@ -32,7 +33,7 @@ static int32 GPixelSideDriveRoomCombat01 = 0;
 static FAutoConsoleVariableRef CVarPixelSideDriveRoomCombat01(
 	TEXT("PixelSide.DriveRoomCombat01"),
 	GPixelSideDriveRoomCombat01,
-	TEXT("Set to 1 before Play to drive Room_Combat_01 from CSV instead of the Lab sandbox."),
+	TEXT("Empty-map fallback. Set to 1 before Play to drive Room_Combat_01 from CSV instead of the Lab sandbox. The official Room_Combat_01 map does not need this."),
 	ECVF_Default);
 
 static int32 GPixelSideDriveRoomShop01 = 0;
@@ -88,6 +89,56 @@ FVector ResolveRoomShop01PlayerStart()
 	}
 	return FVector(X, 0.f, PixelSideCombat::CapsuleHalfHeight + static_cast<float>(PixelSideLabLayout::SpawnClearance) + Y);
 }
+
+bool FStringNamesOfficialRoom(const FString& Name)
+{
+	if (Name.IsEmpty())
+	{
+		return false;
+	}
+	const std::string Utf8(TCHAR_TO_UTF8(*Name));
+	return PixelSideRoom::MapNameNamesRoomCombat01(Utf8);
+}
+
+bool MapSignalsOfficialRoomCombat01(const UWorld* World, const FString& MapName)
+{
+	if (FStringNamesOfficialRoom(MapName))
+	{
+		return true;
+	}
+	if (!World)
+	{
+		return false;
+	}
+	if (FStringNamesOfficialRoom(World->GetName()))
+	{
+		return true;
+	}
+	// GetMapName walks the loaded package. Skip it until the persistent level exists.
+	if (const ULevel* Level = World->PersistentLevel)
+	{
+		if (FStringNamesOfficialRoom(World->GetMapName()))
+		{
+			return true;
+		}
+		if (const UObject* Package = Level->GetOutermost())
+		{
+			return FStringNamesOfficialRoom(Package->GetName());
+		}
+	}
+	return false;
+}
+
+bool HasPlacedRoomDirector(UWorld* World)
+{
+	if (!World)
+	{
+		return false;
+	}
+	TArray<AActor*> Found;
+	UGameplayStatics::GetAllActorsOfClass(World, APixelRoomDirector::StaticClass(), Found);
+	return Found.Num() > 0;
+}
 }
 
 APixelSideGameMode::APixelSideGameMode()
@@ -103,6 +154,7 @@ APixelSideGameMode::APixelSideGameMode()
 void APixelSideGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
+	StartupMapName = MapName;
 
 	UWorld* World = GetWorld();
 	if (!World)
@@ -110,11 +162,25 @@ void APixelSideGameMode::InitGame(const FString& MapName, const FString& Options
 		return;
 	}
 
+	// Official Room_Combat_01 already has geometry, a PlayerStart, and a director.
+	// InitGame runs before BeginPlay, so the map / package name is the early signal.
+	// A director already in the level is the same signal when the actor list is up.
+	// Do not move that PlayerStart onto the Lab spawn or the empty-map CSV anchor.
+	const PixelSideRoom::ERoomCombat01Startup Startup = PixelSideRoom::ResolveRoomCombat01Startup(
+		MapSignalsOfficialRoomCombat01(World, MapName),
+		HasPlacedRoomDirector(World),
+		ShouldDriveRoomCombat01());
+	if (Startup == PixelSideRoom::ERoomCombat01Startup::OfficialPlay)
+	{
+		UE_LOG(LogPixelSideCombat, Log, TEXT("Official Room_Combat_01 play (map name or placed RoomDirector). PlayerStart stays. Lab sandbox stays out."));
+		return;
+	}
+
 	// Entry ships a PlayerStart (often the BADsize one). Place the pawn for this run.
 	// The 5-zone lab uses design feet on G_A; otherwise keep the legacy air spawn.
-	// P0.7 Room_Combat_01 uses the CSV PlayerStart and skips the lab.
+	// Empty-map P0.7 uses the CSV PlayerStart and skips the lab.
 	// Room_Shop_01 does the same with its own anchor. Combat wins if both drives are on.
-	const bool bRoom = ShouldDriveRoomCombat01();
+	const bool bRoom = Startup == PixelSideRoom::ERoomCombat01Startup::EmptyMapDrive;
 	const bool bShop = !bRoom && ShouldDriveRoomShop01();
 	const bool bBuildLab = !bRoom && !bShop && bSpawnLabSandbox && !HasDamageDummy();
 	const FVector LabSpawn = bRoom
@@ -147,7 +213,24 @@ void APixelSideGameMode::InitGame(const FString& MapName, const FString& Options
 void APixelSideGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	if (ShouldDriveRoomCombat01())
+	UWorld* World = GetWorld();
+	// BeginPlay sees a director placed in the level even if InitGame only had the map name.
+	// Official play must not SpawnLabSandbox and must not spawn a second director
+	// (a spawned director would build CSV greybox on top of the official geometry).
+	const PixelSideRoom::ERoomCombat01Startup Startup = PixelSideRoom::ResolveRoomCombat01Startup(
+		MapSignalsOfficialRoomCombat01(World, StartupMapName),
+		HasPlacedRoomDirector(World),
+		ShouldDriveRoomCombat01());
+	if (Startup == PixelSideRoom::ERoomCombat01Startup::OfficialPlay)
+	{
+		if (ShouldDriveRoomShop01())
+		{
+			UE_LOG(LogPixelSideCombat, Log, TEXT("Room_Shop_01 drive is ignored while Room_Combat_01 official play is active."));
+		}
+		UE_LOG(LogPixelSideCombat, Log, TEXT("Official Room_Combat_01 play. Lab sandbox stays out. No second director."));
+		return;
+	}
+	if (Startup == PixelSideRoom::ERoomCombat01Startup::EmptyMapDrive)
 	{
 		if (ShouldDriveRoomShop01())
 		{

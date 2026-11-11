@@ -95,16 +95,65 @@ int main(int argc, char** argv)
 	Expect(Near(FacingSignFromName("Right"), 1.f), "face right");
 	Expect(static_cast<int>(EOfferSource::NormalRoom) == 0, "offer source is the normal-room pool");
 
+	Expect(MapNameNamesRoomCombat01("Room_Combat_01"), "short map name");
+	Expect(MapNameNamesRoomCombat01("UEDPIE_0_Room_Combat_01"), "pie world name");
+	Expect(MapNameNamesRoomCombat01("/Game/Maps/Rooms/Room_Combat_01"), "package path");
+	Expect(MapNameNamesRoomCombat01("Room_Combat_01.umap"), "umap filename");
+	Expect(MapNameNamesRoomCombat01("/Game/Maps/Rooms/UEDPIE_1_Room_Combat_01"), "pie package");
+	Expect(MapNameNamesRoomCombat01("Room_Combat_01?listen"), "map plus options");
+	Expect(!MapNameNamesRoomCombat01(""), "empty map name");
+	Expect(!MapNameNamesRoomCombat01("Entry"), "entry is not the official room");
+	Expect(!MapNameNamesRoomCombat01("/Engine/Maps/Entry"), "engine entry");
+	Expect(!MapNameNamesRoomCombat01("Lab_CombatP0"), "lab map stays on the sandbox");
+	Expect(!MapNameNamesRoomCombat01("Room_Combat_02"), "combat 02 is not combat 01");
+	Expect(!MapNameNamesRoomCombat01("UEDPIE_0_Room_Combat_02"), "pie combat 02");
+	Expect(!MapNameNamesRoomCombat01("Room_Shop_01"), "shop map");
+	Expect(!MapNameNamesRoomCombat01("Room_Combat_010"), "longer token is not combat 01");
+
+	Expect(ResolveRoomCombat01Startup(true, false, false) == ERoomCombat01Startup::OfficialPlay, "map name alone is official play");
+	Expect(ResolveRoomCombat01Startup(true, false, true) == ERoomCombat01Startup::OfficialPlay, "official map beats the cvar");
+	Expect(ResolveRoomCombat01Startup(true, true, true) == ERoomCombat01Startup::OfficialPlay, "map and director beat the cvar");
+	Expect(ResolveRoomCombat01Startup(false, true, false) == ERoomCombat01Startup::OfficialPlay, "placed director alone is official play");
+	Expect(ResolveRoomCombat01Startup(false, true, true) == ERoomCombat01Startup::OfficialPlay, "placed director beats the cvar");
+	Expect(ResolveRoomCombat01Startup(false, false, true) == ERoomCombat01Startup::EmptyMapDrive, "cvar remains the empty-map drive");
+	Expect(ResolveRoomCombat01Startup(false, false, false) == ERoomCombat01Startup::Default, "lab and entry stay on the sandbox path");
+
 	const std::string MetaText = ReadFile(Root + "/Content/Data/Rooms/Room_Combat_01_meta.csv");
 	const std::string SpawnText = ReadFile(Root + "/Content/Data/Rooms/Room_Combat_01_spawns.csv");
 	const std::string GeoText = ReadFile(Root + "/Content/Data/Rooms/Room_Combat_01_geometry.csv");
 	const std::string Feel = ReadFile(Root + "/Source/PixelSideRL/Public/Combat/PixelSideCombatMath.h");
 	const std::string Director = ReadFile(Root + "/Source/PixelSideRL/Private/Rooms/PixelRoomDirector.cpp");
 	const std::string AffixCsv = ReadFile(Root + "/Content/Data/Affixes/DT_Affix_P05.csv");
+	const std::string Mode = ReadFile(Root + "/Source/PixelSideRL/Private/Combat/PixelSideGameMode.cpp");
 	if (gFails != 0)
 	{
 		std::printf("%d failed\n", gFails);
 		return 1;
+	}
+
+	const std::size_t InitAt = Mode.find("APixelSideGameMode::InitGame");
+	const std::size_t BeginAt = Mode.find("APixelSideGameMode::BeginPlay");
+	const std::size_t TickAt = Mode.find("APixelSideGameMode::Tick");
+	Expect(InitAt != std::string::npos && BeginAt != std::string::npos && TickAt != std::string::npos && InitAt < BeginAt && BeginAt < TickAt, "gamemode startup functions");
+	if (InitAt != std::string::npos && BeginAt != std::string::npos && TickAt != std::string::npos)
+	{
+		const std::string InitBody = Mode.substr(InitAt, BeginAt - InitAt);
+		const std::string BeginBody = Mode.substr(BeginAt, TickAt - BeginAt);
+		const std::size_t InitOfficial = InitBody.find("ERoomCombat01Startup::OfficialPlay");
+		const std::size_t InitMove = InitBody.find("SetActorLocation");
+		Expect(InitBody.find("MapSignalsOfficialRoomCombat01") != std::string::npos, "initgame reads the map name");
+		Expect(InitBody.find("HasPlacedRoomDirector") != std::string::npos, "initgame sees a placed director");
+		Expect(InitOfficial != std::string::npos && InitMove != std::string::npos && InitOfficial < InitMove, "official play leaves PlayerStart");
+		Expect(InitBody.find("ResolveRoomCombat01PlayerStart") != std::string::npos, "empty-map drive still places the csv start");
+		const std::size_t BeginOfficial = BeginBody.find("ERoomCombat01Startup::OfficialPlay");
+		const std::size_t BeginDrive = BeginBody.find("ERoomCombat01Startup::EmptyMapDrive");
+		const std::size_t BeginSpawnDirector = BeginBody.find("SpawnRoomCombat01()");
+		const std::size_t BeginLab = BeginBody.find("SpawnLabSandbox()");
+		Expect(BeginBody.find("HasPlacedRoomDirector") != std::string::npos, "beginplay sees a placed director");
+		Expect(BeginOfficial != std::string::npos && BeginDrive != std::string::npos && BeginSpawnDirector != std::string::npos && BeginLab != std::string::npos, "beginplay branches");
+		Expect(BeginOfficial < BeginDrive && BeginDrive < BeginSpawnDirector && BeginSpawnDirector < BeginLab, "official play before empty-map drive before lab");
+		Expect(Contains(BeginBody, "Room_Shop_01 drive is ignored while Room_Combat_01"), "combat still wins over shop");
+		Expect(Contains(Mode, "ShouldDriveRoomCombat01()"), "empty-map cvar path remains");
 	}
 
 	Expect(Contains(Feel, "JumpZVelocity = 400.f"), "jump untouched");
