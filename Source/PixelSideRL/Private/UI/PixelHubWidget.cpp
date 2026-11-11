@@ -648,7 +648,7 @@ bool UPixelHubWidget::FinishStart(float DeltaSeconds)
 		State = IsLiveEmpty(UMetaProgressSubsystem::Get(this)) ? EPixelHubState::NoSave : EPixelHubState::Idle;
 	}
 	RefreshChrome();
-	UE_LOG(LogPixelHubUI, Log, TEXT("Hub OnStartRun. BeginRunFromMeta was not called."));
+	UE_LOG(LogPixelHubUI, Log, TEXT("Hub OnStartRun broadcast. This widget does not call BeginRunFromMeta or travel."));
 	OnStartRun.Broadcast();
 	return false;
 }

@@ -257,7 +257,7 @@ Core = min(Core, SoftCapPerRun)
 - [ ] **P0.5 Grunt：** 至少 1 只 Grunt 可追击/射击、可被击杀；死亡有反馈；数据在 `DA_Enemy_Grunt`
 - [x] **P0.6 三选一最小闭环：** 单次三选一全链路可跑通；选中 RapidFire 后射速明显加快；Unique 不会二次出现（可用 Debug 连抽验证）· 策划签收 2026-11-05（PR #29；Mac Play 明早补）
 - [ ] **P0.7 第一战斗房：** 一间普通房清房 → 必出三选一 → 开门；无回退。步骤：进房 → 两波 → 三选一 → 右门开。
-- [ ] **P0.8 Hub/Run_Test 开局：** Hub 一键开局进入可玩图；失败或主动退出能回 Hub（结算 UI 可极简）
+- [ ] **P0.8 Hub/Run_Test 开局：** Hub 一键开局进入可玩图；失败或主动退出能回 Hub（结算 UI 可极简）。代码走 `Room_Combat_01`（不建 `Run_Test`，不做 2 层）。步骤见 `Docs/UI_Wireframes_Hub.md` §5。`GameDefaultMap` 仍是 `/Engine/Maps/Entry`。
 
 ---
 
@@ -298,3 +298,4 @@ Core = min(Core, SoftCapPerRun)
 | 2026-11-05 | 词条官 | 事件 Op 运行时：`ResolveEventChoice` 按序执行四 Op；局内字段 `RunScrap`；DamageSelf 下限 1，不改 Core / 手感 |
 | 2026-11-05 | 界面 | 事件壳确认选项调用一次 `ResolveEventChoice`。Skip / Esc 不调用。不 `SetGamePaused`。F6–F11 不动 |
 | 2026-11-05 | 界面 | 商店两路钱包。F11 / `OpenShopDemo` 仍是 DemoScrap 128→98。`OpenShop` 读 `GetRunScrap`，买/刷成功 `AddRunScrap`。不改 F6–F11，不改 `AC_ShopPresenter` 开/关 |
+| 2026-11-11 | 流程 | P0.8：Hub「开始」调用一次 `BeginRunFromMeta` 后进入 `Room_Combat_01`。死亡或 `PixelSide.Run.End` 出 `WBP_RunSummary`（Core 占位 0），确认回 Hub 并 `OpenHub`。不改手感、波次、战斗 umap、自动曝光。`GameDefaultMap` 仍是 Entry。验法见 `Docs/UI_Wireframes_Hub.md` §5 |

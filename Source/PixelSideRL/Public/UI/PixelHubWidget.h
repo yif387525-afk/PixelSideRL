@@ -45,6 +45,8 @@ enum class EPixelHubState : uint8
  *
  * No lab key. F6–F11 stay as they are. Non-shipping console: PixelSide.Hub.Demo and PixelSide.Hub.Open.
  * OnStartRun does not call BeginRunFromMeta. OnBackToMenu does not travel.
+ * On the Hub map, UPixelHubRunFlowSubsystem listens for OnStartRun, calls BeginRunFromMeta
+ * once, then travels to Room_Combat_01. This widget still does not travel.
  */
 UCLASS(Blueprintable, meta = (DisplayName = "WBP_Hub"))
 class PIXELSIDERL_API UPixelHubWidget : public UUserWidget

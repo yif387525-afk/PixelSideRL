@@ -10,6 +10,7 @@
 #include "Combat/PixelSideLabSandboxLayout.h"
 #include "Combat/PixelSideMeshUtil.h"
 #include "Combat/PixelSidePalette.h"
+#include "Flow/PixelHubRunFlowSubsystem.h"
 #include "Rooms/PixelRoomDirector.h"
 #include "Rooms/PixelShopRoomHost.h"
 #include "Rooms/PixelSideRoomFlow.h"
@@ -139,6 +140,27 @@ bool HasPlacedRoomDirector(UWorld* World)
 	UGameplayStatics::GetAllActorsOfClass(World, APixelRoomDirector::StaticClass(), Found);
 	return Found.Num() > 0;
 }
+
+void EnsureHubPlayerStart(UWorld* World)
+{
+	if (!World)
+	{
+		return;
+	}
+	TArray<AActor*> Starts;
+	UGameplayStatics::GetAllActorsOfClass(World, APlayerStart::StaticClass(), Starts);
+	if (Starts.Num() > 0)
+	{
+		return;
+	}
+	const FVector HubSpawn(
+		0.f,
+		0.f,
+		PixelSideCombat::CapsuleHalfHeight + static_cast<float>(PixelSideLabLayout::SpawnClearance));
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	World->SpawnActor<APlayerStart>(APlayerStart::StaticClass(), HubSpawn, FRotator::ZeroRotator, Params);
+}
 }
 
 APixelSideGameMode::APixelSideGameMode()
@@ -159,6 +181,15 @@ void APixelSideGameMode::InitGame(const FString& MapName, const FString& Options
 	UWorld* World = GetWorld();
 	if (!World)
 	{
+		return;
+	}
+
+	// Hub is not a combat room. Leave its PlayerStart. Do not move it onto the Lab spawn.
+	// Official Room_Combat_01 still wins below when the map actually names that room.
+	if (UPixelHubRunFlowSubsystem::IsHubMap(this, MapName))
+	{
+		UE_LOG(LogPixelSideCombat, Log, TEXT("Hub map. PlayerStart stays. Lab sandbox stays out. No director."));
+		EnsureHubPlayerStart(World);
 		return;
 	}
 
@@ -217,6 +248,21 @@ void APixelSideGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	UWorld* World = GetWorld();
+	// Hub before the combat startup so this map does not lay out the Lab or spawn a director.
+	// It does not call EnsureSideSun. Official Room_Combat_01 below still does.
+	if (UPixelHubRunFlowSubsystem::IsHubMap(this, StartupMapName))
+	{
+		UE_LOG(LogPixelSideCombat, Log, TEXT("Hub map. OpenHub. Lab sandbox stays out. No director."));
+		if (UPixelHubRunFlowSubsystem* HubFlow = UPixelHubRunFlowSubsystem::Get(this))
+		{
+			HubFlow->HandleHubMapBegan();
+		}
+		else
+		{
+			UE_LOG(LogPixelSideCombat, Warning, TEXT("Hub map has no UPixelHubRunFlowSubsystem. OpenHub was not called."));
+		}
+		return;
+	}
 	// BeginPlay sees a director placed in the level even if InitGame only had the map name.
 	// Official play must not SpawnLabSandbox and must not spawn a second director
 	// (a spawned director would build CSV greybox on top of the official geometry).
@@ -233,6 +279,17 @@ void APixelSideGameMode::BeginPlay()
 		UE_LOG(LogPixelSideCombat, Log, TEXT("Official Room_Combat_01 play. Lab sandbox stays out. No second director."));
 		// BeginPlay sees a director already placed on the official room. Do not skip the sun.
 		EnsureSideSun(World, TEXT("PixelSideRoom"));
+		if (MapSignalsOfficialRoomCombat01(World, StartupMapName))
+		{
+			if (UPixelHubRunFlowSubsystem* CombatFlow = UPixelHubRunFlowSubsystem::Get(this))
+			{
+				CombatFlow->HandleCombatMapBegan();
+			}
+			else
+			{
+				UE_LOG(LogPixelSideCombat, Warning, TEXT("Room_Combat_01 has no UPixelHubRunFlowSubsystem. Run summary will not open."));
+			}
+		}
 		return;
 	}
 	if (Startup == PixelSideRoom::ERoomCombat01Startup::EmptyMapDrive)

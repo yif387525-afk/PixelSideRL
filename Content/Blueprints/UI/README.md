@@ -226,7 +226,7 @@ PixelSide.RunSummary.Demo Fail
 | `Txt_Title` | Text Block | `据点` |
 | `Txt_Core` | Text Block，`#7EC8FF` | `Core N` |
 | `Txt_Mark` | Text Block，可选 | `PixelSideRL` |
-| `Btn_StartRun` | Button | `开始新一局` → `OnStartRun`。短锁后只广播一次，不调用 `BeginRunFromMeta` |
+| `Btn_StartRun` | Button | `开始新一局` → `OnStartRun`。短锁后只广播一次，不调用 `BeginRunFromMeta`。Hub 地图上 `UPixelHubRunFlowSubsystem` 接着调用一次并旅行到 `Room_Combat_01` |
 | `Btn_Upgrades` | Button | `永久成长` → `OnOpenUpgrades`，打开升级叠层 |
 | `Btn_LastSummary` | Button，默认折叠 | `上次结算`。`SetLastRunSummary` 之后才显示。点开只 `Present` 已有的 `WBP_RunSummary`，不写 Core |
 | `Btn_MainMenu` | Button | `返回标题` → `OnBackToMenu`。不切关卡 |
@@ -262,6 +262,19 @@ PixelSide.Hub.Open
 ```
 
 `OpenForPlayer(PC, bDemo, nullptr)` 同样能打开。`bDemo` 为 true 走 Demo。
+
+### P0.8 一键开局
+
+壳本身仍然不旅行、不调用 `BeginRunFromMeta`。`GameDefaultMap` 仍是 `/Engine/Maps/Entry`，所以编辑器 Play 用你当前打开的关卡。
+
+| 怎么开 | 结果 |
+|--------|------|
+| 打开 `Content/Maps/Hub` 再 Play | 自动 `OpenHub`。还没有这张图时，编译后在编辑器执行 `py Tools/BakeHub.py`（只有 PlayerStart）。点「开始新一局」后日志有 `BeginRunFromMeta StartingScrap=`，进入 `Room_Combat_01`，据点 UI 关掉 |
+| 打开 `Content/Maps/Rooms/Room_Combat_01` 再 Play | 不打开 Hub。波次和 `EnsureSideSun` 与以前相同。HP ≤ 0 或控制台 `PixelSide.Run.End` 才出 `WBP_RunSummary`（Core +0，不写存档） |
+| 确认结算 | 回到 Hub 并再次 `OpenHub`。Enter / Space / Esc 都是确认 |
+| 打开 `/Engine/Maps/Entry` 再 Play | 仍是 Lab。不会自动打开 Hub |
+
+细节见 `Docs/UI_Wireframes_Hub.md` §5。不改 F6–F11，不做 2 层，不改战斗 umap。
 
 可选子蓝图：父类选显示名 `WBP_Hub`、`WBP_Hub_Upgrade` 或 `WBP_Hub_NodeRow`。控件名逐字一致并勾 Is Variable。图表留空。不要 `AddCore`、`Save`、`BeginRunFromMeta`。不要提交 uasset。
 

@@ -14,6 +14,9 @@ class UWorld;
  * has APixelRoomDirector) skips the sandbox, leaves the in-map PlayerStart, and does
  * not spawn a second director. It still runs EnsureSideSun so Lit Play matches Lab.
  * The placed director runs the P0.7 loop.
+ * The Hub map (/Game/Maps/Hub) skips the sandbox and the director, leaves an existing
+ * PlayerStart, and does not call EnsureSideSun. UPixelHubRunFlowSubsystem opens WBP_Hub
+ * there. Direct Play of Room_Combat_01 still takes the official path, including the sun.
  * bDriveRoomCombat01 (or the PixelSide.DriveRoomCombat01 cvar) is the empty-map
  * fallback: it skips the sandbox and spawns a director that builds greybox from CSV.
  * bDriveRoomShop01 (or PixelSide.DriveRoomShop01) skips the sandbox and opens
