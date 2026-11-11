@@ -152,16 +152,12 @@ def apply_mesh_and_collision(actor, mesh, color, pass_through_pawn: bool) -> Non
     smc.set_cast_shadow(False)
     qap = unreal.CollisionEnabled.QUERY_AND_PHYSICS
     if pass_through_pawn:
-        # PixelSideMesh::PassThroughPawn — cover / atmosphere column
+        # Named project profile PassThroughPawn (Config/DefaultEngine.ini).
+        # WorldStatic, QueryAndPhysics; Pawn/Camera Ignore; Visibility/WorldDynamic Block.
+        # Set the profile name; do not leave Engine Cube/BlockAll and only tweak channels,
+        # or the umap serializes without PassThroughPawn and pawns cannot pass.
         smc.set_collision_enabled(qap)
-        smc.set_collision_object_type(unreal.CollisionChannel.ECC_WORLD_STATIC)
-        smc.set_collision_response_to_all_channels(unreal.CollisionResponseType.ECR_BLOCK)
-        smc.set_collision_response_to_channel(
-            unreal.CollisionChannel.ECC_CAMERA, unreal.CollisionResponseType.ECR_IGNORE
-        )
-        smc.set_collision_response_to_channel(
-            unreal.CollisionChannel.ECC_PAWN, unreal.CollisionResponseType.ECR_IGNORE
-        )
+        smc.set_collision_profile_name("PassThroughPawn")
     else:
         smc.set_collision_enabled(qap)
         smc.set_collision_profile_name("BlockAll")
