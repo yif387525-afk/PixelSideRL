@@ -282,7 +282,7 @@ void UPixelHubRunFlowSubsystem::TryOpenHub()
 			return;
 		}
 	}
-	if (HubWidget.IsValid() && HubWidget->IsHubOpen() && HubWidget->GetWorld() == World)
+	if (IsValid(HubWidget) && HubWidget->IsHubOpen() && HubWidget->GetWorld() == World)
 	{
 		return;
 	}
