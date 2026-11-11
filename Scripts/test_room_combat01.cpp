@@ -117,6 +117,8 @@ int main(int argc, char** argv)
 	Expect(ResolveRoomCombat01Startup(false, true, true) == ERoomCombat01Startup::OfficialPlay, "placed director beats the cvar");
 	Expect(ResolveRoomCombat01Startup(false, false, true) == ERoomCombat01Startup::EmptyMapDrive, "cvar remains the empty-map drive");
 	Expect(ResolveRoomCombat01Startup(false, false, false) == ERoomCombat01Startup::Default, "lab and entry stay on the sandbox path");
+	Expect(Near(SideSunIntensityLux, 10.f), "side sun is lab 10 lux");
+	Expect(Near(SideSunPitchDeg, -40.f) && Near(SideSunYawDeg, -90.f) && Near(SideSunRollDeg, 0.f), "side sun rotation is -40,-90,0");
 
 	const std::string MetaText = ReadFile(Root + "/Content/Data/Rooms/Room_Combat_01_meta.csv");
 	const std::string SpawnText = ReadFile(Root + "/Content/Data/Rooms/Room_Combat_01_spawns.csv");
@@ -125,6 +127,7 @@ int main(int argc, char** argv)
 	const std::string Director = ReadFile(Root + "/Source/PixelSideRL/Private/Rooms/PixelRoomDirector.cpp");
 	const std::string AffixCsv = ReadFile(Root + "/Content/Data/Affixes/DT_Affix_P05.csv");
 	const std::string Mode = ReadFile(Root + "/Source/PixelSideRL/Private/Combat/PixelSideGameMode.cpp");
+	const std::string EngineIni = ReadFile(Root + "/Config/DefaultEngine.ini");
 	if (gFails != 0)
 	{
 		std::printf("%d failed\n", gFails);
@@ -145,6 +148,13 @@ int main(int argc, char** argv)
 		Expect(InitBody.find("HasPlacedRoomDirector") != std::string::npos, "initgame sees a placed director");
 		Expect(InitOfficial != std::string::npos && InitMove != std::string::npos && InitOfficial < InitMove, "official play leaves PlayerStart");
 		Expect(InitBody.find("ResolveRoomCombat01PlayerStart") != std::string::npos, "empty-map drive still places the csv start");
+		if (InitOfficial != std::string::npos)
+		{
+			const std::size_t InitSun = InitBody.find("EnsureSideSun", InitOfficial);
+			const std::size_t InitOfficialReturn = InitBody.find("return;", InitOfficial);
+			Expect(InitSun != std::string::npos && InitOfficialReturn != std::string::npos && InitSun < InitOfficialReturn, "initgame official play ensures the side sun");
+			Expect(InitBody.substr(InitOfficial, InitOfficialReturn - InitOfficial).find("PixelSideRoom") != std::string::npos, "initgame room sun tag");
+		}
 		const std::size_t BeginOfficial = BeginBody.find("ERoomCombat01Startup::OfficialPlay");
 		const std::size_t BeginDrive = BeginBody.find("ERoomCombat01Startup::EmptyMapDrive");
 		const std::size_t BeginSpawnDirector = BeginBody.find("SpawnRoomCombat01()");
@@ -154,7 +164,47 @@ int main(int argc, char** argv)
 		Expect(BeginOfficial < BeginDrive && BeginDrive < BeginSpawnDirector && BeginSpawnDirector < BeginLab, "official play before empty-map drive before lab");
 		Expect(Contains(BeginBody, "Room_Shop_01 drive is ignored while Room_Combat_01"), "combat still wins over shop");
 		Expect(Contains(Mode, "ShouldDriveRoomCombat01()"), "empty-map cvar path remains");
+		if (BeginOfficial != std::string::npos)
+		{
+			const std::size_t BeginSun = BeginBody.find("EnsureSideSun", BeginOfficial);
+			const std::size_t BeginOfficialReturn = BeginBody.find("return;", BeginOfficial);
+			Expect(BeginSun != std::string::npos && BeginOfficialReturn != std::string::npos && BeginSun < BeginOfficialReturn, "beginplay official play ensures the side sun");
+			Expect(BeginBody.substr(BeginOfficial, BeginOfficialReturn - BeginOfficial).find("PixelSideRoom") != std::string::npos, "beginplay room sun tag");
+		}
 	}
+
+	const std::size_t SunAt = Mode.find("APixelSideGameMode::EnsureSideSun");
+	const std::size_t SunEnd = Mode.find("APixelSideGameMode::SpawnLabSandbox");
+	const std::size_t LabEnd = Mode.find("APixelSideGameMode::RecoverLabPitFall");
+	Expect(SunAt != std::string::npos && SunEnd != std::string::npos && LabEnd != std::string::npos && SunAt < SunEnd && SunEnd < LabEnd, "side sun helper sits with lab");
+	if (SunAt != std::string::npos && SunEnd != std::string::npos && LabEnd != std::string::npos)
+	{
+		const std::string SunBody = Mode.substr(SunAt, SunEnd - SunAt);
+		const std::string LabBody = Mode.substr(SunEnd, LabEnd - SunEnd);
+		Expect(Contains(SunBody, "SideSunIntensityLux"), "intensity is the shared lab value");
+		Expect(Contains(SunBody, "SideSunPitchDeg"), "pitch is the shared lab value");
+		Expect(Contains(SunBody, "SideSunYawDeg"), "yaw is the shared lab value");
+		Expect(Contains(SunBody, "SideSunRollDeg"), "roll is the shared lab value");
+		Expect(Contains(SunBody, "EComponentMobility::Movable"), "side sun is movable");
+		Expect(Contains(SunBody, "SetAtmosphereSunLight(false)"), "side sun is not an atmosphere sun");
+		Expect(Contains(SunBody, "SetActorRotation"), "actor rotation is forced");
+		Expect(Contains(SunBody, "SetWorldRotation"), "light component rotation is forced");
+		const std::size_t Mobility = SunBody.find("SetMobility");
+		const std::size_t ActorRot = SunBody.find("SetActorRotation");
+		Expect(Mobility != std::string::npos && ActorRot != std::string::npos && Mobility < ActorRot, "mobility is set before rotation");
+		const std::size_t None = SunBody.find("Lights.Num() == 0");
+		const std::size_t Spawn = SunBody.find("SpawnActor<ADirectionalLight>");
+		const std::size_t Retarget = SunBody.find("for (AActor* Actor : Lights)");
+		Expect(None != std::string::npos && Spawn != std::string::npos && Retarget != std::string::npos && None < Spawn && Spawn < Retarget, "spawn when absent, retarget when present");
+		Expect(Contains(LabBody, "EnsureSideSun(World, TEXT(\"PixelSideLab\"))"), "lab uses the shared side sun");
+		Expect(LabBody.find("SpawnActor<ADirectionalLight>") == std::string::npos, "lab does not fork a sun spawn");
+	}
+	Expect(Contains(Director, "APixelSideGameMode::EnsureSideSun"), "empty-map greybox uses the shared side sun");
+	Expect(Director.find("SetAtmosphereSunLight") == std::string::npos, "director does not fork atmosphere sun");
+	Expect(Director.find("FRotator(-40") == std::string::npos, "director does not fork sun rotation");
+	Expect(Contains(EngineIni, "r.DefaultFeature.AutoExposure=0"), "auto exposure cvar stays off");
+	Expect(Contains(EngineIni, "r.DefaultFeature.AutoExposure=False"), "renderer auto exposure stays off");
+	Expect(!Contains(Mode, "r.DefaultFeature.AutoExposure"), "game mode does not toggle auto exposure");
 
 	Expect(Contains(Feel, "JumpZVelocity = 400.f"), "jump untouched");
 	Expect(Contains(Feel, "GravityScale = 2.55f"), "gravity untouched");
