@@ -71,6 +71,7 @@ Content/Data/Rooms/           # DA_Room_*、波次 / 标签表
 - 出生点：默认入口内侧 **1 屏内安全区**，无即时伤害体积。  
 - 掩体/高低差至少提供 **一条近战压迫线 + 一条风筝线**（Combat/Elite）。
 - 掩体 Peek（横版）：**穿过掩体后站对侧（沿 X）**；禁止依赖跳上掩体顶或绕 Y 侧面。级差必过台 ≤ 现行净跳窗（约 28，净跳 ~32）。
+- 短掩体 `CV_*`（含 Shop `CV_counter`）碰撞必须挂项目配置 **`PassThroughPawn`**（`Config/DefaultEngine.ini`）：WorldStatic、QueryAndPhysics；**Pawn / Camera Ignore**；Visibility / WorldDynamic **Block**。禁止保留 Engine Cube 默认 `BlockAll`。只改碰撞，不改几何。
 
 ---
 
@@ -291,3 +292,4 @@ P0 手感关 `Lab_CombatP0` 布局见 `Docs/Lab_CombatP0_Layout.md`（**已拍�
 | 2026-11-05 | Event_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；无宿主类；门常开；待 COMMENT 开 PR） |
 | 2026-11-05 | BossAnte_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；无宿主类；Exit.BossGate；待 COMMENT 开 PR） |
 | 2026-11-05 | Boss_01 正式 umap 已烘焙入库（Editor Python；LFS；灰盒关；RoomId=Room_Boss_01；双阶段；Exit.Settle；待 COMMENT 开 PR） |
+| 2026-11-11 | 全部正式房 `CV_*` 碰撞改为项目配置 `PassThroughPawn`（Pawn 可穿、仍挡弹）；不改几何 |
